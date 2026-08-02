@@ -1,0 +1,551 @@
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { ConfirmationDialog } from '@/components/system';
+import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
+import { routes } from '@/constants/routes';
+import { colors } from '@/theme/colors';
+import { radii } from '@/theme/radii';
+import { spacing } from '@/theme/spacing';
+
+import {
+  getActiveDeviceSessions,
+  getPlatformIcon,
+  getSignedOutDeviceSessions,
+  signOutDevice,
+  useDeviceSessions,
+  type DeviceSession,
+  type DeviceSessionId,
+} from './device-sessions-data';
+
+export function ActiveSessionsScreen() {
+  const insets = useSafeAreaInsets();
+  const sessions = useDeviceSessions();
+  const [selectedSessionId, setSelectedSessionId] = useState<DeviceSessionId | null>(null);
+  const [pendingSignOutId, setPendingSignOutId] = useState<DeviceSessionId | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  const activeSessions = useMemo(() => getActiveDeviceSessions(sessions), [sessions]);
+  const signedOutSessions = useMemo(() => getSignedOutDeviceSessions(sessions), [sessions]);
+  const currentDevice = sessions.find((session) => session.isCurrentDevice);
+  const selectedSession = sessions.find((session) => session.id === selectedSessionId) ?? null;
+
+  function goBackToSecurity() {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace(routes.security);
+  }
+
+  function openSessionDetails(session: DeviceSession) {
+    Haptics.selectionAsync().catch(() => null);
+    setSelectedSessionId((current) => (current === session.id ? null : session.id));
+    setFeedback(null);
+  }
+
+  function requestSignOut(sessionId: DeviceSessionId) {
+    Haptics.selectionAsync().catch(() => null);
+    setPendingSignOutId(sessionId);
+    setFeedback(null);
+  }
+
+  function confirmSignOutDevice() {
+    if (!pendingSignOutId) {
+      return;
+    }
+
+    signOutDevice(pendingSignOutId);
+    setPendingSignOutId(null);
+    setFeedback('تم تسجيل الخروج من هذا الجهاز في النموذج التجريبي.');
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => null);
+  }
+
+  return (
+    <View style={styles.root}>
+      <LinearGradient
+        colors={[colors.background.heroStart, colors.background.base, colors.background.base]}
+        end={{ x: 0.72, y: 1 }}
+        locations={[0, 0.5, 1]}
+        start={{ x: 0.28, y: 0 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
+            paddingTop: Math.max(insets.top, spacing.safeTop),
+          },
+        ]}
+        contentInsetAdjustmentBehavior="automatic"
+        showsVerticalScrollIndicator={false}
+      >
+        <DeviceManagementHeader onBackPress={goBackToSecurity} />
+        <PrototypeNotice />
+        <DeviceSummaryCard activeCount={activeSessions.length} currentDevice={currentDevice} />
+
+        {feedback ? <FeedbackCard message={feedback} /> : null}
+
+        <View style={styles.section}>
+          <AppText variant="sectionTitle">الأجهزة النشطة</AppText>
+          {activeSessions.map((session) => (
+            <DeviceSessionCard
+              key={session.id}
+              onPress={() => openSessionDetails(session)}
+              selected={selectedSessionId === session.id}
+              session={session}
+            />
+          ))}
+        </View>
+
+        {selectedSession ? <DeviceDetailsCard onRequestSignOut={requestSignOut} session={selectedSession} /> : null}
+
+        {signedOutSessions.length > 0 ? (
+          <View style={styles.section}>
+            <AppText variant="sectionTitle">الجلسات المنتهية</AppText>
+            {signedOutSessions.map((session) => (
+              <DeviceSessionCard
+                key={session.id}
+                onPress={() => openSessionDetails(session)}
+                selected={selectedSessionId === session.id}
+                session={session}
+              />
+            ))}
+          </View>
+        ) : null}
+
+        <SignOutOthersCard onPress={() => router.push(routes.signOutAllDevices)} />
+      </ScrollView>
+
+      <ConfirmationDialog
+        cancelLabel="إلغاء"
+        confirmLabel="تسجيل الخروج"
+        description="سيتم إنهاء الجلسة المحلية التجريبية لهذا الجهاز."
+        onCancel={() => setPendingSignOutId(null)}
+        onConfirm={confirmSignOutDevice}
+        title="تسجيل الخروج من هذا الجهاز؟"
+        tone="danger"
+        visible={Boolean(pendingSignOutId)}
+      />
+    </View>
+  );
+}
+
+function DeviceManagementHeader({ onBackPress }: { onBackPress: () => void }) {
+  return (
+    <View style={styles.header}>
+      <Pressable
+        accessibilityLabel="العودة إلى الأمان"
+        accessibilityRole="button"
+        hitSlop={8}
+        onPress={onBackPress}
+        style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
+      >
+        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+      </Pressable>
+      <View style={styles.headerCopy}>
+        <AppText align="center" numberOfLines={1} variant="screenTitle">
+          إدارة الأجهزة
+        </AppText>
+        <AppText align="center" tone="secondary" variant="caption">
+          راجع الأجهزة والجلسات التي استخدمت حساب Capital.
+        </AppText>
+      </View>
+      <View style={styles.headerSlot} />
+    </View>
+  );
+}
+
+function PrototypeNotice() {
+  return (
+    <SolidCard style={styles.prototypeNotice}>
+      <Ionicons color={colors.brand.calmGreen} name="information-circle-outline" size={18} />
+      <AppText style={styles.noticeText} tone="secondary" variant="supporting">
+        قائمة الأجهزة تجريبية ومحلية، ولا تمثل جلسات حقيقية على خادم.
+      </AppText>
+    </SolidCard>
+  );
+}
+
+function DeviceSummaryCard({
+  activeCount,
+  currentDevice,
+}: {
+  activeCount: number;
+  currentDevice?: DeviceSession;
+}) {
+  return (
+    <SolidCard style={styles.summaryCard}>
+      <View style={styles.summaryIcon}>
+        <Ionicons color={colors.brand.calmGreen} name="phone-portrait-outline" size={22} />
+      </View>
+      <View style={styles.summaryCopy}>
+        <AppText variant="cardTitle">{activeCount} أجهزة نشطة</AppText>
+        <SummaryLine label="هذا الجهاز" value={currentDevice?.deviceName ?? 'غير محدد'} ltr />
+        <SummaryLine label="آخر نشاط" value={currentDevice?.lastActiveAt ?? 'غير متاح'} />
+      </View>
+    </SolidCard>
+  );
+}
+
+function SummaryLine({ label, value, ltr = false }: { label: string; value: string; ltr?: boolean }) {
+  return (
+    <View style={styles.summaryLine}>
+      <AppText tone="secondary" variant="caption">
+        {label}
+      </AppText>
+      <AppText align={ltr ? 'left' : 'right'} style={[styles.summaryValue, ltr && styles.ltrText]} variant="caption">
+        {value}
+      </AppText>
+    </View>
+  );
+}
+
+function DeviceSessionCard({
+  session,
+  selected,
+  onPress,
+}: {
+  session: DeviceSession;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  const signedOut = session.status === 'signedOut';
+
+  return (
+    <Pressable
+      accessibilityLabel={`${session.deviceName}. ${session.platform}. ${session.browserOrApp}. ${session.location}. ${session.lastActiveAt}. ${
+        session.isCurrentDevice ? 'هذا الجهاز.' : ''
+      } ${signedOut ? 'تم تسجيل الخروج.' : 'نشط.'}`}
+      accessibilityRole="button"
+      accessibilityState={{ expanded: selected }}
+      onPress={onPress}
+      style={({ pressed }) => [styles.deviceCard, signedOut && styles.signedOutCard, selected && styles.selectedCard, pressed && styles.pressed]}
+    >
+      <View style={styles.deviceIcon}>
+        <Ionicons color={signedOut ? colors.text.tertiary : colors.brand.calmGreen} name={getPlatformIcon(session.platform)} size={21} />
+      </View>
+      <View style={styles.deviceCopy}>
+        <View style={styles.titleLine}>
+          <AppText align="left" numberOfLines={1} style={[styles.flexTitle, styles.ltrText]} variant="cardTitle">
+            {session.deviceName}
+          </AppText>
+          {session.isCurrentDevice ? <StatusBadge label="هذا الجهاز" tone="success" /> : null}
+          <StatusBadge label={signedOut ? 'تم تسجيل الخروج' : 'نشط'} tone={signedOut ? 'neutral' : 'success'} />
+        </View>
+        <AppText tone="secondary" variant="caption">
+          {session.platform} · {session.browserOrApp}
+        </AppText>
+        <AppText tone="tertiary" variant="caption">
+          {session.location} · {session.lastActiveAt}
+        </AppText>
+      </View>
+      <Ionicons color={colors.text.tertiary} name={selected ? 'chevron-up-outline' : 'chevron-back-outline'} size={16} />
+    </Pressable>
+  );
+}
+
+function DeviceDetailsCard({
+  session,
+  onRequestSignOut,
+}: {
+  session: DeviceSession;
+  onRequestSignOut: (sessionId: DeviceSessionId) => void;
+}) {
+  const signedOut = session.status === 'signedOut';
+
+  return (
+    <View style={styles.section}>
+      <AppText variant="sectionTitle">تفاصيل الجهاز</AppText>
+      <SolidCard style={styles.detailsCard}>
+        <InfoRow label="اسم الجهاز" ltr value={session.deviceName} />
+        <Divider />
+        <InfoRow label="المنصة" ltr value={session.platform} />
+        <Divider />
+        <InfoRow label="التطبيق أو المتصفح" value={session.browserOrApp} />
+        <Divider />
+        <InfoRow label="الموقع التقريبي" value={session.location} />
+        <Divider />
+        <InfoRow label="آخر نشاط" value={session.lastActiveAt} />
+        <Divider />
+        <InfoRow label="حالة الجلسة" value={signedOut ? 'تم تسجيل الخروج' : 'نشط'} />
+
+        {session.isCurrentDevice ? (
+          <SolidCard style={styles.currentDeviceNotice}>
+            <Ionicons color={colors.brand.calmGreen} name="information-circle-outline" size={18} />
+            <AppText style={styles.noticeText} tone="secondary" variant="supporting">
+              هذا هو الجهاز المستخدم حاليًا.
+            </AppText>
+          </SolidCard>
+        ) : signedOut ? null : (
+          <AppButton onPress={() => onRequestSignOut(session.id)} style={styles.signOutButton} variant="danger">
+            تسجيل الخروج من هذا الجهاز
+          </AppButton>
+        )}
+      </SolidCard>
+    </View>
+  );
+}
+
+function InfoRow({ label, value, ltr = false }: { label: string; value: string; ltr?: boolean }) {
+  return (
+    <View style={styles.infoRow}>
+      <AppText tone="secondary" variant="caption">
+        {label}
+      </AppText>
+      <AppText align={ltr ? 'left' : 'right'} style={[styles.infoValue, ltr && styles.ltrText]} variant="supporting">
+        {value}
+      </AppText>
+    </View>
+  );
+}
+
+function SignOutOthersCard({ onPress }: { onPress: () => void }) {
+  return (
+    <SolidCard style={styles.signOutOthersCard}>
+      <View style={styles.warningIcon}>
+        <Ionicons color={colors.semantic.warning} name="log-out-outline" size={20} />
+      </View>
+      <View style={styles.deviceCopy}>
+        <AppText tone="warning" variant="cardTitle">
+          تسجيل الخروج من جميع الأجهزة
+        </AppText>
+        <AppText style={styles.description} tone="secondary" variant="supporting">
+          أنهِ جميع الجلسات الأخرى مع إبقاء هذا الجهاز متصلًا.
+        </AppText>
+        <AppButton onPress={onPress} style={styles.signOutButton} variant="secondary">
+          فتح التأكيد
+        </AppButton>
+      </View>
+    </SolidCard>
+  );
+}
+
+function FeedbackCard({ message }: { message: string }) {
+  return (
+    <SolidCard accessibilityLiveRegion="polite" style={styles.feedbackCard}>
+      <Ionicons color={colors.semantic.success} name="checkmark-circle-outline" size={18} />
+      <AppText style={styles.noticeText} tone="success" variant="supporting">
+        {message}
+      </AppText>
+    </SolidCard>
+  );
+}
+
+function StatusBadge({ label, tone }: { label: string; tone: 'success' | 'neutral' }) {
+  return (
+    <View style={[styles.statusBadge, tone === 'success' ? styles.successBadge : styles.neutralBadge]}>
+      <AppText align="center" tone={tone === 'success' ? 'success' : 'secondary'} variant="caption">
+        {label}
+      </AppText>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: {
+    backgroundColor: colors.background.base,
+    flex: 1,
+  },
+  content: {
+    gap: spacing.lg,
+    paddingHorizontal: 16,
+  },
+  header: {
+    alignItems: 'center',
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
+    justifyContent: 'space-between',
+    minHeight: 54,
+  },
+  backButton: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.055)',
+    borderColor: colors.surface.border,
+    borderRadius: radii.control,
+    borderWidth: 1,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
+  headerCopy: {
+    flex: 1,
+    gap: spacing.xs,
+    minWidth: 0,
+  },
+  headerSlot: {
+    height: 40,
+    width: 40,
+  },
+  prototypeNotice: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(11,46,38,0.58)',
+    borderColor: 'rgba(167,200,161,0.22)',
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  noticeText: {
+    flex: 1,
+    lineHeight: 22,
+  },
+  summaryCard: {
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(11,46,38,0.70)',
+    borderColor: 'rgba(167,200,161,0.24)',
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
+  },
+  summaryIcon: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(79,138,91,0.16)',
+    borderColor: 'rgba(167,200,161,0.30)',
+    borderRadius: radii.control,
+    borderWidth: 1,
+    height: 42,
+    justifyContent: 'center',
+    width: 42,
+  },
+  summaryCopy: {
+    flex: 1,
+    gap: spacing.sm,
+    minWidth: 0,
+  },
+  summaryLine: {
+    alignItems: 'center',
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
+    justifyContent: 'space-between',
+  },
+  summaryValue: {
+    flex: 1,
+  },
+  section: {
+    gap: spacing.md,
+  },
+  deviceCard: {
+    alignItems: 'center',
+    backgroundColor: colors.surface.card,
+    borderColor: colors.surface.border,
+    borderRadius: radii.card,
+    borderWidth: 1,
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
+    padding: spacing.lg,
+  },
+  selectedCard: {
+    borderColor: 'rgba(167,200,161,0.36)',
+  },
+  signedOutCard: {
+    opacity: 0.78,
+  },
+  deviceIcon: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(79,138,91,0.12)',
+    borderColor: 'rgba(167,200,161,0.24)',
+    borderRadius: radii.control,
+    borderWidth: 1,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
+  deviceCopy: {
+    flex: 1,
+    gap: spacing.xs,
+    minWidth: 0,
+  },
+  titleLine: {
+    alignItems: 'center',
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  flexTitle: {
+    flex: 1,
+    minWidth: 108,
+  },
+  ltrText: {
+    writingDirection: 'ltr',
+  },
+  statusBadge: {
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    flexShrink: 0,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
+  },
+  successBadge: {
+    backgroundColor: colors.semantic.successTint,
+    borderColor: 'rgba(79,138,91,0.30)',
+  },
+  neutralBadge: {
+    backgroundColor: 'rgba(255,255,255,0.055)',
+    borderColor: colors.surface.border,
+  },
+  detailsCard: {
+    gap: spacing.sm,
+    paddingBottom: spacing.lg,
+  },
+  infoRow: {
+    alignItems: 'center',
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
+    justifyContent: 'space-between',
+    minHeight: 42,
+  },
+  infoValue: {
+    flex: 1,
+  },
+  currentDeviceNotice: {
+    alignItems: 'center',
+    backgroundColor: colors.semantic.successTint,
+    borderColor: 'rgba(79,138,91,0.28)',
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  signOutButton: {
+    marginTop: spacing.sm,
+    minHeight: 44,
+  },
+  signOutOthersCard: {
+    alignItems: 'flex-start',
+    backgroundColor: colors.semantic.warningTint,
+    borderColor: 'rgba(232,163,61,0.24)',
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
+  },
+  warningIcon: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(232,163,61,0.12)',
+    borderColor: 'rgba(232,163,61,0.30)',
+    borderRadius: radii.control,
+    borderWidth: 1,
+    height: 42,
+    justifyContent: 'center',
+    width: 42,
+  },
+  description: {
+    lineHeight: 22,
+  },
+  feedbackCard: {
+    alignItems: 'center',
+    backgroundColor: colors.semantic.successTint,
+    borderColor: 'rgba(79,138,91,0.28)',
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  pressed: {
+    opacity: 0.74,
+    transform: [{ scale: 0.98 }],
+  },
+});

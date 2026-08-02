@@ -1,0 +1,206 @@
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { FormField } from '@/components/forms';
+import { FeedbackOptionChip, SupportModalHeader } from '@/components/support';
+import { AppButton, AppText, SolidCard } from '@/components/ui';
+import { colors } from '@/theme/colors';
+import { spacing } from '@/theme/spacing';
+import {
+  feedbackTypes,
+  ratingOptions,
+  supportMessages,
+  type FeedbackType,
+} from './support-data';
+
+export function SendFeedbackScreen() {
+  const insets = useSafeAreaInsets();
+  const [feedbackType, setFeedbackType] = useState<FeedbackType | ''>('');
+  const [rating, setRating] = useState('');
+  const [note, setNote] = useState('');
+  const [notice, setNotice] = useState<string | null>(null);
+  const feedbackTypeError = notice === supportMessages.feedbackTypeRequired ? notice : undefined;
+  const ratingError = notice === supportMessages.ratingRequired ? notice : undefined;
+  const noteError = notice === supportMessages.noteRequired ? notice : undefined;
+  const success = notice === supportMessages.feedbackSent;
+
+  function handleSubmit() {
+    if (!feedbackType) {
+      setNotice(supportMessages.feedbackTypeRequired);
+      return;
+    }
+
+    if (!rating) {
+      setNotice(supportMessages.ratingRequired);
+      return;
+    }
+
+    if (!note.trim()) {
+      setNotice(supportMessages.noteRequired);
+      return;
+    }
+
+    setNotice(supportMessages.feedbackSent);
+  }
+
+  return (
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.root}>
+      <LinearGradient
+        colors={[colors.background.heroStart, colors.background.base, colors.background.base]}
+        end={{ x: 0.72, y: 1 }}
+        locations={[0, 0.52, 1]}
+        start={{ x: 0.28, y: 0 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <SafeAreaView edges={['top']} style={styles.safeArea}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.content,
+            {
+              paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
+            },
+          ]}
+          contentInsetAdjustmentBehavior="never"
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <SupportModalHeader title="إرسال ملاحظات" />
+          <View style={styles.intro}>
+            <AppText tone="secondary" variant="body">
+              ساعدنا نحسن تجربة Capital
+            </AppText>
+          </View>
+
+          <View style={styles.section}>
+            <AppText variant="sectionTitle">نوع الملاحظة</AppText>
+            <View style={styles.chipGrid}>
+              {feedbackTypes.map((item) => (
+                <FeedbackOptionChip
+                  id={item.id}
+                  key={item.id}
+                  label={item.label}
+                  onPress={(value) => {
+                    setFeedbackType(value);
+                    setNotice(null);
+                  }}
+                  selected={item.id === feedbackType}
+                />
+              ))}
+            </View>
+            {feedbackTypeError ? (
+              <AppText tone="danger" variant="caption">
+                {feedbackTypeError}
+              </AppText>
+            ) : null}
+          </View>
+
+          <View style={styles.section}>
+            <AppText variant="sectionTitle">التقييم</AppText>
+            <View style={styles.ratingRow}>
+              {ratingOptions.map((item) => (
+                <FeedbackOptionChip
+                  id={item}
+                  key={item}
+                  label={item}
+                  onPress={(value) => {
+                    setRating(value);
+                    setNotice(null);
+                  }}
+                  selected={item === rating}
+                />
+              ))}
+            </View>
+            {ratingError ? (
+              <AppText tone="danger" variant="caption">
+                {ratingError}
+              </AppText>
+            ) : null}
+          </View>
+
+          <FormField
+            error={noteError}
+            label="ملاحظتك"
+            multiline
+            onChangeText={(value) => {
+              setNote(value);
+              setNotice(null);
+            }}
+            placeholder="اكتب ملاحظتك هنا"
+            style={styles.textArea}
+            textAlignVertical="top"
+            value={note}
+          />
+
+          {notice && !feedbackTypeError && !ratingError && !noteError ? (
+            <SolidCard style={[styles.notice, success ? styles.successNotice : styles.warningNotice]}>
+              <Ionicons
+                color={success ? colors.semantic.success : colors.semantic.warning}
+                name={success ? 'checkmark-circle-outline' : 'information-circle-outline'}
+                size={18}
+              />
+              <AppText style={styles.noticeText} tone={success ? 'success' : 'warning'} variant="supporting">
+                {notice}
+              </AppText>
+            </SolidCard>
+          ) : null}
+
+          <AppButton iconName="send-outline" onPress={handleSubmit}>
+            إرسال الملاحظة
+          </AppButton>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: {
+    backgroundColor: colors.background.base,
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  content: {
+    gap: spacing.lg,
+    paddingHorizontal: 16,
+    paddingTop: spacing.lg,
+  },
+  intro: {
+    marginTop: -spacing.sm,
+  },
+  section: {
+    gap: spacing.md,
+  },
+  chipGrid: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  ratingRow: {
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+  },
+  textArea: {
+    minHeight: 118,
+    paddingVertical: spacing.md,
+  },
+  notice: {
+    alignItems: 'center',
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  successNotice: {
+    backgroundColor: colors.semantic.successTint,
+  },
+  warningNotice: {
+    backgroundColor: colors.semantic.warningTint,
+  },
+  noticeText: {
+    flex: 1,
+  },
+});

@@ -6,13 +6,20 @@ node_modules/
 # Expo
 .expo/
 dist/
+build/
+coverage/
+.cache/
 web-build/
 expo-env.d.ts
 
 # Native
 .kotlin/
+*.apk
+*.aab
+*.ipa
 *.orig.*
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
@@ -31,6 +38,9 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
+.env.*
+!.env.example
 .env*.local
 
 # typescript

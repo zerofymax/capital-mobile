@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1000" viewBox="0 0 1200 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Capital logo</title>
+  <desc id="desc">Capital brand mark with English name and Arabic tagline.</desc>
+  <defs>
+    <linearGradient id="brandGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2E7D4D"/>
+      <stop offset="52%" stop-color="#4E9C5B"/>
+      <stop offset="100%" stop-color="#74B96D"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="1000" fill="#FFFFFF"/>
+
+  <g transform="translate(440 70) scale(2.65)">
+
+<path d="M60 6 L108 34 L108 88 L82 103 L82 88 L94 81 L94 42 L60 22 L26 42 L26 81 L48 94 L48 109 L12 88 L12 34 Z"
+      fill="none" stroke="url(#brandGradient)" stroke-width="10" stroke-linejoin="miter" stroke-linecap="square"/>
+<path d="M72 46 L58 38 L42 47 L42 69 L58 78 L73 69"
+      fill="none" stroke="url(#brandGradient)" stroke-width="9" stroke-linejoin="miter" stroke-linecap="square"/>
+<path d="M58 78 L58 122"
+      fill="none" stroke="url(#brandGradient)" stroke-width="9" stroke-linecap="square"/>
+
+  </g>
+
+  <text x="600" y="715"
+        text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="196"
+        font-weight="500"
+        letter-spacing="-5"
+        fill="#061E19">Capital</text>
+
+  <text x="600" y="835"
+        text-anchor="middle"
+        direction="rtl"
+        unicode-bidi="bidi-override"
+        font-family="'IBM Plex Sans Arabic', 'Noto Sans Arabic', Arial, sans-serif"
+        font-size="54"
+        font-weight="500"
+        fill="#303735">ذكاء استثماري، قيمة مستدامة.</text>
+</svg>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Capital app icon</title>
+  <desc id="desc">Capital green geometric mark on a dark rounded square.</desc>
+  <defs>
+    <radialGradient id="bgGradient" cx="50%" cy="42%" r="72%">
+      <stop offset="0%" stop-color="#05362E"/>
+      <stop offset="60%" stop-color="#00271F"/>
+      <stop offset="100%" stop-color="#001B17"/>
+    </radialGradient>
+    <linearGradient id="brandGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2B7147"/>
+      <stop offset="45%" stop-color="#4D9656"/>
+      <stop offset="100%" stop-color="#77B968"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect x="54" y="54" width="916" height="916" rx="190"
+        fill="url(#bgGradient)" filter="url(#softShadow)"/>
+  <rect x="56" y="56" width="912" height="912" rx="188"
+        fill="none" stroke="#0B332C" stroke-width="8"/>
+
+  <g transform="translate(194 145) scale(5.3)">
+
+<path d="M60 6 L108 34 L108 88 L82 103 L82 88 L94 81 L94 42 L60 22 L26 42 L26 81 L48 94 L48 109 L12 88 L12 34 Z"
+      fill="none" stroke="url(#brandGradient)" stroke-width="10" stroke-linejoin="miter" stroke-linecap="square"/>
+<path d="M72 46 L58 38 L42 47 L42 69 L58 78 L73 69"
+      fill="none" stroke="url(#brandGradient)" stroke-width="9" stroke-linejoin="miter" stroke-linecap="square"/>
+<path d="M58 78 L58 122"
+      fill="none" stroke="url(#brandGradient)" stroke-width="9" stroke-linecap="square"/>
+
+  </g>
+</svg>
