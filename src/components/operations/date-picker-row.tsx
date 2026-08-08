@@ -16,15 +16,15 @@ type DatePickerRowProps = {
 export function DatePickerRow({ label, value, iconName = 'calendar-outline', ltr = false }: DatePickerRowProps) {
   return (
     <SolidCard style={styles.root}>
-      <View style={styles.iconWrap}>
-        <Ionicons color={colors.brand.link} name={iconName} size={19} />
-      </View>
       <AppText style={styles.label} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <AppText align={ltr ? 'left' : 'right'} style={ltr ? styles.ltrValue : styles.value} variant="body">
         {value}
       </AppText>
+      <View style={styles.iconWrap}>
+        <Ionicons color={colors.brand.link} name={iconName} size={19} />
+      </View>
     </SolidCard>
   );
 }
@@ -32,7 +32,7 @@ export function DatePickerRow({ label, value, iconName = 'calendar-outline', ltr
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   iconWrap: {
@@ -45,9 +45,14 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   value: {
     minWidth: 78,
+    textAlign: 'left',
+    writingDirection: 'rtl',
   },
   ltrValue: {
     minWidth: 78,

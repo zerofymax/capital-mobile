@@ -25,10 +25,10 @@ export function FaqAccordionCard({ item, onPress }: FaqAccordionCardProps) {
       style={({ pressed }) => [styles.root, pressed && styles.pressed]}
     >
       <View style={styles.questionRow}>
+        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={19} />
         <AppText style={styles.question} variant="body">
           {item.question}
         </AppText>
-        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={19} />
       </View>
     </Pressable>
   );
@@ -45,11 +45,15 @@ const styles = StyleSheet.create({
   },
   questionRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   question: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

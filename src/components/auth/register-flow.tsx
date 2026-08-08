@@ -52,7 +52,7 @@ export function RegisterSelectField({ label, options, value, onSelect, fullWidth
 
   return (
     <View style={[styles.selectRoot, fullWidth && styles.fullWidth]}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.rtlLabel} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <Pressable
@@ -83,7 +83,7 @@ export function RegisterSelectField({ label, options, value, onSelect, fullWidth
                   إلغاء
                 </AppText>
               </Pressable>
-              <AppText variant="cardTitle">{label}</AppText>
+              <AppText style={styles.pickerTitle} variant="cardTitle">{label}</AppText>
             </View>
 
             <View style={styles.pickerOptions}>
@@ -101,7 +101,9 @@ export function RegisterSelectField({ label, options, value, onSelect, fullWidth
                       pressed && styles.pressed,
                     ]}
                   >
-                    {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-circle" size={18} /> : null}
+                    <View style={styles.checkSlot}>
+                      {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-circle" size={18} /> : null}
+                    </View>
                     <AppText align="right" style={styles.pickerOptionText} tone={selected ? 'primary' : 'secondary'} variant="body">
                       {option}
                     </AppText>
@@ -121,6 +123,8 @@ const styles = StyleSheet.create({
     color: colors.brand.calmGreen,
   },
   selectRoot: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
@@ -134,6 +138,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 52,
@@ -141,6 +146,15 @@ const styles = StyleSheet.create({
   },
   selectValue: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pickerModalRoot: {
     flex: 1,
@@ -174,6 +188,7 @@ const styles = StyleSheet.create({
   },
   pickerHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: spacing.xs,
@@ -187,6 +202,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 48,
@@ -199,6 +215,19 @@ const styles = StyleSheet.create({
   },
   pickerOptionText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  pickerTitle: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  checkSlot: {
+    alignItems: 'center',
+    height: 18,
+    justifyContent: 'center',
+    width: 18,
   },
   pressed: {
     opacity: 0.78,

@@ -277,7 +277,7 @@ export function ContactSupportScreen() {
           />
 
         <View style={styles.section}>
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
             الأولوية
           </AppText>
           <View style={styles.priorityRow}>
@@ -291,7 +291,7 @@ export function ContactSupportScreen() {
             ))}
           </View>
           {errors.priority ? (
-            <AppText tone="danger" variant="caption">
+            <AppText style={styles.errorText} tone="danger" variant="caption">
               {errors.priority}
             </AppText>
           ) : null}
@@ -300,7 +300,9 @@ export function ContactSupportScreen() {
         <FormField
           accessibilityLabel="عنوان الطلب"
           error={errors.subject}
+          errorStyle={styles.errorText}
           label="عنوان الطلب"
+          labelStyle={styles.fieldLabel}
           maxLength={120}
           onChangeText={(value) => updateForm('subject', value)}
           placeholder="اكتب عنوانًا مختصرًا للمشكلة"
@@ -310,7 +312,9 @@ export function ContactSupportScreen() {
         <FormField
           accessibilityLabel="تفاصيل المشكلة"
           error={errors.details}
+          errorStyle={styles.errorText}
           label="تفاصيل المشكلة"
+          labelStyle={styles.fieldLabel}
           multiline
           onChangeText={(value) => updateForm('details', value)}
           placeholder="اشرح ما حدث والخطوات التي سبقت المشكلة..."
@@ -340,8 +344,10 @@ export function ContactSupportScreen() {
           autoCapitalize="none"
           autoCorrect={false}
           error={errors.email}
+          errorStyle={styles.errorText}
           keyboardType="email-address"
           label="البريد الإلكتروني للتواصل"
+          labelStyle={styles.fieldLabel}
           onChangeText={(value) => updateForm('email', value)}
           placeholder="abdullah@capital.app"
           style={styles.emailInput}
@@ -414,17 +420,16 @@ function ContactSupportHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
+        <AppText align="right" numberOfLines={1} style={styles.headerText} variant="screenTitle">
           التواصل مع الدعم
         </AppText>
-        <AppText align="center" numberOfLines={2} tone="secondary" variant="supporting">
+        <AppText align="right" numberOfLines={2} style={styles.headerText} tone="secondary" variant="supporting">
           أرسل طلبًا وسنساعدك في أقرب وقت
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -436,7 +441,7 @@ function InfoCard() {
         <Ionicons color={colors.brand.calmGreen} name="shield-checkmark-outline" size={21} />
       </View>
       <View style={styles.infoCopy}>
-        <AppText variant="cardTitle">كيف يمكننا مساعدتك؟</AppText>
+        <AppText style={styles.rtlText} variant="cardTitle">كيف يمكننا مساعدتك؟</AppText>
         <AppText style={styles.infoDescription} tone="secondary" variant="supporting">
           اختر نوع المشكلة وأرسل التفاصيل. لا تشارك كلمة المرور أو رمز PIN أو أي بيانات بنكية حساسة.
         </AppText>
@@ -458,7 +463,7 @@ function SelectField({
 }) {
   return (
     <View style={styles.section}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <Pressable
@@ -473,7 +478,7 @@ function SelectField({
         <Ionicons color={colors.text.tertiary} name="chevron-down-outline" size={18} />
       </Pressable>
       {error ? (
-        <AppText tone="danger" variant="caption">
+        <AppText style={styles.errorText} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -535,7 +540,7 @@ function AttachmentCard() {
             </AppText>
           </View>
         </View>
-        <AppText tone="secondary" variant="caption">
+        <AppText style={styles.rtlText} tone="secondary" variant="caption">
           سيتم تفعيل رفع الملفات في إصدار لاحق.
         </AppText>
       </View>
@@ -550,8 +555,8 @@ function ResponseExpectationCard({ value, urgent }: { value: string; urgent: boo
         <Ionicons color={urgent ? colors.semantic.warning : colors.semantic.success} name="time-outline" size={19} />
       </View>
       <View style={styles.responseCopy}>
-        <AppText variant="cardTitle">وقت الاستجابة المتوقع</AppText>
-        <AppText tone={urgent ? 'warning' : 'secondary'} variant="supporting">
+        <AppText style={styles.rtlText} variant="cardTitle">وقت الاستجابة المتوقع</AppText>
+        <AppText style={styles.rtlText} tone={urgent ? 'warning' : 'secondary'} variant="supporting">
           {value}
         </AppText>
       </View>
@@ -573,9 +578,20 @@ function SelectPicker({
       <View style={styles.pickerRoot}>
         <Pressable accessibilityLabel="إغلاق القائمة" onPress={onClose} style={styles.pickerBackdrop} />
         <SolidCard style={styles.pickerCard}>
-          <AppText align="center" variant="sectionTitle">
-            {state?.label}
-          </AppText>
+          <View style={styles.pickerHeader}>
+            <AppText style={styles.pickerTitle} variant="sectionTitle">
+              {state?.label}
+            </AppText>
+            <Pressable
+              accessibilityLabel="إلغاء"
+              accessibilityRole="button"
+              hitSlop={8}
+              onPress={onClose}
+              style={({ pressed }) => [styles.pickerCancel, pressed && styles.pressed]}
+            >
+              <AppText tone="secondary" variant="buttonLabel">إلغاء</AppText>
+            </Pressable>
+          </View>
           <View style={styles.pickerOptions}>
             {state?.options.map((option) => {
               const selected = option.value === state.selectedValue;
@@ -593,17 +609,16 @@ function SelectPicker({
                     pressed && styles.pressed,
                   ]}
                 >
-                  <AppText tone={selected ? 'success' : 'secondary'} variant="body">
+                  <AppText style={styles.pickerOptionText} tone={selected ? 'success' : 'secondary'} variant="body">
                     {option.label}
                   </AppText>
-                  {selected ? <Ionicons color={colors.semantic.success} name="checkmark-outline" size={19} /> : null}
+                  <View style={styles.pickerCheckSlot}>
+                    {selected ? <Ionicons color={colors.semantic.success} name="checkmark-outline" size={19} /> : null}
+                  </View>
                 </Pressable>
               );
             })}
           </View>
-          <AppButton onPress={onClose} variant="secondary">
-            إلغاء
-          </AppButton>
         </SolidCard>
       </View>
     </Modal>
@@ -645,8 +660,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 54,
   },
   backButton: {
@@ -660,19 +676,23 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   infoCard: {
     alignItems: 'flex-start',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.30)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   infoIcon: {
@@ -686,15 +706,40 @@ const styles = StyleSheet.create({
     width: 42,
   },
   infoCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   infoDescription: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     gap: spacing.sm,
+  },
+  fieldLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  errorText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   selectField: {
     alignItems: 'center',
@@ -702,6 +747,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 52,
@@ -709,8 +755,13 @@ const styles = StyleSheet.create({
   },
   selectValue: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   priorityRow: {
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
@@ -744,10 +795,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   helperText: {
+    alignSelf: 'stretch',
     marginTop: -spacing.md,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   emailInput: {
-    textAlign: 'left',
+    textAlign: 'right',
     writingDirection: 'ltr',
   },
   inputError: {
@@ -760,7 +814,8 @@ const styles = StyleSheet.create({
     borderRadius: radii.input,
     borderStyle: 'dashed',
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 72,
     padding: spacing.lg,
@@ -774,17 +829,23 @@ const styles = StyleSheet.create({
     width: 42,
   },
   attachmentCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   attachmentTitleRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
   attachmentTitle: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   soonBadge: {
     backgroundColor: colors.surface.muted,
@@ -807,7 +868,8 @@ const styles = StyleSheet.create({
   },
   responseCard: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   urgentResponseCard: {
@@ -823,6 +885,7 @@ const styles = StyleSheet.create({
     width: 40,
   },
   responseCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -847,6 +910,25 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     marginBottom: spacing.md,
   },
+  pickerHeader: {
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
+    justifyContent: 'space-between',
+  },
+  pickerTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  pickerCancel: {
+    flexShrink: 0,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xs,
+  },
   pickerOptions: {
     gap: spacing.sm,
   },
@@ -856,10 +938,21 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
     minHeight: 50,
     paddingHorizontal: spacing.lg,
+  },
+  pickerOptionText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  pickerCheckSlot: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 20,
   },
   pickerOptionSelected: {
     backgroundColor: colors.semantic.successTint,

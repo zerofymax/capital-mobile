@@ -202,12 +202,11 @@ function PrivacyLegalHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         الخصوصية والقانونية
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -262,6 +261,7 @@ function PrivacyLegalActionRow({ row, onPress }: { row: PrivacyLegalRow; onPress
       onPress={onPress}
       style={({ pressed }) => [styles.actionRow, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
       <View style={[styles.rowIcon, danger && styles.dangerIcon]}>
         <Ionicons color={danger ? colors.semantic.danger : colors.brand.green} name={row.icon} size={18} />
       </View>
@@ -275,7 +275,6 @@ function PrivacyLegalActionRow({ row, onPress }: { row: PrivacyLegalRow; onPress
           </AppText>
         ) : null}
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
     </Pressable>
   );
 }
@@ -361,8 +360,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -376,16 +376,17 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerTitle: {
+    alignSelf: 'stretch',
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   introCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.30)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -400,25 +401,34 @@ const styles = StyleSheet.create({
     width: 42,
   },
   introCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   introText: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   noticeCard: {
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   noticeText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
   rowsCard: {
@@ -426,7 +436,8 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 74,
     paddingHorizontal: spacing.lg,
@@ -447,12 +458,14 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(229,103,90,0.28)',
   },
   rowCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   statusRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 58,
@@ -460,7 +473,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   statusLabel: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   statusPill: {
     borderRadius: radii.pill,
@@ -481,7 +497,9 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   summaryRow: {
+    width: '100%',
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
@@ -497,6 +515,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   contactCopy: {
+    alignItems: 'flex-end',
     gap: spacing.sm,
   },
   pressed: {

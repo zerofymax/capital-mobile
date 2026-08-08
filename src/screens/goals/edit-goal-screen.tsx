@@ -7,7 +7,7 @@ import { AppButton, AppText, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
-import { directionSafeText } from '@/utils/rtl';
+import { directionSafeText, formatCurrency } from '@/utils/rtl';
 import {
   AmountField,
   BottomConfirmSheet,
@@ -23,7 +23,7 @@ import {
   TextField,
 } from './components';
 import { updateGoal, useGoalsStore } from './goals-store';
-import { formatAmountInput, getUpdatedPlanStatus, parseAmount } from './goal-utils';
+import { formatAmountInput, getGoalSummary, getUpdatedPlanStatus, parseAmount } from './goal-utils';
 import { goalDateOptions, goalTypes, initialGoals, reminderDayOptions, type FinancialGoal, type GoalTypeId } from './goals-data';
 
 type PickerType = 'type' | 'date' | 'reminderDay' | null;
@@ -42,10 +42,11 @@ export function EditGoalScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
   const { goals } = useGoalsStore();
   const original = goals.find((item) => item.id === params.id) ?? goals[0] ?? initialGoals[0]!;
+  const originalSummary = useMemo(() => getGoalSummary(original), [original]);
   const [name, setName] = useState(original.name);
   const [typeId, setTypeId] = useState<GoalTypeId | null>(original.typeId);
-  const [targetAmount, setTargetAmount] = useState(String(original.targetAmount));
-  const [currentAmount, setCurrentAmount] = useState(String(original.currentAmount));
+  const [targetAmount, setTargetAmount] = useState(String(originalSummary.targetAmount));
+  const [currentAmount, setCurrentAmount] = useState(String(originalSummary.currentAmount));
   const [targetDate, setTargetDate] = useState(original.targetDate);
   const [monthlyContribution, setMonthlyContribution] = useState(String(original.monthlyContribution));
   const [reminderEnabled, setReminderEnabled] = useState(original.reminderEnabled);
@@ -59,8 +60,8 @@ export function EditGoalScreen() {
   const dirty =
     name.trim() !== original.name ||
     typeId !== original.typeId ||
-    parsedTarget !== original.targetAmount ||
-    parsedCurrent !== original.currentAmount ||
+    parsedTarget !== originalSummary.targetAmount ||
+    parsedCurrent !== originalSummary.currentAmount ||
     targetDate !== original.targetDate ||
     parsedMonthly !== original.monthlyContribution ||
     reminderEnabled !== original.reminderEnabled ||
@@ -71,16 +72,16 @@ export function EditGoalScreen() {
         currentAmount,
         monthlyContribution,
         name,
-        originalCurrentAmount: original.currentAmount,
         targetAmount,
         targetDate,
         typeId,
       }),
-    [currentAmount, monthlyContribution, name, original.currentAmount, targetAmount, targetDate, typeId],
+    [currentAmount, monthlyContribution, name, targetAmount, targetDate, typeId],
   );
   const blockingError = Boolean(errors.name || errors.typeId || errors.targetAmount || errors.currentAmount || errors.targetDate || errors.monthlyContribution);
   const previewGoal: FinancialGoal = {
     ...original,
+    contributions: [],
     currentAmount: Math.max(parsedCurrent, 0),
     monthlyContribution: Math.max(parsedMonthly, 0),
     name: name.trim() || original.name,
@@ -90,6 +91,7 @@ export function EditGoalScreen() {
     reminderDay,
     reminderEnabled,
   };
+  const previewSummary = getGoalSummary(previewGoal);
 
   function handleBack() {
     if (dirty) {
@@ -140,52 +142,75 @@ export function EditGoalScreen() {
           {dirty ? <NoticeBanner message="لديك تغييرات غير محفوظة" tone="warning" /> : null}
 
           <SolidCard style={styles.currentCard}>
-            <View style={styles.currentHeader}>
+            <View style={[styles.currentHeader, Platform.OS === 'android' && styles.currentHeaderAndroid]}>
               <View style={styles.infoDot} />
-              <AppText variant="cardTitle">التقدم الحالي</AppText>
+              <AppText style={Platform.OS === 'android' ? styles.currentTitleAndroid : undefined} variant="cardTitle">
+                التقدم الحالي
+              </AppText>
             </View>
             <View style={styles.currentValues}>
-              <AppText style={styles.currentValue} variant="caption">
-                {directionSafeText(`${original.currentAmount.toLocaleString('en-US')} ر.س`)}
-              </AppText>
-              <AppText style={styles.currentValue} variant="caption">
-                {directionSafeText(`${original.targetAmount.toLocaleString('en-US')} ر.س`)}
-              </AppText>
+              <View style={[styles.currentMetric, styles.currentMetricAchieved]}>
+                <AppText align="left" style={styles.currentMetricLabel} tone="secondary" variant="caption">
+                  المحقق
+                </AppText>
+                <AppText align="left" style={styles.currentValue} variant="caption">
+                  {directionSafeText(formatCurrency(previewSummary.currentAmount))}
+                </AppText>
+              </View>
+              <View style={[styles.currentMetric, styles.currentMetricTarget]}>
+                <AppText align="right" style={styles.currentMetricLabel} tone="secondary" variant="caption">
+                  المستهدف
+                </AppText>
+                <AppText align="right" style={styles.currentValue} variant="caption">
+                  {directionSafeText(formatCurrency(previewSummary.targetAmount))}
+                </AppText>
+              </View>
             </View>
-            <GoalProgressBar progress={Math.round((original.currentAmount / original.targetAmount) * 100)} tone="green" />
-            <AppText tone="secondary" variant="supporting">
+            <GoalProgressBar progress={previewSummary.progress} tone="green" />
+            <AppText style={Platform.OS === 'android' ? styles.currentNoteAndroid : undefined} tone="secondary" variant="supporting">
               تعديل الهدف لن يغير المساهمات المسجلة مسبقًا.
             </AppText>
           </SolidCard>
 
-          <TextField error={submitted ? errors.name : undefined} label="اسم الهدف" onChangeText={setName} placeholder="مثال: صندوق الطوارئ" value={name} />
-          <SelectField error={submitted ? errors.typeId : undefined} label="نوع الهدف" onPress={() => setPicker('type')} value={goalTypeIdToName(typeId)} />
+          <TextField androidRtlLayout error={submitted ? errors.name : undefined} label="اسم الهدف" onChangeText={setName} placeholder="مثال: صندوق الطوارئ" value={name} />
+          <SelectField androidRtlLayout error={submitted ? errors.typeId : undefined} label="نوع الهدف" onPress={() => setPicker('type')} value={goalTypeIdToName(typeId)} />
           <AmountField
-            error={submitted || targetAmount !== String(original.targetAmount) ? errors.targetAmount : undefined}
-            helper={`المبلغ المحقق حاليًا هو ${original.currentAmount.toLocaleString('en-US')} ر.س`}
+            androidRtlLayout
+            error={submitted || targetAmount !== String(originalSummary.targetAmount) ? errors.targetAmount : undefined}
+            helper={directionSafeText(`المبلغ المحقق حاليًا هو ${formatCurrency(previewSummary.currentAmount)}`)}
             label="المبلغ المستهدف"
             onChangeText={(value) => setTargetAmount(formatAmountInput(value))}
             value={targetAmount}
           />
           <AmountField
-            error={submitted || currentAmount !== String(original.currentAmount) ? errors.currentAmount : undefined}
+            androidRtlLayout
+            error={submitted || currentAmount !== String(originalSummary.currentAmount) ? errors.currentAmount : undefined}
             label="المبلغ المحقق"
             onChangeText={(value) => setCurrentAmount(formatAmountInput(value))}
             value={currentAmount}
           />
-          <SelectField error={submitted ? errors.targetDate : undefined} iconName="calendar-outline" label="الموعد المستهدف" onPress={() => setPicker('date')} value={targetDate} />
+          <SelectField androidRtlLayout error={submitted ? errors.targetDate : undefined} iconName="calendar-outline" label="الموعد المستهدف" onPress={() => setPicker('date')} value={targetDate} />
           <AmountField
+            androidRtlLayout
             error={submitted || monthlyContribution !== String(original.monthlyContribution) ? errors.monthlyContribution : undefined}
             label="المساهمة الشهرية"
             onChangeText={(value) => setMonthlyContribution(formatAmountInput(value))}
             value={monthlyContribution}
           />
 
-          <ReminderCard enabled={reminderEnabled} day={reminderDay} onDayPress={() => setPicker('reminderDay')} onToggle={setReminderEnabled} />
+          <ReminderCard androidRtlLayout enabled={reminderEnabled} day={reminderDay} onDayPress={() => setPicker('reminderDay')} onToggle={setReminderEnabled} />
 
           <View style={styles.section}>
-            <AppText variant="cardTitle">معاينة التعديلات</AppText>
-            <PreviewGoalCard goal={previewGoal} statusOverride={dirty ? getUpdatedPlanStatus() : undefined} />
+            {Platform.OS === 'android' ? (
+              <View style={styles.sectionTitleWrapperAndroid}>
+                <AppText style={styles.sectionTitleAndroid} variant="cardTitle">
+                  معاينة التعديلات
+                </AppText>
+              </View>
+            ) : (
+              <AppText variant="cardTitle">معاينة التعديلات</AppText>
+            )}
+            <PreviewGoalCard androidRtlLayout goal={previewGoal} statusOverride={dirty ? getUpdatedPlanStatus() : undefined} />
           </View>
 
           <AppButton disabled={!dirty || blockingError} iconName="checkmark-outline" onPress={handleSave}>
@@ -198,6 +223,7 @@ export function EditGoalScreen() {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setTypeId(goalTypeNameToId(value));
@@ -209,6 +235,7 @@ export function EditGoalScreen() {
         visible={picker === 'type'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setTargetDate(value);
@@ -220,6 +247,7 @@ export function EditGoalScreen() {
         visible={picker === 'date'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setReminderDay(value);
@@ -259,7 +287,6 @@ function validateGoalForm({
   currentAmount: string;
   monthlyContribution: string;
   name: string;
-  originalCurrentAmount: number;
   targetAmount: string;
   targetDate: string;
   typeId: GoalTypeId | null;
@@ -350,6 +377,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
+  currentHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  currentTitleAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   infoDot: {
     backgroundColor: 'rgba(46,168,255,0.18)',
     borderRadius: 6,
@@ -357,15 +395,50 @@ const styles = StyleSheet.create({
     width: 12,
   },
   currentValues: {
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  currentMetric: {
+    flex: 1,
+    gap: spacing.xs,
+    minWidth: 0,
+  },
+  currentMetricAchieved: {
+    alignItems: 'flex-start',
+  },
+  currentMetricTarget: {
+    alignItems: 'flex-end',
+  },
+  currentMetricLabel: {
+    alignSelf: 'stretch',
+    writingDirection: 'rtl',
   },
   currentValue: {
     color: colors.text.primary,
     fontWeight: '700',
     writingDirection: 'ltr',
   },
+  currentNoteAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   section: {
     gap: spacing.md,
+  },
+  sectionTitleWrapperAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitleAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

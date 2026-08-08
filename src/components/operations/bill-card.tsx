@@ -24,9 +24,6 @@ export function BillCard({ bill, onPress }: BillCardProps) {
       }}
       style={({ pressed }) => [styles.root, pressed && styles.pressed]}
     >
-      <View style={styles.iconWrap}>
-        <Ionicons color={colors.text.muted} name="receipt-outline" size={20} />
-      </View>
       <View style={styles.copy}>
         <View style={styles.titleRow}>
           <AppText numberOfLines={1} style={styles.title} variant="cardTitle">
@@ -46,6 +43,9 @@ export function BillCard({ bill, onPress }: BillCardProps) {
           {bill.amount}
         </AppText>
       </View>
+      <View style={styles.iconWrap}>
+        <Ionicons color={colors.text.muted} name="receipt-outline" size={20} />
+      </View>
       <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
     </Pressable>
   );
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 96,
     padding: spacing.lg,
@@ -72,21 +72,25 @@ const styles = StyleSheet.create({
     width: 42,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   titleRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   title: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   metaRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
   },

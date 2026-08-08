@@ -112,9 +112,10 @@ export function AddGoalScreen() {
 
           <NoticeBanner message="الهدف المالي يساعدك على التخطيط ومتابعة التقدم، ولا يسجل عملية مالية جديدة." tone="warning" />
 
-          <TextField error={submitted ? errors.name : undefined} label="اسم الهدف" onChangeText={setName} placeholder="مثال: صندوق الطوارئ" value={name} />
-          <SelectField error={submitted ? errors.typeId : undefined} label="نوع الهدف" onPress={() => setPicker('type')} value={goalTypeIdToName(typeId)} />
+          <TextField androidRtlLayout error={submitted ? errors.name : undefined} label="اسم الهدف" onChangeText={setName} placeholder="مثال: صندوق الطوارئ" value={name} />
+          <SelectField androidRtlLayout error={submitted ? errors.typeId : undefined} label="نوع الهدف" onPress={() => setPicker('type')} value={goalTypeIdToName(typeId)} />
           <AmountField
+            androidRtlLayout
             error={submitted || targetAmount !== '0' ? errors.targetAmount : undefined}
             helper="إجمالي المبلغ الذي تريد الوصول إليه"
             label="المبلغ المستهدف"
@@ -122,14 +123,16 @@ export function AddGoalScreen() {
             value={targetAmount}
           />
           <AmountField
+            androidRtlLayout
             error={submitted || currentAmount !== '0' ? errors.currentAmount : undefined}
             helper="أدخل المبلغ الذي تم توفيره أو تحقيقه مسبقًا"
             label="المبلغ المحقق حاليًا"
             onChangeText={(value) => setCurrentAmount(formatAmountInput(value))}
             value={currentAmount}
           />
-          <SelectField error={submitted ? errors.targetDate : undefined} iconName="calendar-outline" label="الموعد المستهدف" onPress={() => setPicker('date')} value={targetDate} />
+          <SelectField androidRtlLayout error={submitted ? errors.targetDate : undefined} iconName="calendar-outline" label="الموعد المستهدف" onPress={() => setPicker('date')} value={targetDate} />
           <AmountField
+            androidRtlLayout
             error={submitted || monthlyContribution !== '0' ? errors.monthlyContribution : undefined}
             helper="المبلغ الذي تخطط لإضافته للهدف كل شهر"
             label="المساهمة الشهرية"
@@ -137,7 +140,7 @@ export function AddGoalScreen() {
             value={monthlyContribution}
           />
 
-          <ReminderCard enabled={reminderEnabled} day={reminderDay} onDayPress={() => setPicker('reminderDay')} onToggle={setReminderEnabled} />
+          <ReminderCard androidRtlLayout enabled={reminderEnabled} day={reminderDay} onDayPress={() => setPicker('reminderDay')} onToggle={setReminderEnabled} />
 
           {previewGoal ? (
             <View style={styles.section}>
@@ -156,6 +159,7 @@ export function AddGoalScreen() {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setTypeId(goalTypeNameToId(value));
@@ -167,6 +171,7 @@ export function AddGoalScreen() {
         visible={picker === 'type'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setTargetDate(value);
@@ -178,6 +183,7 @@ export function AddGoalScreen() {
         visible={picker === 'date'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setReminderDay(value);

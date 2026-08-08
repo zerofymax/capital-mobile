@@ -332,17 +332,16 @@ function ChangePasswordHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
+        <AppText align="right" numberOfLines={1} style={styles.headerText} variant="screenTitle">
           تغيير كلمة المرور
         </AppText>
-        <AppText align="center" style={styles.headerSubtitle} tone="secondary" variant="caption">
+        <AppText align="right" style={[styles.headerText, styles.headerSubtitle]} tone="secondary" variant="caption">
           استخدم كلمة قوية لا تستخدمها في حساب آخر.
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -399,10 +398,21 @@ function PasswordField({
 
   return (
     <View style={styles.field}>
-      <AppText tone="secondary" variant="supporting">
-        {label}
-      </AppText>
+      <View style={styles.fieldLabelWrapper}>
+        <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
+          {label}
+        </AppText>
+      </View>
       <View style={[styles.inputFrame, error && styles.inputError]}>
+        <Pressable
+          accessibilityLabel={visibilityLabel}
+          accessibilityRole="button"
+          hitSlop={8}
+          onPress={onToggleVisibility}
+          style={({ pressed }) => [styles.visibilityButton, pressed && styles.pressed]}
+        >
+          <Ionicons color={colors.text.tertiary} name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} />
+        </Pressable>
         <TextInput
           accessibilityLabel={label}
           autoCapitalize="none"
@@ -415,22 +425,13 @@ function PasswordField({
           textContentType="password"
           value={value}
         />
-        <Pressable
-          accessibilityLabel={visibilityLabel}
-          accessibilityRole="button"
-          hitSlop={8}
-          onPress={onToggleVisibility}
-          style={({ pressed }) => [styles.visibilityButton, pressed && styles.pressed]}
-        >
-          <Ionicons color={colors.text.tertiary} name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} />
-        </Pressable>
       </View>
       {error ? (
-        <AppText accessibilityLiveRegion="polite" tone="danger" variant="caption">
+        <AppText accessibilityLiveRegion="polite" style={styles.fieldLabel} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : helper ? (
-        <AppText accessibilityLiveRegion="polite" tone={helperTone} variant="caption">
+        <AppText accessibilityLiveRegion="polite" style={styles.fieldLabel} tone={helperTone} variant="caption">
           {helper}
         </AppText>
       ) : null}
@@ -465,10 +466,10 @@ function PasswordStrengthIndicator({ strength }: { strength: PasswordStrength })
   return (
     <View style={styles.strengthBlock} accessibilityLabel={`قوة كلمة المرور ${strength.label}`}>
       <View style={styles.strengthHeader}>
-        <AppText tone="secondary" variant="caption">
+        <AppText style={styles.strengthLabel} tone="secondary" variant="caption">
           قوة كلمة المرور
         </AppText>
-        <AppText tone={strength.tone} variant="caption">
+        <AppText style={styles.strengthValue} tone={strength.tone} variant="caption">
           {strength.label}
         </AppText>
       </View>
@@ -494,7 +495,7 @@ function SessionNoticeCard() {
     <SolidCard style={styles.sessionCard}>
       <Ionicons color={colors.semantic.warning} name="information-circle-outline" size={20} />
       <View style={styles.sessionCopy}>
-        <AppText variant="cardTitle">بعد تغيير كلمة المرور</AppText>
+        <AppText style={styles.sessionTitle} variant="cardTitle">بعد تغيير كلمة المرور</AppText>
         <AppText style={styles.description} tone="secondary" variant="supporting">
           في النسخة الإنتاجية، قد يتم تسجيل خروجك من الأجهزة الأخرى لحماية الحساب.
         </AppText>
@@ -543,8 +544,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -558,6 +560,7 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -565,28 +568,34 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     lineHeight: 18,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   prototypeNotice: {
     alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.58)',
     borderColor: 'rgba(167,200,161,0.22)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   noticeText: {
+    alignSelf: 'stretch',
     flex: 1,
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoIcon: {
     alignItems: 'center',
@@ -599,18 +608,36 @@ const styles = StyleSheet.create({
     width: 42,
   },
   infoCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   formCard: {
     gap: spacing.lg,
   },
   field: {
+    alignItems: 'flex-end',
     gap: spacing.sm,
+    width: '100%',
+  },
+  fieldLabelWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  fieldLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   inputFrame: {
     alignItems: 'center',
@@ -618,6 +645,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 54,
@@ -631,7 +659,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     minHeight: 52,
     paddingVertical: 0,
-    textAlign: 'left',
+    textAlign: 'right',
     writingDirection: 'ltr',
   },
   inputError: {
@@ -644,6 +672,8 @@ const styles = StyleSheet.create({
     width: 38,
   },
   requirements: {
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -654,21 +684,34 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.pill,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.xs,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
   requirementText: {
+    flexShrink: 1,
     lineHeight: 16,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   strengthBlock: {
     gap: spacing.sm,
   },
   strengthHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
+  },
+  strengthLabel: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  strengthValue: {
+    textAlign: 'left',
+    writingDirection: 'rtl',
   },
   strengthBars: {
     flexDirection: 'row-reverse',
@@ -690,16 +733,23 @@ const styles = StyleSheet.create({
     backgroundColor: colors.semantic.success,
   },
   sessionCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   sessionCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
+  },
+  sessionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.md,

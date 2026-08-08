@@ -125,7 +125,7 @@ function ModalHeader({ title, onClose }: { title: string; onClose: () => void })
       >
         <Ionicons color={colors.text.muted} name="close-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         {title}
       </AppText>
       <View style={styles.headerSlot} />
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 42,
   },
@@ -160,6 +160,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   headerSlot: {
     height: 40,

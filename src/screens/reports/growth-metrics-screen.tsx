@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText, SolidCard } from '@/components/ui';
@@ -31,6 +31,8 @@ import {
 import type { GrowthMetricDefinition, MetricStatus, SaaSPeriod } from './saas-metrics-types';
 
 const metricSections: readonly GrowthMetricDefinition['section'][] = ['revenue', 'customers', 'efficiency'];
+const useAndroidRtlLayout = Platform.OS === 'android';
+const androidSystemNavigationClearance = 48;
 
 export function GrowthMetricsScreen() {
   const insets = useSafeAreaInsets();
@@ -46,7 +48,9 @@ export function GrowthMetricsScreen() {
   );
   const summary = useMemo(() => getOperationalGrowthSummary(sourceData, period), [period, sourceData]);
   const metrics = useMemo(() => getSaaSMetrics(period, sourceData), [period, sourceData]);
-  const bottomPadding = Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
+  const bottomPadding = useAndroidRtlLayout
+    ? insets.bottom + androidSystemNavigationClearance + spacing.xxl
+    : Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
   const collectionStatus = getCollectionStatusLabel(summary.invoices);
 
   return (
@@ -62,6 +66,7 @@ export function GrowthMetricsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <ReportModalHeader
+          androidRtlLayout
           onBack={() => router.back()}
           subtitle="تابع الإيرادات والعملاء وكفاءة نمو شركتك."
           title="مؤشرات النمو"
@@ -89,24 +94,26 @@ export function GrowthMetricsScreen() {
         </View>
 
         <SolidCard style={styles.heroCard}>
-          <View style={styles.heroHeader}>
-            <View>
-              <AppText tone="secondary" variant="caption">
-                {summary.periodLabel}
+          <View style={[styles.heroHeader, useAndroidRtlLayout && styles.heroHeaderAndroid]}>
+            <View style={styles.heroCopy}>
+              <AppText align="right" style={styles.rtlText} variant="sectionTitle">
+                ملخص النمو المحلي
               </AppText>
-              <AppText variant="sectionTitle">ملخص النمو المحلي</AppText>
+              <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
+                {directionSafeText(summary.periodLabel)}
+              </AppText>
             </View>
             <View style={styles.modelBadge}>
               <AppText align="center" style={styles.modelBadgeText} variant="caption">تجريبي</AppText>
             </View>
           </View>
 
-          <View style={styles.mrrRow}>
-            <View>
-              <AppText tone="secondary" variant="caption">
+          <View style={[styles.mrrRow, useAndroidRtlLayout && styles.mrrRowAndroid]}>
+            <View style={styles.heroCopy}>
+              <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
                 دخل الفترة
               </AppText>
-              <AppText style={styles.mrrValue} variant="screenTitle">
+              <AppText align="right" style={styles.mrrValue} variant="screenTitle">
                 {directionSafeText(formatMoney(summary.current.income, summary.currencySymbol))}
               </AppText>
             </View>
@@ -120,7 +127,7 @@ export function GrowthMetricsScreen() {
 
           <MiniTrend values={summary.trend.map((point) => point.income)} />
 
-          <View style={styles.summaryGrid}>
+          <View style={[styles.summaryGrid, useAndroidRtlLayout && styles.summaryGridAndroid]}>
             <SummaryStat label="صافي الفترة" value={formatSignedMoney(summary.current.net, summary.currencySymbol)} />
             <SummaryStat label="هامش الصافي" value={formatPercent(summary.netMargin)} />
             <SummaryStat
@@ -130,8 +137,10 @@ export function GrowthMetricsScreen() {
           </View>
 
           <View style={styles.collectionBox}>
-            <View style={styles.collectionHeader}>
-              <AppText variant="cardTitle">تحصيل الفواتير</AppText>
+            <View style={[styles.collectionHeader, useAndroidRtlLayout && styles.collectionHeaderAndroid]}>
+              <AppText align="right" style={styles.flexRtlText} variant="cardTitle">
+                تحصيل الفواتير
+              </AppText>
               <View
                 style={[
                   styles.collectionStatusBadge,
@@ -154,7 +163,7 @@ export function GrowthMetricsScreen() {
                 </AppText>
               </View>
             </View>
-            <View style={styles.collectionAmounts}>
+            <View style={[styles.collectionAmounts, useAndroidRtlLayout && styles.collectionAmountsAndroid]}>
               <CollectionAmount
                 currencySymbol={summary.currencySymbol}
                 label="المحصّل"
@@ -166,17 +175,17 @@ export function GrowthMetricsScreen() {
                 value={summary.invoices.remaining}
               />
             </View>
-            <AppText tone="secondary" variant="caption">
+            <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
               {`متأخرة: ${summary.invoices.overdueCount.toLocaleString('en-US')} · مستحقة قريبًا: ${summary.invoices.dueSoonCount.toLocaleString('en-US')}`}
             </AppText>
           </View>
 
           <View style={styles.progressBox}>
-            <View style={styles.progressHeader}>
-              <AppText tone="secondary" variant="caption">
+            <View style={[styles.progressHeader, useAndroidRtlLayout && styles.progressHeaderAndroid]}>
+              <AppText align="right" style={styles.flexRtlText} tone="secondary" variant="caption">
                 اتجاه العمليات المسجلة
               </AppText>
-              <AppText style={styles.growthText} variant="caption">
+              <AppText style={[styles.growthText, styles.healthStatusText]} variant="caption">
                 {summary.healthLabel}
               </AppText>
             </View>
@@ -184,14 +193,18 @@ export function GrowthMetricsScreen() {
           </View>
         </SolidCard>
 
-        <NoticeBanner message={summary.primaryInsight} tone="warning" />
+        <NoticeBanner androidRtlLayout message={summary.primaryInsight} tone="warning" />
 
         {metricSections.map((section) => {
           const sectionMetrics = metrics.filter((metric) => metric.section === section);
 
           return (
             <View key={section} style={styles.section}>
-              <AppText variant="sectionTitle">{getMetricSectionTitle(section)}</AppText>
+              <View style={styles.sectionTitleWrapper}>
+                <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+                  {getMetricSectionTitle(section)}
+                </AppText>
+              </View>
               <View style={styles.metricsGrid}>
                 {sectionMetrics.map((metric) => (
                   <MetricCard key={metric.id} metric={metric} period={period} />
@@ -216,10 +229,10 @@ function CollectionAmount({
 }) {
   return (
     <View style={styles.collectionAmount}>
-      <AppText tone="secondary" variant="caption">
+      <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText style={styles.collectionAmountValue} variant="cardTitle">
+      <AppText align="right" style={styles.collectionAmountValue} variant="cardTitle">
         {directionSafeText(formatMoney(value, currencySymbol))}
       </AppText>
     </View>
@@ -229,10 +242,10 @@ function CollectionAmount({
 function SummaryStat({ label, value, ltrLabel = false }: { label: string; value: string; ltrLabel?: boolean }) {
   return (
     <View style={styles.summaryStat}>
-      <AppText align="center" style={ltrLabel && styles.ltrLabel} tone="secondary" variant="caption">
+      <AppText align="right" style={[styles.summaryStatLabel, ltrLabel && styles.ltrLabel]} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="center" style={styles.summaryStatValue} variant="cardTitle">
+      <AppText align="right" style={styles.summaryStatValue} variant="cardTitle">
         {directionSafeText(value)}
       </AppText>
     </View>
@@ -253,32 +266,41 @@ function MetricCard({ metric, period }: { metric: GrowthMetricDefinition; period
       onPress={() => router.push({ pathname: routes.metricDetails, params: { metricId: metric.id, period } })}
       style={({ pressed }) => [styles.metricCard, pressed && styles.pressed]}
     >
-      <View style={styles.metricTop}>
-        <View style={[styles.metricIcon, { backgroundColor: statusMeta.tint }]}>
-          <Ionicons color={statusMeta.color} name={metric.icon} size={17} />
-        </View>
-        <View style={styles.metricCopy}>
-          <View style={styles.metricTitleRow}>
-            <AppText numberOfLines={2} variant="cardTitle">
-              {metric.title}
-            </AppText>
-            <AppText style={styles.abbreviation} variant="caption">
-              {metric.abbreviation}
-            </AppText>
-          </View>
-          <AppText tone="secondary" variant="caption">
-            {directionSafeText(metric.comparison)}
-          </AppText>
-          {shouldShowSourceDescription ? (
-            <AppText tone="secondary" variant="caption">
-              {directionSafeText(sourceDescription ?? '')}
-            </AppText>
-          ) : null}
-        </View>
-        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
+      <View style={[styles.metricTop, useAndroidRtlLayout && styles.metricTopAndroid]}>
+        {useAndroidRtlLayout ? (
+          <>
+            <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
+            <View style={[styles.metricIcon, { backgroundColor: statusMeta.tint }]}>
+              <Ionicons color={statusMeta.color} name={metric.icon} size={17} />
+            </View>
+            <MetricCardCopy
+              comparison={metric.comparison}
+              metric={metric}
+              shouldShowSourceDescription={shouldShowSourceDescription}
+              sourceDescription={sourceDescription}
+            />
+          </>
+        ) : (
+          <>
+            <View style={[styles.metricIcon, { backgroundColor: statusMeta.tint }]}>
+              <Ionicons color={statusMeta.color} name={metric.icon} size={17} />
+            </View>
+            <MetricCardCopy
+              comparison={metric.comparison}
+              metric={metric}
+              shouldShowSourceDescription={shouldShowSourceDescription}
+              sourceDescription={sourceDescription}
+            />
+            <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
+          </>
+        )}
       </View>
-      <View style={styles.metricBottom}>
-        <AppText style={styles.metricValue} variant="cardTitle">
+      <View style={[styles.metricBottom, useAndroidRtlLayout && styles.metricBottomAndroid]}>
+        <AppText
+          align="right"
+          style={[styles.metricValue, metric.rawValue === null ? styles.rtlMetricValue : styles.ltrMetricValue]}
+          variant="cardTitle"
+        >
           {directionSafeText(metric.value)}
         </AppText>
         <View style={styles.badgeRow}>
@@ -292,6 +314,44 @@ function MetricCard({ metric, period }: { metric: GrowthMetricDefinition; period
         </View>
       </View>
     </Pressable>
+  );
+}
+
+function MetricCardCopy({
+  comparison,
+  metric,
+  shouldShowSourceDescription,
+  sourceDescription,
+}: {
+  comparison: string;
+  metric: GrowthMetricDefinition;
+  shouldShowSourceDescription: boolean;
+  sourceDescription?: string;
+}) {
+  return (
+    <View style={styles.metricCopy}>
+      <View style={[styles.metricTitleRow, useAndroidRtlLayout && styles.metricTitleRowAndroid]}>
+        <AppText
+          align="right"
+          numberOfLines={1}
+          style={styles.metricTitle}
+          variant="cardTitle"
+        >
+          {metric.title}
+        </AppText>
+        <AppText style={styles.abbreviation} variant="caption">
+          {metric.abbreviation}
+        </AppText>
+      </View>
+      <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
+        {directionSafeText(comparison)}
+      </AppText>
+      {shouldShowSourceDescription ? (
+        <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
+          {directionSafeText(sourceDescription ?? '')}
+        </AppText>
+      ) : null}
+    </View>
   );
 }
 
@@ -338,7 +398,8 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   periodRow: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
@@ -365,15 +426,29 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   heroHeader: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  heroHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  heroCopy: {
+    alignItems: 'flex-end',
+    flex: 1,
+    gap: spacing.xs,
+    minWidth: 0,
   },
   modelBadge: {
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.28)',
     borderRadius: radii.pill,
     borderWidth: 1,
+    flexShrink: 0,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
@@ -382,12 +457,22 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   mrrRow: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  mrrRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
   },
   mrrValue: {
     fontSize: 31,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
   },
   growthBadge: {
     alignItems: 'center',
@@ -405,10 +490,14 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   summaryGrid: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
+  summaryGridAndroid: {
+    direction: 'rtl',
+  },
   summaryStat: {
+    alignItems: 'flex-end',
     backgroundColor: 'rgba(255,255,255,0.035)',
     borderColor: colors.surface.border,
     borderRadius: radii.input,
@@ -419,8 +508,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: spacing.sm,
   },
+  summaryStatLabel: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   summaryStatValue: {
     fontSize: 16,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   ltrLabel: {
     writingDirection: 'ltr',
@@ -434,9 +531,16 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   collectionHeader: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  collectionHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
   },
   collectionStatusBadge: {
     backgroundColor: colors.semantic.successTint,
@@ -466,28 +570,63 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
   collectionAmounts: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
+  collectionAmountsAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
   collectionAmount: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   collectionAmountValue: {
     fontSize: 16,
+    textAlign: 'right',
+    width: '100%',
     writingDirection: 'ltr',
   },
   progressBox: {
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
   },
   progressHeader: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  progressHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  healthStatusText: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'rtl',
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   metricsGrid: {
     gap: spacing.md,
@@ -501,46 +640,83 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   metricTop: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+    width: '100%',
+  },
+  metricTopAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   metricIcon: {
     alignItems: 'center',
     borderRadius: radii.control,
+    flexShrink: 0,
     height: 34,
     justifyContent: 'center',
     width: 34,
   },
   metricCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   metricTitleRow: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+    width: '100%',
+  },
+  metricTitleRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    justifyContent: 'flex-start',
   },
   abbreviation: {
     color: colors.brand.calmGreen,
+    flexShrink: 0,
     minWidth: 34,
     textAlign: 'left',
     writingDirection: 'ltr',
   },
+  metricTitle: {
+    flexShrink: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   metricBottom: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  metricBottomAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
   },
   badgeRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     flexShrink: 0,
     gap: spacing.xs,
   },
   metricValue: {
+    flex: 1,
     fontSize: 20,
+    textAlign: 'right',
+  },
+  ltrMetricValue: {
+    writingDirection: 'ltr',
+  },
+  rtlMetricValue: {
+    writingDirection: 'rtl',
   },
   statusBadge: {
     borderRadius: radii.pill,
@@ -551,5 +727,16 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.74,
     transform: [{ scale: 0.99 }],
+  },
+  rtlText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  flexRtlText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
 });

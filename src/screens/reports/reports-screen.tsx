@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, type Href } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText, SolidCard } from '@/components/ui';
@@ -68,6 +68,7 @@ const navigationCards: readonly {
 
 export function ReportsScreen() {
   const insets = useSafeAreaInsets();
+  const useAndroidRtlLayout = Platform.OS === 'android';
   const [selectedPeriod, setSelectedPeriod] = useState<StartupReportPeriod>('currentMonth');
   const { transactions } = useTransactionsStore();
   const { invoices } = useInvoicesStore();
@@ -107,14 +108,14 @@ export function ReportsScreen() {
           contentInsetAdjustmentBehavior={tabScreenContentInsetAdjustmentBehavior}
           showsVerticalScrollIndicator={false}
         >
-        <View accessibilityRole="header" style={styles.header}>
-          <AppText variant="screenTitle">النمو</AppText>
-          <AppText tone="secondary" variant="supporting">
+        <View accessibilityRole="header" style={[styles.header, useAndroidRtlLayout && styles.headerAndroid]}>
+          <AppText style={styles.headerText} variant="screenTitle">النمو</AppText>
+          <AppText style={styles.headerText} tone="secondary" variant="supporting">
             افهم أداء شركتك، تابع أهدافك، وشارك تقدمك بوضوح.
           </AppText>
         </View>
 
-        <View style={styles.periodRow}>
+        <View style={[styles.periodRow, useAndroidRtlLayout && styles.periodRowAndroid]}>
           {startupReportPeriods.map((period) => (
             <Pressable
               accessibilityLabel={period.label}
@@ -133,10 +134,16 @@ export function ReportsScreen() {
 
         <SummaryPanel summary={summary} />
 
-        <NoticeBanner message={summary.primaryInsight} tone={summary.healthScore >= 70 ? 'success' : 'warning'} />
+        <NoticeBanner
+          androidRtlLayout
+          message={summary.primaryInsight}
+          tone={summary.healthScore >= 70 ? 'success' : 'warning'}
+        />
 
         <View style={styles.section}>
-          <AppText variant="sectionTitle">مسارات التقارير</AppText>
+          <View style={styles.sectionTitleWrapper}>
+            <AppText style={styles.sectionTitle} variant="sectionTitle">مسارات التقارير</AppText>
+          </View>
           <View style={styles.navGrid}>
             {navigationCards.map((card) => (
               <Pressable
@@ -144,18 +151,39 @@ export function ReportsScreen() {
                 accessibilityRole="button"
                 key={card.title}
                 onPress={() => openRoute(card.href)}
-                style={({ pressed }) => [styles.navCard, pressed && styles.pressed]}
+                style={({ pressed }) => [
+                  styles.navCard,
+                  useAndroidRtlLayout && styles.navCardAndroid,
+                  pressed && styles.pressed,
+                ]}
               >
-                <View style={styles.navIcon}>
-                  <Ionicons color={colors.brand.calmGreen} name={card.icon} size={20} />
-                </View>
-                <View style={styles.navCopy}>
-                  <AppText variant="cardTitle">{card.title}</AppText>
-                  <AppText tone="secondary" variant="caption">
-                    {card.description}
-                  </AppText>
-                </View>
-                <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+                {useAndroidRtlLayout ? (
+                  <>
+                    <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+                    <View style={styles.navIcon}>
+                      <Ionicons color={colors.brand.calmGreen} name={card.icon} size={20} />
+                    </View>
+                    <View style={[styles.navCopy, styles.navCopyAndroid]}>
+                      <AppText style={styles.navTextAndroid} variant="cardTitle">{card.title}</AppText>
+                      <AppText style={styles.navTextAndroid} tone="secondary" variant="caption">
+                        {card.description}
+                      </AppText>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <View style={styles.navIcon}>
+                      <Ionicons color={colors.brand.calmGreen} name={card.icon} size={20} />
+                    </View>
+                    <View style={styles.navCopy}>
+                      <AppText variant="cardTitle">{card.title}</AppText>
+                      <AppText tone="secondary" variant="caption">
+                        {card.description}
+                      </AppText>
+                    </View>
+                    <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+                  </>
+                )}
               </Pressable>
             ))}
           </View>
@@ -167,6 +195,7 @@ export function ReportsScreen() {
 }
 
 function SummaryPanel({ summary }: { summary: OperationalGrowthSummary }) {
+  const useAndroidRtlLayout = Platform.OS === 'android';
   const keyGoalLabel = summary.activeGoal?.name ?? 'لا يوجد هدف نشط';
   const keyGoalProgress = summary.activeGoal?.progress ?? 0;
   const recurringTone = summary.recurring.ratioToIncome !== null && summary.recurring.ratioToIncome > 35 ? 'warning' : undefined;
@@ -174,10 +203,10 @@ function SummaryPanel({ summary }: { summary: OperationalGrowthSummary }) {
 
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={styles.summaryTop}>
-        <View>
-          <AppText variant="sectionTitle">ملخص النمو المحلي</AppText>
-          <AppText tone="secondary" variant="caption">
+      <View style={[styles.summaryTop, useAndroidRtlLayout && styles.summaryTopAndroid]}>
+        <View style={[styles.summaryHeading, useAndroidRtlLayout && styles.summaryHeadingAndroid]}>
+          <AppText style={useAndroidRtlLayout && styles.summaryHeadingTextAndroid} variant="sectionTitle">ملخص النمو المحلي</AppText>
+          <AppText style={useAndroidRtlLayout && styles.summaryHeadingTextAndroid} tone="secondary" variant="caption">
             {summary.periodLabel} · رؤية تشغيلية تجريبية
           </AppText>
         </View>
@@ -194,14 +223,14 @@ function SummaryPanel({ summary }: { summary: OperationalGrowthSummary }) {
         </View>
       </View>
 
-      <View style={styles.heroMetric}>
-        <AppText tone="secondary" variant="caption">
+      <View style={[styles.heroMetric, useAndroidRtlLayout && styles.heroMetricAndroid]}>
+        <AppText style={styles.rtlText} tone="secondary" variant="caption">
           دخل الفترة
         </AppText>
-        <AppText style={styles.heroValue} variant="screenTitle">
+        <AppText style={[styles.heroValue, useAndroidRtlLayout && styles.heroValueAndroid]} variant="screenTitle">
           {directionSafeText(formatMoney(summary.current.income, summary.currencySymbol))}
         </AppText>
-        <AppText style={styles.positiveText} variant="caption">
+        <AppText style={[styles.positiveText, styles.rtlText]} variant="caption">
           {directionSafeText(summary.revenueGrowthLabel)}
         </AppText>
       </View>
@@ -218,8 +247,8 @@ function SummaryPanel({ summary }: { summary: OperationalGrowthSummary }) {
       </View>
 
       <View style={styles.collectionBox}>
-        <View style={styles.collectionHeader}>
-          <AppText variant="cardTitle">تفاصيل التحصيل</AppText>
+        <View style={[styles.collectionHeader, useAndroidRtlLayout && styles.collectionHeaderAndroid]}>
+          <AppText style={useAndroidRtlLayout && styles.collectionTitleAndroid} variant="cardTitle">تفاصيل التحصيل</AppText>
           <View
             style={[
               styles.collectionStatusBadge,
@@ -242,27 +271,29 @@ function SummaryPanel({ summary }: { summary: OperationalGrowthSummary }) {
             </AppText>
           </View>
         </View>
-        <View style={styles.collectionAmounts}>
+        <View style={[styles.collectionAmounts, useAndroidRtlLayout && styles.collectionAmountsAndroid]}>
           <CollectionAmount
+            androidRtlLayout={useAndroidRtlLayout}
             currencySymbol={summary.currencySymbol}
             label="المحصّل"
             value={summary.invoices.collected}
           />
           <CollectionAmount
+            androidRtlLayout={useAndroidRtlLayout}
             currencySymbol={summary.currencySymbol}
             label="المتبقي للتحصيل"
             value={summary.invoices.remaining}
           />
         </View>
-        <AppText tone="secondary" variant="caption">
+        <AppText style={useAndroidRtlLayout && styles.collectionMetaAndroid} tone="secondary" variant="caption">
           {`متأخرة: ${summary.invoices.overdueCount.toLocaleString('en-US')} · مستحقة قريبًا: ${summary.invoices.dueSoonCount.toLocaleString('en-US')}`}
         </AppText>
       </View>
 
       <View style={styles.goalProgressBox}>
-        <View style={styles.goalProgressHeader}>
-          <AppText variant="cardTitle">{keyGoalLabel}</AppText>
-          <AppText style={styles.positiveText} variant="caption">
+        <View style={[styles.goalProgressHeader, useAndroidRtlLayout && styles.goalProgressHeaderAndroid]}>
+          <AppText style={styles.goalTitle} variant="cardTitle">{keyGoalLabel}</AppText>
+          <AppText style={[styles.positiveText, styles.goalProgressValue]} variant="caption">
             {directionSafeText(`${keyGoalProgress}%`)}
           </AppText>
         </View>
@@ -273,20 +304,22 @@ function SummaryPanel({ summary }: { summary: OperationalGrowthSummary }) {
 }
 
 function CollectionAmount({
+  androidRtlLayout,
   label,
   value,
   currencySymbol,
 }: {
+  androidRtlLayout: boolean;
   label: string;
   value: number;
   currencySymbol: string;
 }) {
   return (
-    <View style={styles.collectionAmount}>
-      <AppText tone="secondary" variant="caption">
+    <View style={[styles.collectionAmount, androidRtlLayout && styles.collectionAmountAndroid]}>
+      <AppText style={androidRtlLayout && styles.collectionLabelAndroid} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText style={styles.collectionAmountValue} variant="cardTitle">
+      <AppText style={[styles.collectionAmountValue, androidRtlLayout && styles.collectionAmountValueAndroid]} variant="cardTitle">
         {directionSafeText(formatMoney(value, currencySymbol))}
       </AppText>
     </View>
@@ -334,11 +367,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   header: {
+    alignItems: 'flex-start',
     gap: spacing.xs,
   },
+  headerAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  headerText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   periodRow: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+  },
+  periodRowAndroid: {
+    direction: 'rtl',
   },
   periodChip: {
     alignItems: 'center',
@@ -364,8 +412,25 @@ const styles = StyleSheet.create({
   },
   summaryTop: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  summaryTopAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  summaryHeading: {
+    alignItems: 'flex-start',
+    flex: 1,
+    minWidth: 0,
+  },
+  summaryHeadingAndroid: {
+    alignItems: 'flex-end',
+  },
+  summaryHeadingTextAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   healthBadge: {
     alignItems: 'center',
@@ -391,8 +456,24 @@ const styles = StyleSheet.create({
   heroMetric: {
     gap: spacing.xs,
   },
+  heroMetricAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  rtlText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   heroValue: {
     fontSize: 31,
+  },
+  heroValueAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
   },
   positiveText: {
     color: '#3DD598',
@@ -428,8 +509,18 @@ const styles = StyleSheet.create({
   },
   collectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  collectionHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  collectionTitleAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   collectionStatusBadge: {
     backgroundColor: colors.semantic.successTint,
@@ -462,25 +553,77 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
+  collectionAmountsAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
   collectionAmount: {
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  collectionAmountAndroid: {
+    alignItems: 'flex-end',
+  },
+  collectionLabelAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   collectionAmountValue: {
     fontSize: 16,
     writingDirection: 'ltr',
   },
+  collectionAmountValueAndroid: {
+    textAlign: 'right',
+    width: '100%',
+  },
+  collectionMetaAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   goalProgressBox: {
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
   },
   goalProgressHeader: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  goalProgressHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  goalTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  goalProgressValue: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'ltr',
   },
   section: {
     gap: spacing.md,
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   navGrid: {
     gap: spacing.md,
@@ -491,10 +634,14 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.card,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 82,
     padding: spacing.md,
+  },
+  navCardAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   navIcon: {
     alignItems: 'center',
@@ -507,6 +654,15 @@ const styles = StyleSheet.create({
   navCopy: {
     flex: 1,
     gap: spacing.xs,
+  },
+  navCopyAndroid: {
+    alignItems: 'flex-end',
+    minWidth: 0,
+  },
+  navTextAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

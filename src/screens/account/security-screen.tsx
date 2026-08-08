@@ -223,7 +223,7 @@ function Header({ onBackPress }: { onBackPress: () => void }) {
         accessibilityLabel="العودة إلى المزيد"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName="chevron-forward-outline"
+        iconName="chevron-back-outline"
         iconSize={22}
         onPress={onBackPress}
         pressedStyle={styles.pressed}
@@ -231,14 +231,13 @@ function Header({ onBackPress }: { onBackPress: () => void }) {
         style={styles.backButton}
       />
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText align="right" style={styles.headerText} variant="screenTitle">
           الأمان والخصوصية
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText align="right" style={styles.headerText} tone="secondary" variant="supporting">
           تحكم في حماية حسابك وخصوصية بيانات شركتك.
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -249,13 +248,11 @@ function IntroCard() {
       <View style={styles.introIcon}>
         <Ionicons color={colors.brand.calmGreen} name="shield-checkmark-outline" size={21} />
       </View>
+      <StatusBadge label="Prototype" tone="neutral" />
       <View style={styles.introCopy}>
-        <View style={styles.titleLine}>
-          <AppText style={styles.flexTitle} variant="cardTitle">
-            حماية Capital
-          </AppText>
-          <StatusBadge label="Prototype" tone="neutral" />
-        </View>
+        <AppText style={styles.introTitle} variant="cardTitle">
+          {directionSafeText('حماية Capital')}
+        </AppText>
         <AppText style={styles.description} tone="secondary" variant="supporting">
           إعدادات هذه الصفحة محلية وتجريبية، ولا تنفذ مصادقة أو جمع بيانات حقيقيًا.
         </AppText>
@@ -267,7 +264,7 @@ function IntroCard() {
 function SecurityAccessSection({ onItemPress }: { onItemPress: (item: SecuritySettingItem) => void }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">حماية الدخول</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">حماية الدخول</AppText>
       <SolidCard style={styles.rowsCard}>
         {securitySettings.map((item, index) => (
           <View key={item.id}>
@@ -289,6 +286,7 @@ function SecurityRow({ item, onPress }: { item: SecuritySettingItem; onPress: ()
       onPress={onPress}
       style={({ pressed }) => [styles.row, item.soon && styles.disabledRow, pressed && !item.soon && styles.pressed]}
     >
+      {item.soon ? null : <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />}
       <View style={styles.rowIconWrap}>
         <Ionicons color={colors.brand.green} name={item.icon} size={18} />
       </View>
@@ -304,7 +302,6 @@ function SecurityRow({ item, onPress }: { item: SecuritySettingItem; onPress: ()
           {item.description}
         </AppText>
       </View>
-      {item.soon ? null : <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />}
     </Pressable>
   );
 }
@@ -318,7 +315,7 @@ function AccountSessionsSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">الحساب والجلسات</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">الحساب والجلسات</AppText>
       <SolidCard style={styles.rowsCard}>
         {accountSessionActions.map((action, index) => (
           <View key={action.id}>
@@ -351,6 +348,7 @@ function AccountSessionRow({
       onPress={onPress}
       style={({ pressed }) => [styles.row, warning && styles.warningRow, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
       <View style={[styles.rowIconWrap, warning && styles.warningIconWrap]}>
         <Ionicons color={warning ? colors.semantic.warning : colors.brand.green} name={action.icon} size={18} />
       </View>
@@ -362,7 +360,6 @@ function AccountSessionRow({
           {description}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
     </Pressable>
   );
 }
@@ -376,7 +373,7 @@ function PrivacyPreferencesSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">خصوصية البيانات</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">خصوصية البيانات</AppText>
       <SolidCard style={styles.rowsCard}>
         {privacySettings.map((item, index) => (
           <View key={item.id}>
@@ -413,6 +410,13 @@ function ToggleRow({
       onPress={onPress}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
+      <Switch
+        ios_backgroundColor={colors.surface.muted}
+        onValueChange={onPress}
+        thumbColor={value ? colors.text.inverse : colors.text.tertiary}
+        trackColor={{ false: colors.surface.muted, true: colors.brand.green }}
+        value={value}
+      />
       <View style={styles.rowCopy}>
         <View style={styles.titleLine}>
           <AppText style={styles.flexTitle} variant="body">
@@ -424,13 +428,6 @@ function ToggleRow({
           {description}
         </AppText>
       </View>
-      <Switch
-        ios_backgroundColor={colors.surface.muted}
-        onValueChange={onPress}
-        thumbColor={value ? colors.text.inverse : colors.text.tertiary}
-        trackColor={{ false: colors.surface.muted, true: colors.brand.green }}
-        value={value}
-      />
     </Pressable>
   );
 }
@@ -438,7 +435,7 @@ function ToggleRow({
 function DataPrivacySection({ onActionPress }: { onActionPress: (action: SecurityPrivacyActionItem) => void }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">البيانات والخصوصية</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">البيانات والخصوصية</AppText>
       <SolidCard style={styles.rowsCard}>
         {dataPrivacyActions.map((action, index) => (
           <View key={action.id}>
@@ -460,6 +457,7 @@ function ActionRow({ action, onPress }: { action: SecurityPrivacyActionItem; onP
       onPress={onPress}
       style={({ pressed }) => [styles.row, action.soon && styles.disabledRow, pressed && !action.soon && styles.pressed]}
     >
+      {action.soon ? null : <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />}
       <View style={[styles.rowIconWrap, action.id === 'delete-account' && styles.dangerIconWrap]}>
         <Ionicons color={action.id === 'delete-account' ? colors.semantic.danger : colors.brand.green} name={action.icon} size={18} />
       </View>
@@ -474,7 +472,6 @@ function ActionRow({ action, onPress }: { action: SecurityPrivacyActionItem; onP
           {directionSafeText(action.description)}
         </AppText>
       </View>
-      {action.soon ? null : <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />}
     </Pressable>
   );
 }
@@ -507,7 +504,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.screenX,
@@ -524,12 +522,16 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   content: {
     gap: spacing.lg,
@@ -539,7 +541,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.72)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   introIcon: {
@@ -553,19 +556,32 @@ const styles = StyleSheet.create({
     width: 46,
   },
   introCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  introTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   section: {
     gap: spacing.md,
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   rowsCard: {
     padding: 0,
   },
   row: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 78,
     paddingHorizontal: spacing.lg,
@@ -596,20 +612,30 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(232,163,61,0.26)',
   },
   rowCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   titleLine: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+    width: '100%',
   },
   flexTitle: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   badge: {
     borderRadius: radii.pill,
@@ -638,6 +664,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.30)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingVertical: spacing.md,
@@ -645,6 +672,8 @@ const styles = StyleSheet.create({
   noticeText: {
     flex: 1,
     lineHeight: 23,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.md,

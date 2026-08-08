@@ -7,6 +7,7 @@ import { AppButton, AppText, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 import {
   AmountField,
   BottomConfirmSheet,
@@ -143,14 +144,16 @@ export function EditInvoiceScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <InvoiceHeader onBack={handleBack} subtitle="حدث بيانات الفاتورة ومواعيدها" title="تعديل الفاتورة" />
+          <InvoiceHeader rtl onBack={handleBack} subtitle="حدث بيانات الفاتورة ومواعيدها" title="تعديل الفاتورة" />
 
           {original.paid > 0 ? (
-            <SolidCard style={styles.paymentInfoCard}>
-              <AppText style={styles.blueText} variant="cardTitle">
-                الدفعات المسجلة: {formatSar(original.paid)}
+            <SolidCard style={[styles.paymentInfoCard, Platform.OS === 'android' && styles.paymentInfoCardAndroid]}>
+              <AppText style={[styles.blueText, Platform.OS === 'android' && styles.paymentInfoTextAndroid]} variant="cardTitle">
+                {directionSafeText(`الدفعات المسجلة: ${formatSar(original.paid)}`)}
               </AppText>
-              <AppText variant="supporting">تعديل الفاتورة لا يحذف الدفعات المسجلة مسبقًا.</AppText>
+              <AppText style={Platform.OS === 'android' ? styles.paymentInfoTextAndroid : undefined} variant="supporting">
+                تعديل الفاتورة لا يحذف الدفعات المسجلة مسبقًا.
+              </AppText>
             </SolidCard>
           ) : (
             <NoticeBanner message="تعديل الفاتورة لا يحذف الدفعات المسجلة مسبقًا." tone="warning" />
@@ -163,28 +166,38 @@ export function EditInvoiceScreen() {
           <TextField error={submitted ? errors.invoiceNumber : undefined} label="رقم الفاتورة" ltr onChangeText={setInvoiceNumber} placeholder="INV-2026-1042" value={invoiceNumber} />
 
           <View style={styles.twoColumns}>
-            <SelectField error={submitted ? errors.issueDate : undefined} iconName="calendar-outline" label="تاريخ الإصدار" onPress={() => setPicker('issue')} value={issueDate} />
-            <SelectField error={submitted ? errors.dueDate : undefined} iconName="calendar-outline" label="تاريخ الاستحقاق" onPress={() => setPicker('due')} value={dueDate} />
+            <View style={styles.flexField}>
+              <SelectField androidRtlLayout error={submitted ? errors.issueDate : undefined} iconName="calendar-outline" label="تاريخ الإصدار" ltr onPress={() => setPicker('issue')} value={issueDate} />
+            </View>
+            <View style={styles.flexField}>
+              <SelectField androidRtlLayout error={submitted ? errors.dueDate : undefined} iconName="calendar-outline" label="تاريخ الاستحقاق" ltr onPress={() => setPicker('due')} value={dueDate} />
+            </View>
           </View>
 
-          <InvoiceItemsEditor itemError={submitted ? errors.items : undefined} items={items} onAddItem={addItem} onChangeItem={updateItem} onRemoveItem={removeItem} />
+          <InvoiceItemsEditor androidRtlLayout itemError={submitted ? errors.items : undefined} items={items} onAddItem={addItem} onChangeItem={updateItem} onRemoveItem={removeItem} />
 
           <View style={styles.twoColumns}>
-            <AmountField label="الخصم" onChangeText={(value) => setDiscount(formatAmountInput(value))} value={discount} />
-            <AmountField label="الضريبة" onChangeText={(value) => setTax(formatAmountInput(value))} value={tax} />
+            <View style={styles.flexField}>
+              <AmountField label="الخصم" onChangeText={(value) => setDiscount(formatAmountInput(value))} value={discount} />
+            </View>
+            <View style={styles.flexField}>
+              <AmountField label="الضريبة" onChangeText={(value) => setTax(formatAmountInput(value))} value={tax} />
+            </View>
           </View>
-          <InvoiceTotalsCard discount={parsedDiscount} subtotal={subtotal} tax={parsedTax} total={total} />
+          <InvoiceTotalsCard androidRtlLayout discount={parsedDiscount} subtotal={subtotal} tax={parsedTax} total={total} />
           {submitted && errors.total ? (
             <AppText style={styles.errorText} variant="caption">
               {errors.total}
             </AppText>
           ) : null}
 
-          <SelectField iconName="time-outline" label="حالة الدفع" onPress={() => setPicker('status')} value={invoiceStatusIdToName(status)} />
+          <SelectField androidRtlLayout iconName="time-outline" label="حالة الدفع" onPress={() => setPicker('status')} value={invoiceStatusIdToName(status)} />
           <TextField label="ملاحظات" onChangeText={setNotes} placeholder="اختياري" value={notes} />
 
           <View style={styles.section}>
-            <AppText variant="cardTitle">معاينة التعديلات</AppText>
+            <AppText style={styles.sectionTitle} variant="cardTitle">
+              معاينة التعديلات
+            </AppText>
             <InvoiceMiniCard invoice={previewInvoice} />
           </View>
 
@@ -198,6 +211,7 @@ export function EditInvoiceScreen() {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        ltr
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setIssueDate(value);
@@ -209,6 +223,7 @@ export function EditInvoiceScreen() {
         visible={picker === 'issue'}
       />
       <PickerSheet
+        ltr
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setDueDate(value);
@@ -220,6 +235,7 @@ export function EditInvoiceScreen() {
         visible={picker === 'due'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setStatus(invoiceStatusNameToId(value));
@@ -323,15 +339,34 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(46,168,255,0.22)',
     gap: spacing.sm,
   },
+  paymentInfoCardAndroid: {
+    alignItems: 'flex-end',
+  },
+  paymentInfoTextAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   blueText: {
     color: '#9DD5FF',
   },
   twoColumns: {
+    alignItems: 'flex-start',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
+  flexField: {
+    flex: 1,
+    minWidth: 0,
+  },
   section: {
     gap: spacing.md,
+  },
+  sectionTitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   errorText: {
     color: colors.semantic.danger,

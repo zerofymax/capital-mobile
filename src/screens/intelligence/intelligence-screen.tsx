@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect, type Href } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { formatFinancialAmount } from '@/components/financial';
@@ -21,7 +21,7 @@ import { getBudgetSummary } from '@/screens/budgets/budget-utils';
 import { useBudgetsStore } from '@/screens/budgets/budgets-store';
 import { getGoalSummary } from '@/screens/goals/goal-utils';
 import { useGoalsStore } from '@/screens/goals/goals-store';
-import { getInvoiceSummary } from '@/screens/invoices/invoice-utils';
+import { getInvoiceSummary, type InvoiceSummary } from '@/screens/invoices/invoice-utils';
 import { useInvoicesStore } from '@/screens/invoices/invoices-store';
 import { getCurrencySymbol } from '@/screens/ledger/ledger-data';
 import { useRecurringExpensesStore } from '@/screens/recurring-expenses/recurring-expenses-store';
@@ -32,6 +32,7 @@ import {
   capitalSummary,
   intelligenceInsights,
   monthlyBrief,
+  type IntelligenceInsight,
   type RecommendedAction,
 } from './intelligence-data';
 
@@ -51,17 +52,42 @@ export function IntelligenceScreen() {
   const { invoices } = useInvoicesStore();
   const { budgets } = useBudgetsStore();
   const { goals } = useGoalsStore();
+  const currencySymbol = getCurrencySymbol();
+  const overdueInvoice = useMemo(() => getPrimaryOverdueInvoice(invoices), [invoices]);
+  const subscriptionReviewCount = useMemo(
+    () =>
+      recurringExpenses.filter(
+        (expense) => expense.needsReview === true,
+      ).length,
+    [recurringExpenses],
+  );
+  const insights = useMemo(
+    () =>
+      buildLiveInsights({
+        currencySymbol,
+        overdueInvoice,
+        subscriptionReviewCount,
+      }),
+    [currencySymbol, overdueInvoice, subscriptionReviewCount],
+  );
   const actions = useMemo(
     () =>
       buildRecommendedActions({
         budgets,
-        currencySymbol: getCurrencySymbol(),
+        currencySymbol,
         goals,
-        invoices,
-        recurringExpenses,
+        overdueInvoice,
+        subscriptionReviewCount,
       }),
-    [budgets, goals, invoices, recurringExpenses],
+    [budgets, currencySymbol, goals, overdueInvoice, subscriptionReviewCount],
   );
+  const contentBottomPadding =
+    Platform.OS === 'android'
+      ? Math.max(
+          insets.bottom + spacing.xxxl + spacing.xl,
+          spacing.screenBottom + spacing.xxxl,
+        )
+      : insets.bottom + spacing.xxl;
 
   useFocusEffect(
     useCallback(() => {
@@ -110,7 +136,7 @@ export function IntelligenceScreen() {
             styles.content,
             {
               paddingTop: Math.max(spacing.safeTop - insets.top, 0),
-              paddingBottom: insets.bottom + spacing.xxl,
+              paddingBottom: contentBottomPadding,
             },
           ]}
           contentInsetAdjustmentBehavior="never"
@@ -124,7 +150,7 @@ export function IntelligenceScreen() {
         <CapitalSummaryCard label={capitalSummary.label} text={capitalSummary.text} />
 
         <View style={styles.insights}>
-          {intelligenceInsights.map((insight) => (
+          {insights.map((insight) => (
             <InsightCard
               expanded={expandedInsightId === insight.id}
               insight={insight}
@@ -137,7 +163,9 @@ export function IntelligenceScreen() {
         </View>
 
         <View style={styles.actionsSection}>
-          <AppText variant="sectionTitle">الإجراءات المقترحة</AppText>
+          <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+            الإجراءات المقترحة
+          </AppText>
           <View style={styles.actionsCard}>
             {actions.length ? (
               actions.map((action, index) => (
@@ -171,23 +199,16 @@ function buildRecommendedActions({
   budgets,
   currencySymbol,
   goals,
-  invoices,
-  recurringExpenses,
+  overdueInvoice,
+  subscriptionReviewCount,
 }: {
   budgets: ReturnType<typeof useBudgetsStore>['budgets'];
   currencySymbol: string;
   goals: ReturnType<typeof useGoalsStore>['goals'];
-  invoices: ReturnType<typeof useInvoicesStore>['invoices'];
-  recurringExpenses: ReturnType<typeof useRecurringExpensesStore>['expenses'];
+  overdueInvoice: InvoiceSummary | undefined;
+  subscriptionReviewCount: number;
 }) {
   const candidates: LiveRecommendedAction[] = [];
-  const overdueInvoice = invoices
-    .map(getInvoiceSummary)
-    .filter((invoice) => invoice.open && invoice.dueTiming.state === 'overdue')
-    .sort(
-      (first, second) =>
-        (second.dueTiming.days ?? 0) - (first.dueTiming.days ?? 0),
-    )[0];
 
   if (overdueInvoice) {
     candidates.push({
@@ -195,7 +216,7 @@ function buildRecommendedActions({
       priority: 0,
       urgency: 1,
       title: 'تابع فاتورة العميل المتأخرة',
-      description: `فاتورة بقيمة ${formatFinancialAmount(overdueInvoice.remaining, false, currencySymbol)} تجاوزت موعد السداد.`,
+      description: getOverdueInvoiceDescription(overdueInvoice, currencySymbol),
       status: 'pending',
       relatedInsightId: 'risk',
       destination: {
@@ -205,17 +226,13 @@ function buildRecommendedActions({
     });
   }
 
-  const reviewCount = recurringExpenses.filter(
-    (expense) => expense.needsReview === true,
-  ).length;
-
-  if (reviewCount > 0) {
+  if (subscriptionReviewCount > 0) {
     candidates.push({
       id: 'review-subscriptions',
       priority: 0,
       urgency: 2,
       title: 'راجع اشتراكات البرامج',
-      description: getSubscriptionReviewDescription(reviewCount),
+      description: getSubscriptionReviewDescription(subscriptionReviewCount),
       status: 'pending',
       relatedInsightId: 'opportunity',
       destination: routes.recurringExpenses,
@@ -287,6 +304,55 @@ function buildRecommendedActions({
     }));
 }
 
+function getPrimaryOverdueInvoice(invoices: ReturnType<typeof useInvoicesStore>['invoices']) {
+  return invoices
+    .map(getInvoiceSummary)
+    .filter((invoice) => invoice.open && invoice.dueTiming.state === 'overdue')
+    .sort(
+      (first, second) =>
+        (second.dueTiming.days ?? 0) - (first.dueTiming.days ?? 0),
+    )[0];
+}
+
+function buildLiveInsights({
+  currencySymbol,
+  overdueInvoice,
+  subscriptionReviewCount,
+}: {
+  currencySymbol: string;
+  overdueInvoice: InvoiceSummary | undefined;
+  subscriptionReviewCount: number;
+}): IntelligenceInsight[] {
+  return intelligenceInsights.map((insight) => {
+    if (insight.id === 'risk' && overdueInvoice) {
+      const amount = formatFinancialAmount(overdueInvoice.remaining, false, currencySymbol);
+
+      return {
+        ...insight,
+        summary: getOverdueInvoiceDescription(overdueInvoice, currencySymbol),
+        explanation: `فاتورة ${overdueInvoice.clientName} ${overdueInvoice.dueText}، وكان موعد سدادها ${overdueInvoice.dueDate}. استمرار التأخير قد يؤثر على التدفق النقدي قصير المدى.`,
+        estimatedImpact: amount,
+        recommendedAction: `تابع الفاتورة ${overdueInvoice.invoiceNumber} أو أرسل تذكير دفع للعميل.`,
+      };
+    }
+
+    if (insight.id === 'opportunity' && subscriptionReviewCount > 0) {
+      return {
+        ...insight,
+        explanation: `${getSubscriptionReviewDescription(subscriptionReviewCount)} مراجعتها قد تخفف الضغط على المصروفات التشغيلية بدون التأثير على الإيرادات.`,
+      };
+    }
+
+    return insight;
+  });
+}
+
+function getOverdueInvoiceDescription(invoice: InvoiceSummary, currencySymbol: string) {
+  const amount = formatFinancialAmount(invoice.remaining, false, currencySymbol);
+
+  return `فاتورة ${invoice.clientName} بقيمة ${amount} ${invoice.dueText}، وكان موعد سدادها ${invoice.dueDate}.`;
+}
+
 function getSubscriptionReviewDescription(count: number) {
   if (count === 1) {
     return 'يوجد اشتراك واحد يحتاج إلى المراجعة.';
@@ -324,32 +390,34 @@ function IntelligenceHeader({
 }) {
   return (
     <View accessibilityRole="header" style={styles.header}>
-      <Pressable
-        accessibilityLabel="الإشعارات"
-        accessibilityRole="button"
-        hitSlop={8}
-        onPress={onActionPress}
-        style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
-      >
-        <Ionicons color={colors.text.muted} name="notifications-outline" size={17} />
-      </Pressable>
+      <View style={styles.headerActions}>
+        <Pressable
+          accessibilityLabel="رجوع"
+          accessibilityRole="button"
+          hitSlop={8}
+          onPress={onBackPress}
+          style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
+        >
+          <Feather color={colors.text.muted} name="chevron-left" size={18} />
+        </Pressable>
+        <Pressable
+          accessibilityLabel="الإشعارات"
+          accessibilityRole="button"
+          hitSlop={8}
+          onPress={onActionPress}
+          style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
+        >
+          <Ionicons color={colors.text.muted} name="notifications-outline" size={17} />
+        </Pressable>
+      </View>
       <View style={styles.headerCopy}>
-        <AppText accessibilityRole="text" variant="screenTitle">
+        <AppText accessibilityRole="text" align="right" style={styles.headerText} variant="screenTitle">
           الذكاء المالي
         </AppText>
-        <AppText tone="secondary" variant="supporting">
+        <AppText align="right" style={styles.headerText} tone="secondary" variant="supporting">
           تحليل واضح لأرقام نشاطك وما يجب فعله بعد ذلك
         </AppText>
       </View>
-      <Pressable
-        accessibilityLabel="رجوع"
-        accessibilityRole="button"
-        hitSlop={8}
-        onPress={onBackPress}
-        style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
-      >
-        <Ionicons color={colors.text.muted} name="chevron-forward" size={18} />
-      </Pressable>
     </View>
   );
 }
@@ -371,12 +439,24 @@ const styles = StyleSheet.create({
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
-    justifyContent: 'space-between',
+    width: '100%',
+  },
+  headerActions: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.sm,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  headerText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   headerButton: {
     alignItems: 'center',
@@ -393,6 +473,11 @@ const styles = StyleSheet.create({
   },
   actionsSection: {
     gap: 11,
+  },
+  sectionTitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   actionsCard: {
     backgroundColor: colors.surface.card,

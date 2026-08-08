@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, SolidCard } from '@/components/ui';
@@ -134,10 +134,13 @@ export function RecurringExpensesScreen() {
               </AppText>
             </Pressable>
           ))}
+          <View style={styles.filterEndSpacer} />
         </ScrollView>
 
         <View style={styles.section}>
-          <AppText variant="sectionTitle">المصروفات</AppText>
+          <View style={styles.sectionTitleWrapper}>
+            <AppText style={styles.sectionTitle} variant="sectionTitle">المصروفات</AppText>
+          </View>
           {visibleExpenses.length > 0 ? (
             <View style={styles.list}>
               {visibleExpenses.map((expense) => (
@@ -171,13 +174,17 @@ function RecurringHeader({ title, subtitle }: { title: string; subtitle: string 
   return (
     <View style={styles.header}>
       <Pressable accessibilityLabel="رجوع" accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons color={colors.text.primary} name="chevron-forward-outline" size={21} />
+        <Ionicons
+          color={colors.text.primary}
+          name={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+          size={21}
+        />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText style={styles.headerText} variant="screenTitle">
           {title}
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText style={styles.headerText} tone="secondary" variant="supporting">
           {subtitle}
         </AppText>
       </View>
@@ -207,8 +214,8 @@ function SummaryCard({
           <Ionicons color={colors.brand.calmGreen} name="repeat-outline" size={19} />
         </View>
         <View style={styles.summaryTitle}>
-          <AppText variant="sectionTitle">ملخص الالتزامات</AppText>
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.summaryTitleText} variant="sectionTitle">ملخص الالتزامات</AppText>
+          <AppText style={styles.summaryDescription} tone="secondary" variant="caption">
             تقديرات مبنية على بيانات محلية تجريبية.
           </AppText>
         </View>
@@ -294,7 +301,7 @@ function RecurringExpenseCard({ expense, onPress }: { expense: RecurringExpense;
               tone={isPaused ? 'muted' : expense.needsReview ? 'warning' : isDueSoon ? 'warning' : 'green'}
             />
           </View>
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.expenseDescription} tone="secondary" variant="caption">
             {expense.vendor} · {category?.name ?? 'مصروفات'}
           </AppText>
         </View>
@@ -398,8 +405,12 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   header: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
     minHeight: 64,
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -409,22 +420,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 42,
     justifyContent: 'center',
-    position: 'absolute',
-    right: 0,
-    top: 0,
     width: 42,
   },
   headerCopy: {
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    direction: 'rtl',
+    flex: 1,
     gap: spacing.xs,
-    paddingHorizontal: 52,
+    minWidth: 0,
+  },
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   summaryCard: {
     gap: spacing.lg,
   },
   summaryHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   summaryIcon: {
@@ -436,8 +453,23 @@ const styles = StyleSheet.create({
     width: 42,
   },
   summaryTitle: {
+    alignItems: 'flex-end',
+    direction: 'rtl',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  summaryTitleText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  summaryDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   metricsGrid: {
     flexDirection: 'row-reverse',
@@ -464,7 +496,8 @@ const styles = StyleSheet.create({
   insightCard: {
     backgroundColor: '#071310',
     borderColor: 'rgba(167,200,161,0.18)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   insightIcon: {
@@ -476,17 +509,32 @@ const styles = StyleSheet.create({
     width: 40,
   },
   insightCopy: {
+    alignItems: 'flex-end',
+    direction: 'rtl',
     flex: 1,
     gap: spacing.sm,
+    minWidth: 0,
   },
   insightTitle: {
+    alignSelf: 'stretch',
     color: colors.brand.calmGreen,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   insightText: {
+    alignSelf: 'stretch',
     lineHeight: 24,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   savingText: {
+    alignSelf: 'stretch',
     color: colors.brand.calmGreen,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   searchBox: {
     alignItems: 'center',
@@ -507,19 +555,22 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   filterScroll: {
-    marginHorizontal: 0,
+    direction: 'rtl',
+    marginHorizontal: -spacing.xl,
     overflow: 'visible',
   },
   filterContent: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.sm,
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: spacing.xl,
   },
   filterChip: {
     backgroundColor: colors.surface.card,
     borderColor: colors.surface.border,
     borderRadius: radii.pill,
     borderWidth: 1,
+    flexShrink: 0,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
@@ -530,8 +581,29 @@ const styles = StyleSheet.create({
   filterTextActive: {
     color: colors.text.primary,
   },
+  filterEndSpacer: {
+    flexShrink: 0,
+    width: spacing.xl,
+  },
   section: {
+    alignItems: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    flex: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   list: {
     gap: spacing.md,
@@ -550,7 +622,8 @@ const styles = StyleSheet.create({
   },
   expenseTop: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   expenseIcon: {
@@ -565,16 +638,31 @@ const styles = StyleSheet.create({
     backgroundColor: colors.semantic.warningTint,
   },
   expenseCopy: {
+    alignItems: 'flex-end',
+    direction: 'rtl',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   titleRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+    width: '100%',
   },
   expenseTitle: {
+    alignSelf: 'stretch',
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  expenseDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   statusBadge: {
     borderRadius: radii.pill,

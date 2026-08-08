@@ -182,10 +182,10 @@ function AccountHeader() {
   return (
     <View accessibilityRole="header" style={styles.header}>
       <View style={styles.headerCopy}>
-        <AppText accessibilityRole="text" variant="screenTitle">
+        <AppText accessibilityRole="text" style={styles.headerText} variant="screenTitle">
           المزيد
         </AppText>
-        <AppText tone="secondary" variant="supporting">
+        <AppText style={styles.headerText} tone="secondary" variant="supporting">
           إدارة شركتك، بياناتك، إعداداتك، وأدوات Capital.
         </AppText>
       </View>
@@ -218,11 +218,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   headerCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
+    flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   notice: {
     alignItems: 'center',

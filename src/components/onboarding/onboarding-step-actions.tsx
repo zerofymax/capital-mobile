@@ -19,9 +19,9 @@ export function OnboardingStepActions({
   onSecondaryPress,
   tertiaryLabel,
   onTertiaryPress,
-  primaryIconName = 'arrow-forward-outline',
-  secondaryIconName = 'arrow-back-outline',
-  tertiaryIconName = 'arrow-back-outline',
+  primaryIconName = 'arrow-back-outline',
+  secondaryIconName = 'arrow-forward-outline',
+  tertiaryIconName = 'arrow-forward-outline',
 }: OnboardingStepActionsProps) {
   return (
     <>

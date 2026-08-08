@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { NotificationDetailCard } from '@/components/operations';
@@ -14,6 +14,11 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { getPrototypeNotification } from './notification-data';
+
+const androidPhysicalLtrRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
+  : {};
+const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
 
 export function NotificationDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -104,11 +109,13 @@ function ModalHeader({ title, onClose }: { title: string; onClose: () => void })
         onPress={onClose}
         style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Feather color={colors.text.muted} name="chevron-left" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
-        {title}
-      </AppText>
+      <View style={styles.headerTitleSlot}>
+        <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+          {title}
+        </AppText>
+      </View>
       <View style={styles.headerSlot} />
     </View>
   );
@@ -125,9 +132,10 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 42,
+    ...androidPhysicalLtrRow,
   },
   closeButton: {
     alignItems: 'center',
@@ -139,12 +147,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 40,
   },
-  headerTitle: {
+  headerTitleSlot: {
+    alignItems: 'flex-end',
     flex: 1,
+    minWidth: 0,
+  },
+  headerTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   headerSlot: {
     height: 40,
     width: 40,
+    ...androidHeaderSlot,
   },
   actions: {
     gap: spacing.md,

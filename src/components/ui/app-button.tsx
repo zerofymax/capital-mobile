@@ -9,6 +9,7 @@ import { useThemeColors } from '@/state/appearance-state';
 import { radii } from '@/theme/radii';
 import { shadows } from '@/theme/shadows';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 
 type AppButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
@@ -33,6 +34,9 @@ export function AppButton({
 }: PropsWithChildren<AppButtonProps>) {
   const isDisabled = disabled || loading;
   const colors = useThemeColors();
+  const label = typeof children === 'string' || typeof children === 'number'
+    ? directionSafeText(String(children))
+    : children;
 
   return (
     <Pressable
@@ -63,11 +67,14 @@ export function AppButton({
         <LinearGradient colors={[colors.brand.ctaStart, colors.brand.ctaEnd]} style={StyleSheet.absoluteFill} />
       ) : null}
       <View style={styles.content}>
-        {loading ? <ActivityIndicator color={colors.text.primary} size="small" /> : null}
-        {!loading && iconName ? <Ionicons color={colors.text.primary} name={iconName} size={18} /> : null}
+        <View style={styles.accessorySlot}>
+          {loading ? <ActivityIndicator color={colors.text.primary} size="small" /> : null}
+          {!loading && iconName ? <Ionicons color={colors.text.primary} name={iconName} size={18} /> : null}
+        </View>
         <AppText align="center" variant="buttonLabel">
-          {children}
+          {label}
         </AppText>
+        <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.accessorySlot} />
       </View>
     </Pressable>
   );
@@ -83,9 +90,15 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'center',
+  },
+  accessorySlot: {
+    alignItems: 'center',
+    height: 20,
+    justifyContent: 'center',
+    width: 20,
   },
   primary: {
     ...shadows.cta,

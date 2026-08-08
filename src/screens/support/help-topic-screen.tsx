@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { FAQRow, SupportActionCard, SupportModalHeader } from '@/components/support';
+import { FAQRow, SupportActionCard, SupportModalHeader, SupportSectionHeading } from '@/components/support';
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
@@ -125,7 +125,7 @@ export function HelpTopicScreen() {
           contentInsetAdjustmentBehavior="never"
           showsVerticalScrollIndicator={false}
         >
-          <SupportModalHeader title="موضوع المساعدة" />
+          <SupportModalHeader accessibilityLabel="رجوع" iconName="chevron-back-outline" title="موضوع المساعدة" />
 
           {topic ? (
             <>
@@ -134,15 +134,15 @@ export function HelpTopicScreen() {
                   <Ionicons color={colors.brand.green} name={topic.icon} size={22} />
                 </View>
                 <View style={styles.summaryCopy}>
-                  <AppText variant="sectionTitle">{topic.title}</AppText>
-                  <AppText tone="secondary" variant="body">
+                  <AppText style={styles.rtlText} variant="sectionTitle">{topic.title}</AppText>
+                  <AppText style={styles.rtlText} tone="secondary" variant="body">
                     {topic.description}
                   </AppText>
                 </View>
               </SolidCard>
 
               <View style={styles.section}>
-                <AppText variant="sectionTitle">الأسئلة داخل الموضوع</AppText>
+                <SupportSectionHeading>الأسئلة داخل الموضوع</SupportSectionHeading>
                 <SolidCard style={styles.faqCard}>
                   {topic.faqs.map((item, index) => (
                     <FAQRow
@@ -158,7 +158,7 @@ export function HelpTopicScreen() {
 
               {actions.length > 0 ? (
                 <View style={styles.section}>
-                  <AppText variant="sectionTitle">إجراءات مرتبطة</AppText>
+                  <SupportSectionHeading>إجراءات مرتبطة</SupportSectionHeading>
                   <SolidCard style={styles.actionsCard}>
                     {actions.map((action, index) => (
                       <View key={action.id} style={styles.actionBlock}>
@@ -215,7 +215,8 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   summaryIcon: {
@@ -227,12 +228,20 @@ const styles = StyleSheet.create({
     width: 44,
   },
   summaryCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   faqCard: {
     gap: spacing.md,

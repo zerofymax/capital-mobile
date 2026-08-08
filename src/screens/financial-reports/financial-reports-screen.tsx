@@ -74,8 +74,8 @@ export function FinancialReportsScreen() {
         <SummaryCard periodLabel={report.periodLabel} report={report} />
         <InsightCard text={report.insight} />
         <View style={styles.sectionHeader}>
-          <AppText variant="sectionTitle">أنواع التقارير</AppText>
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.rtlText} variant="sectionTitle">أنواع التقارير</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="supporting">
             افتح أي تقرير لمراجعة التفاصيل.
           </AppText>
         </View>
@@ -88,16 +88,16 @@ export function FinancialReportsScreen() {
               onPress={() => openReport(card.type)}
               style={({ pressed }) => [styles.reportCard, pressed && styles.pressed]}
             >
-              <View style={styles.reportIcon}>
-                <Ionicons color={colors.brand.calmGreen} name={card.icon} size={21} />
-              </View>
+              <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
               <View style={styles.reportCopy}>
-                <AppText variant="cardTitle">{card.title}</AppText>
-                <AppText tone="secondary" variant="supporting">
+                <AppText style={styles.rtlText} variant="cardTitle">{card.title}</AppText>
+                <AppText style={styles.rtlText} tone="secondary" variant="supporting">
                   {card.description}
                 </AppText>
               </View>
-              <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+              <View style={styles.reportIcon}>
+                <Ionicons color={colors.brand.calmGreen} name={card.icon} size={21} />
+              </View>
             </Pressable>
           ))}
         </View>
@@ -119,7 +119,7 @@ export function ReportHeader({ title, subtitle, onBack }: { title: string; subti
         accessibilityLabel="رجوع"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName="chevron-forward-outline"
+        iconName="chevron-back-outline"
         iconSize={21}
         onPress={onBack}
         pressedStyle={styles.pressed}
@@ -127,16 +127,15 @@ export function ReportHeader({ title, subtitle, onBack }: { title: string; subti
         style={styles.backButton}
       />
       <View style={styles.headerCopy}>
-        <AppText align="center" style={styles.headerTitle} variant="screenTitle">
+        <AppText align="right" style={styles.headerTitle} variant="screenTitle">
           {title}
         </AppText>
         {subtitle ? (
-          <AppText align="center" tone="secondary" variant="supporting">
+          <AppText align="right" style={styles.headerSubtitle} tone="secondary" variant="supporting">
             {subtitle}
           </AppText>
         ) : null}
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -203,8 +202,8 @@ function SummaryCard({ periodLabel, report }: { periodLabel: string; report: Ret
           </AppText>
         </View>
         <View style={styles.summaryCopy}>
-          <AppText variant="sectionTitle">ملخص التقارير المالية</AppText>
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.rtlText} variant="sectionTitle">ملخص التقارير المالية</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="supporting">
             {periodLabel}
           </AppText>
         </View>
@@ -212,14 +211,14 @@ function SummaryCard({ periodLabel, report }: { periodLabel: string; report: Ret
       <View style={styles.metricGrid}>
         {metrics.map((metric) => (
           <View key={metric.label} style={styles.metricBox}>
-            <AppText tone="secondary" variant="caption">
+            <AppText style={styles.rtlText} tone="secondary" variant="caption">
               {metric.label}
             </AppText>
             <AppText style={styles.metricValue} variant="cardTitle">
               {metric.value}
             </AppText>
             {'comparison' in metric && metric.comparison ? (
-              <AppText tone={metric.comparison.direction === 'down' ? 'warning' : metric.comparison.direction === 'unavailable' ? 'tertiary' : 'success'} variant="caption">
+              <AppText style={styles.rtlText} tone={metric.comparison.direction === 'down' ? 'warning' : metric.comparison.direction === 'unavailable' ? 'tertiary' : 'success'} variant="caption">
                 {formatComparison(metric.comparison)}
               </AppText>
             ) : null}
@@ -262,8 +261,10 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -276,16 +277,25 @@ const styles = StyleSheet.create({
     width: 38,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   headerTitle: {
     fontSize: 25,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
-  headerSlot: {
-    width: 38,
+  headerSubtitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   periodList: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingHorizontal: spacing.xs,
@@ -317,6 +327,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(46,142,217,0.24)',
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     padding: spacing.md,
@@ -324,18 +335,23 @@ const styles = StyleSheet.create({
   noticeText: {
     color: colors.text.muted,
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryCard: {
     gap: spacing.lg,
   },
   summaryTop: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   summaryCopy: {
     alignItems: 'flex-end',
+    flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   summaryBadge: {
     backgroundColor: colors.semantic.successTint,
@@ -349,11 +365,13 @@ const styles = StyleSheet.create({
     color: colors.brand.calmGreen,
   },
   metricGrid: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
   metricBox: {
+    alignItems: 'flex-end',
     backgroundColor: 'rgba(255,255,255,0.035)',
     borderColor: colors.surface.border,
     borderRadius: radii.input,
@@ -366,6 +384,8 @@ const styles = StyleSheet.create({
   },
   metricValue: {
     color: colors.text.primary,
+    textAlign: 'right',
+    width: '100%',
     writingDirection: 'ltr',
   },
   insightCard: {
@@ -374,6 +394,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(79,138,91,0.28)',
     borderRadius: radii.card,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     padding: spacing.lg,
@@ -388,9 +409,13 @@ const styles = StyleSheet.create({
   },
   insightText: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   sectionHeader: {
+    alignItems: 'flex-end',
     gap: spacing.xs,
+    width: '100%',
   },
   reportGrid: {
     gap: spacing.md,
@@ -401,7 +426,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.card,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 94,
     padding: spacing.lg,
@@ -415,8 +441,16 @@ const styles = StyleSheet.create({
     width: 42,
   },
   reportCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.md,

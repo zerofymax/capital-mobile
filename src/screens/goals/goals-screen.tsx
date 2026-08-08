@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, SolidCard } from '@/components/ui';
@@ -71,7 +71,7 @@ export function GoalsScreen() {
 
         <SummaryCard activeCount={activeGoals.length} completedCount={completedGoals.length} progress={progress} totalAchieved={totalAchieved} totalTarget={totalTarget} />
 
-        <View style={styles.filterRow}>
+        <View style={[styles.filterRow, Platform.OS === 'android' && styles.filterRowAndroid]}>
           {filters.map((item) => (
             <Pressable
               accessibilityLabel={item.label}
@@ -90,7 +90,7 @@ export function GoalsScreen() {
 
         {visibleActiveGoals.length ? (
           <View style={styles.section}>
-            <AppText variant="sectionTitle">الأهداف النشطة</AppText>
+            <SectionTitle>الأهداف النشطة</SectionTitle>
             <View style={styles.goalList}>
               {visibleActiveGoals.map((goal) => (
                 <GoalCard goal={goal} key={goal.id} onPress={openDetails} />
@@ -101,7 +101,7 @@ export function GoalsScreen() {
 
         {visibleCompletedGoals.length ? (
           <View style={styles.section}>
-            <AppText variant="sectionTitle">الأهداف المكتملة</AppText>
+            <SectionTitle>الأهداف المكتملة</SectionTitle>
             <View style={styles.goalList}>
               {visibleCompletedGoals.map((goal) => (
                 <GoalCard goal={goal} key={goal.id} onPress={openDetails} />
@@ -133,30 +133,63 @@ function SummaryCard({
   totalAchieved: number;
   totalTarget: number;
 }) {
+  const summaryTitle = (
+    <AppText style={Platform.OS === 'android' ? styles.summaryTitleAndroid : undefined} variant="sectionTitle">
+      ملخص الأهداف
+    </AppText>
+  );
+  const activeBadge = (
+    <View style={styles.activeBadge}>
+      <AppText align="center" style={styles.activeBadgeText} variant="caption">
+        {activeCount} نشطة
+      </AppText>
+    </View>
+  );
+  const progressLabel = (
+    <AppText style={Platform.OS === 'android' ? styles.progressLabelAndroid : undefined} tone="secondary" variant="caption">
+      نسبة الإنجاز
+    </AppText>
+  );
+  const progressValue = (
+    <AppText style={[styles.progressValue, Platform.OS === 'android' && styles.progressValueAndroid]} variant="caption">
+      {progress}%
+    </AppText>
+  );
+
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={styles.summaryHeader}>
-        <AppText variant="sectionTitle">ملخص الأهداف</AppText>
-        <View style={styles.activeBadge}>
-          <AppText align="center" style={styles.activeBadgeText} variant="caption">
-            {activeCount} نشطة
-          </AppText>
-        </View>
+      <View style={[styles.summaryHeader, Platform.OS === 'android' && styles.summaryHeaderAndroid]}>
+        {Platform.OS === 'android' ? (
+          <>
+            {activeBadge}
+            {summaryTitle}
+          </>
+        ) : (
+          <>
+            {summaryTitle}
+            {activeBadge}
+          </>
+        )}
       </View>
-      <View style={styles.summaryMetrics}>
+      <View style={[styles.summaryMetrics, Platform.OS === 'android' && styles.summaryMetricsAndroid]}>
         <Metric label="إجمالي المستهدف" value={totalTarget} />
         <Metric label="المبلغ المحقق" tone="green" value={totalAchieved} />
         <Metric label="مكتملة" value={completedCount} />
       </View>
-      <View style={styles.progressRow}>
-        <AppText tone="secondary" variant="caption">
-          نسبة الإنجاز
-        </AppText>
-        <AppText style={styles.progressValue} variant="caption">
-          {progress}%
-        </AppText>
+      <View style={[styles.progressRow, Platform.OS === 'android' && styles.progressRowAndroid]}>
+        {Platform.OS === 'android' ? (
+          <>
+            {progressValue}
+            {progressLabel}
+          </>
+        ) : (
+          <>
+            {progressLabel}
+            {progressValue}
+          </>
+        )}
       </View>
-      <GoalProgressBar progress={progress} tone="blue" />
+      <GoalProgressBar androidPhysicalLeft progress={progress} tone="blue" />
       <AppText align="center" variant="supporting">
         أنت قريب من تحقيق نصف أهدافك المالية
       </AppText>
@@ -178,22 +211,40 @@ function Metric({ label, value, tone }: { label: string; value: number; tone?: '
 }
 
 function InsightCard() {
+  const insightIcon = <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={17} />;
+  const insightTitle = (
+    <AppText style={[styles.insightTitle, Platform.OS === 'android' && styles.insightTitleAndroid]} variant="cardTitle">
+      نصيحة من Capital
+    </AppText>
+  );
+  const prototypeText = (
+    <AppText style={Platform.OS === 'android' ? styles.prototypeTextAndroid : undefined} tone="secondary" variant="caption">
+      تقدير تجريبي
+    </AppText>
+  );
+
   return (
     <SolidCard style={styles.insightCard}>
-      <View style={styles.insightHeader}>
-        <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={17} />
-        <AppText style={styles.insightTitle} variant="cardTitle">
-          نصيحة من Capital
-        </AppText>
+      <View style={[styles.insightHeader, Platform.OS === 'android' && styles.insightHeaderAndroid]}>
+        {insightIcon}
+        {insightTitle}
       </View>
-      <AppText variant="body">
+      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} variant="body">
         زيادة المساهمة الشهرية في هدف تجهيز الفرع بمقدار 1,500 ر.س قد تساعدك على الوصول في الموعد المحدد.
       </AppText>
-      <AppText tone="secondary" variant="caption">
-        تقدير تجريبي
-      </AppText>
+      {Platform.OS === 'android' ? <View style={styles.prototypeTextWrapperAndroid}>{prototypeText}</View> : prototypeText}
     </SolidCard>
   );
+}
+
+function SectionTitle({ children }: { children: string }) {
+  const title = (
+    <AppText style={Platform.OS === 'android' ? styles.sectionTitleAndroid : undefined} variant="sectionTitle">
+      {children}
+    </AppText>
+  );
+
+  return Platform.OS === 'android' ? <View style={styles.sectionTitleWrapperAndroid}>{title}</View> : title;
 }
 
 function matchesFilter(status: string, filter: GoalFilter) {
@@ -226,8 +277,19 @@ const styles = StyleSheet.create({
   },
   summaryHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  summaryHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
+  summaryTitleAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   activeBadge: {
     backgroundColor: 'rgba(46,168,255,0.12)',
@@ -244,6 +306,11 @@ const styles = StyleSheet.create({
   },
   summaryMetrics: {
     flexDirection: 'row-reverse',
+  },
+  summaryMetricsAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   metric: {
     alignItems: 'center',
@@ -266,12 +333,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
   },
+  progressRowAndroid: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  progressLabelAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   progressValue: {
     color: '#2EA8FF',
+  },
+  progressValueAndroid: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'ltr',
   },
   filterRow: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+  },
+  filterRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    width: '100%',
   },
   filterChip: {
     alignItems: 'center',
@@ -294,6 +383,18 @@ const styles = StyleSheet.create({
   section: {
     gap: spacing.md,
   },
+  sectionTitleWrapperAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitleAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   goalList: {
     gap: spacing.md,
   },
@@ -307,8 +408,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
+  insightHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
   insightTitle: {
     color: '#9DD5FF',
+  },
+  insightTitleAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  insightTextAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  prototypeTextWrapperAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  prototypeTextAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.76,

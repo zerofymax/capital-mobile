@@ -25,12 +25,12 @@ export function CapitalReportSummary({ text }: CapitalReportSummaryProps) {
       />
       <View style={styles.content}>
         <View style={styles.identity}>
-          <View style={styles.icon}>
-            <Ionicons color={colors.text.primary} name="sparkles-outline" size={16} />
-          </View>
           <AppText style={styles.label} variant="caption">
             ملخص Capital
           </AppText>
+          <View style={styles.icon}>
+            <Ionicons color={colors.text.primary} name="sparkles-outline" size={16} />
+          </View>
         </View>
         <AppText style={styles.summaryText} variant="body">
           {text}
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   },
   identity: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: 9,
   },
   icon: {
@@ -80,10 +80,17 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.brand.link,
+    flex: 1,
     fontWeight: '700',
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryText: {
     color: '#E7E9EC',
     lineHeight: 25,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -23,6 +23,14 @@ import {
   type CapitalNotification,
   type NotificationFilter,
 } from './notification-data';
+
+const androidPhysicalLtrRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
+  : {};
+const androidPhysicalRtlRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
+  : {};
+const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
 
 export function NotificationsScreen() {
   const insets = useSafeAreaInsets();
@@ -90,7 +98,7 @@ export function NotificationsScreen() {
         <ModalHeader onClose={() => router.back()} title="الإشعارات" />
 
         <View style={styles.topActionRow}>
-          <AppText tone="tertiary" variant="caption">
+          <AppText align="right" style={styles.rtlText} tone="tertiary" variant="caption">
             {unreadCount > 0 ? `${unreadCount} غير مقروءة` : 'كل الإشعارات مقروءة'}
           </AppText>
           <Pressable
@@ -103,7 +111,7 @@ export function NotificationsScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <AppText tone={unreadCount > 0 ? 'success' : 'tertiary'} variant="buttonLabel">
+            <AppText align="left" tone={unreadCount > 0 ? 'success' : 'tertiary'} variant="buttonLabel">
               تعيين الكل كمقروء
             </AppText>
           </Pressable>
@@ -138,7 +146,11 @@ export function NotificationsScreen() {
           <View style={styles.groups}>
             {groupedNotifications.map((group) => (
               <View key={group.section} style={styles.section}>
-                <AppText variant="sectionTitle">{group.title}</AppText>
+                <View style={styles.sectionTitleWrapper}>
+                  <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+                    {group.title}
+                  </AppText>
+                </View>
                 {group.data.map((notification) => (
                   <NotificationCard
                     key={notification.id}
@@ -189,11 +201,13 @@ function ModalHeader({ title, onClose }: { title: string; onClose: () => void })
         onPress={onClose}
         style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Feather color={colors.text.muted} name="chevron-left" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
-        {title}
-      </AppText>
+      <View style={styles.headerTitleSlot}>
+        <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+          {title}
+        </AppText>
+      </View>
       <View style={styles.headerSlot} />
     </View>
   );
@@ -210,9 +224,10 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 42,
+    ...androidPhysicalLtrRow,
   },
   closeButton: {
     alignItems: 'center',
@@ -224,17 +239,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 40,
   },
-  headerTitle: {
+  headerTitleSlot: {
+    alignItems: 'flex-end',
     flex: 1,
+    minWidth: 0,
+  },
+  headerTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    width: '100%',
   },
   headerSlot: {
     height: 40,
     width: 40,
+    ...androidHeaderSlot,
   },
   topActionRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+    ...androidPhysicalRtlRow,
   },
   markAll: {
     borderRadius: radii.pill,
@@ -245,13 +271,14 @@ const styles = StyleSheet.create({
     opacity: 0.55,
   },
   filters: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.sm,
-    paddingLeft: spacing.lg,
+    paddingHorizontal: spacing.sm,
   },
   notice: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
@@ -263,6 +290,24 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: spacing.md,
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   emptyState: {
     alignItems: 'stretch',

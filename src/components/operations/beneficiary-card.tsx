@@ -25,14 +25,14 @@ export function BeneficiaryCard({ beneficiary, selected, onPress }: BeneficiaryC
       }}
       style={({ pressed }) => [styles.root, selected && styles.selected, pressed && styles.pressed]}
     >
-      <View style={[styles.iconWrap, selected && styles.iconSelected]}>
-        <Ionicons color={selected ? colors.brand.green : colors.text.secondary} name="person-outline" size={19} />
-      </View>
       <View style={styles.copy}>
-        <AppText variant="cardTitle">{beneficiary.name}</AppText>
+        <AppText style={styles.name} variant="cardTitle">{beneficiary.name}</AppText>
         <AppText align="left" style={styles.iban} tone="secondary" variant="caption">
           ****{beneficiary.ibanEnding}
         </AppText>
+      </View>
+      <View style={[styles.iconWrap, selected && styles.iconSelected]}>
+        <Ionicons color={selected ? colors.brand.green : colors.text.secondary} name="person-outline" size={19} />
       </View>
       <Ionicons color={selected ? colors.brand.green : colors.text.tertiary} name={selected ? 'checkmark-circle' : 'ellipse-outline'} size={22} />
     </Pressable>
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 70,
     padding: spacing.lg,
@@ -67,12 +67,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(79,138,91,0.12)',
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  name: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   iban: {
     fontVariant: ['tabular-nums'],
+    width: '100%',
     writingDirection: 'ltr',
   },
   pressed: {

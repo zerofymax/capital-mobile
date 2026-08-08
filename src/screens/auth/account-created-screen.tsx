@@ -50,7 +50,7 @@ export function AccountCreatedScreen() {
         </View>
 
         <View style={styles.actionArea}>
-          <AppButton onPress={() => router.replace(routes.financialSetup)}>بدء إعداد النشاط</AppButton>
+          <AppButton onPress={() => router.replace(routes.financialSetupBusinessInfo)}>بدء إعداد النشاط</AppButton>
         </View>
       </ScrollView>
     </View>

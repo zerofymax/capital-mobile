@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 're
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FormField } from '@/components/forms';
-import { FeedbackOptionChip, SupportModalHeader } from '@/components/support';
+import { FeedbackOptionChip, SupportModalHeader, SupportSectionHeading } from '@/components/support';
 import { AppButton, AppText, SolidCard } from '@/components/ui';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
@@ -69,13 +69,13 @@ export function SendFeedbackScreen() {
         >
           <SupportModalHeader title="إرسال ملاحظات" />
           <View style={styles.intro}>
-            <AppText tone="secondary" variant="body">
+            <AppText style={styles.introText} tone="secondary" variant="body">
               ساعدنا نحسن تجربة Capital
             </AppText>
           </View>
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">نوع الملاحظة</AppText>
+            <SupportSectionHeading>نوع الملاحظة</SupportSectionHeading>
             <View style={styles.chipGrid}>
               {feedbackTypes.map((item) => (
                 <FeedbackOptionChip
@@ -91,14 +91,14 @@ export function SendFeedbackScreen() {
               ))}
             </View>
             {feedbackTypeError ? (
-              <AppText tone="danger" variant="caption">
+              <AppText style={styles.errorText} tone="danger" variant="caption">
                 {feedbackTypeError}
               </AppText>
             ) : null}
           </View>
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">التقييم</AppText>
+            <SupportSectionHeading>التقييم</SupportSectionHeading>
             <View style={styles.ratingRow}>
               {ratingOptions.map((item) => (
                 <FeedbackOptionChip
@@ -114,7 +114,7 @@ export function SendFeedbackScreen() {
               ))}
             </View>
             {ratingError ? (
-              <AppText tone="danger" variant="caption">
+              <AppText style={styles.errorText} tone="danger" variant="caption">
                 {ratingError}
               </AppText>
             ) : null}
@@ -122,7 +122,9 @@ export function SendFeedbackScreen() {
 
           <FormField
             error={noteError}
+            errorStyle={styles.errorText}
             label="ملاحظتك"
+            labelStyle={styles.fieldLabel}
             multiline
             onChangeText={(value) => {
               setNote(value);
@@ -147,7 +149,7 @@ export function SendFeedbackScreen() {
             </SolidCard>
           ) : null}
 
-          <AppButton iconName="send-outline" onPress={handleSubmit}>
+          <AppButton iconName="send-outline" onPress={handleSubmit} style={styles.submitButton}>
             إرسال الملاحظة
           </AppButton>
         </ScrollView>
@@ -170,27 +172,57 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
   },
   intro: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     marginTop: -spacing.sm,
+    width: '100%',
+  },
+  introText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.md,
   },
   chipGrid: {
-    flexDirection: 'row-reverse',
+    alignSelf: 'stretch',
+    direction: 'rtl',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
   ratingRow: {
-    flexDirection: 'row-reverse',
+    alignSelf: 'stretch',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.sm,
+  },
+  fieldLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  errorText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   textArea: {
     minHeight: 118,
     paddingVertical: spacing.md,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   notice: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
@@ -202,5 +234,11 @@ const styles = StyleSheet.create({
   },
   noticeText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  submitButton: {
+    direction: 'ltr',
   },
 });

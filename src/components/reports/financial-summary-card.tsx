@@ -36,15 +36,15 @@ export function FinancialSummaryCard({ metrics }: FinancialSummaryCardProps) {
       />
       <View style={styles.content}>
         <View style={styles.header}>
-          <AppText variant="cardTitle">ملخص الأداء المالي</AppText>
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.rtlText} variant="cardTitle">ملخص الأداء المالي</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="caption">
             مقارنة بالفترة السابقة
           </AppText>
         </View>
         <View style={styles.grid}>
           {metrics.map((metric) => (
             <View key={metric.id} style={styles.metric}>
-              <AppText tone="secondary" variant="caption">
+              <AppText style={styles.rtlText} tone="secondary" variant="caption">
                 {metric.label}
               </AppText>
               <NumericText style={[styles.metricValue, { color: metricToneColor[metric.tone] }]}>
@@ -85,14 +85,17 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   header: {
+    alignItems: 'flex-end',
     gap: spacing.xs,
   },
   grid: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
   metric: {
+    alignItems: 'flex-end',
     backgroundColor: 'rgba(255,255,255,0.045)',
     borderColor: 'rgba(255,255,255,0.07)',
     borderRadius: radii.button,
@@ -106,7 +109,13 @@ const styles = StyleSheet.create({
   metricValue: {
     fontSize: 18,
     lineHeight: 25,
+    textAlign: 'left',
+    writingDirection: 'ltr',
+  },
+  rtlText: {
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   trendBadge: {
     alignSelf: 'flex-start',

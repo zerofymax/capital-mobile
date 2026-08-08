@@ -5,6 +5,7 @@ import { AppButton, AppText } from '@/components/ui';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 
 export type ConfirmationTone = 'neutral' | 'warning' | 'danger' | 'success';
 
@@ -15,6 +16,7 @@ export type ConfirmationDialogProps = {
   confirmLabel: string;
   cancelLabel?: string;
   tone?: ConfirmationTone;
+  forceRtlContent?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -66,6 +68,7 @@ export function ConfirmationDialog({
   confirmLabel,
   cancelLabel = 'إلغاء',
   tone = 'neutral',
+  forceRtlContent = false,
   onConfirm,
   onCancel,
 }: ConfirmationDialogProps) {
@@ -90,13 +93,13 @@ export function ConfirmationDialog({
             <Ionicons color={config.color} name={config.icon} size={25} />
           </View>
 
-          <View style={styles.copy}>
-            <AppText align="center" variant="sectionTitle">
-              {title}
+          <View style={[styles.copy, forceRtlContent && styles.rtlCopy]}>
+            <AppText align="right" style={styles.copyText} variant="sectionTitle">
+              {directionSafeText(title)}
             </AppText>
             {description ? (
-              <AppText align="center" style={styles.description} tone="secondary" variant="body">
-                {description}
+              <AppText align="right" style={[styles.copyText, styles.description]} tone="secondary" variant="body">
+                {directionSafeText(description)}
               </AppText>
             ) : null}
           </View>
@@ -150,7 +153,18 @@ const styles = StyleSheet.create({
     width: 58,
   },
   copy: {
+    alignSelf: 'stretch',
     gap: spacing.sm,
+  },
+  rtlCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
+    width: '100%',
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   description: {
     lineHeight: 25,

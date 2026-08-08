@@ -11,6 +11,7 @@ import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 
 type ReviewRow = {
   label?: string;
@@ -121,8 +122,8 @@ export function FinancialSetupReviewScreen() {
         />
 
         <View style={styles.titleBlock}>
-          <AppText variant="screenTitle">راجع معلومات نشاطك</AppText>
-          <AppText tone="secondary" variant="body">
+          <AppText style={styles.rtlText} variant="screenTitle">راجع معلومات نشاطك</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="body">
             تأكد من البيانات قبل إنشاء نظرتك المالية الأولى
           </AppText>
         </View>
@@ -184,12 +185,12 @@ function ReviewCard({ section }: ReviewCardProps) {
         {section.rows.map((row, index) => (
           <View key={`${row.label ?? row.value}-${index}`} style={styles.reviewRow}>
             {row.label ? (
-              <AppText tone="secondary" variant="supporting">
+              <AppText style={styles.rtlText} tone="secondary" variant="supporting">
                 {row.label}
               </AppText>
             ) : null}
             <AppText style={styles.rowValue} variant="body">
-              {row.value}
+              {directionSafeText(row.value)}
             </AppText>
           </View>
         ))}
@@ -208,9 +209,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   reviewList: {
     gap: spacing.md,
@@ -221,17 +224,22 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.glass,
     borderWidth: 1,
+    direction: 'ltr',
     gap: spacing.md,
     padding: spacing.lg,
   },
   cardHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
   },
   cardTitle: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   editAction: {
     alignItems: 'center',
@@ -240,14 +248,28 @@ const styles = StyleSheet.create({
     minWidth: 54,
   },
   rows: {
+    alignItems: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   reviewRow: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.xs,
+    width: '100%',
   },
   rowValue: {
+    alignSelf: 'stretch',
     flexShrink: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   spacer: {
     flexGrow: 1,

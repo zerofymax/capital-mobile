@@ -148,8 +148,8 @@ export function CompanyUpdateScreen() {
           <ManualUpdateNotice futurePeriod={futurePeriod} />
 
           <View style={styles.tabs}>
-            <SegmentButton active={mode === 'edit'} label="تحرير" onPress={() => setMode('edit')} />
             <SegmentButton active={mode === 'preview'} label="معاينة" onPress={handlePreview} />
+            <SegmentButton active={mode === 'edit'} label="تحرير" onPress={() => setMode('edit')} />
           </View>
 
           {mode === 'edit' ? (
@@ -196,11 +196,13 @@ function PeriodSelector({
   return (
     <SolidCard style={styles.periodCard}>
       <View style={styles.periodTop}>
-        <View>
-          <AppText tone="secondary" variant="caption">
+        <View style={styles.periodCopy}>
+          <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
             الفترة
           </AppText>
-          <AppText variant="cardTitle">{period.label}</AppText>
+          <AppText align="right" style={styles.periodValue} variant="cardTitle">
+            {period.label}
+          </AppText>
         </View>
         <View style={styles.statusBadgeGroup}>
           {futurePeriod ? (
@@ -258,11 +260,11 @@ function ManualUpdateNotice({ futurePeriod }: { futurePeriod: boolean }) {
           </View>
         ) : null}
       </View>
-      <AppText tone="secondary" variant="body">
+      <AppText align="right" style={styles.rtlText} tone="secondary" variant="body">
         بيانات هذا التحديث مدخلة يدويًا، ولا تمثل بالضرورة العمليات أو مؤشرات النمو المحسوبة داخل التطبيق.
       </AppText>
-      <AppText tone="secondary" variant="caption">
-        قيم MRR وChurn والعملاء النشطين هنا قيم مدخلة ضمن تحديث الشركة، وليست محسوبة من بيانات اشتراكات العملاء.
+      <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
+        {directionSafeText('قيم MRR وChurn والعملاء النشطين هنا قيم مدخلة ضمن تحديث الشركة، وليست محسوبة من بيانات اشتراكات العملاء.')}
       </AppText>
     </SolidCard>
   );
@@ -310,7 +312,9 @@ function MetricGroup({ title, metrics }: { title: string; metrics: readonly stri
 
   return (
     <SolidCard style={styles.metricGroup}>
-      <AppText variant="cardTitle">{title}</AppText>
+      <AppText align="right" style={styles.rtlText} variant="cardTitle">
+        {title}
+      </AppText>
       <View style={styles.metricsGrid}>
         {metrics.map((metric) => {
           const [label = '', ...rest] = metric.split(':');
@@ -320,7 +324,7 @@ function MetricGroup({ title, metrics }: { title: string; metrics: readonly stri
 
           return (
             <View key={metric} style={styles.metricBox}>
-              <AppText align="center" tone="secondary" variant="caption">
+              <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
                 {directionSafeText(displayLabel)}
               </AppText>
               {manual ? (
@@ -330,7 +334,7 @@ function MetricGroup({ title, metrics }: { title: string; metrics: readonly stri
                   </AppText>
                 </View>
               ) : null}
-              <AppText align="center" variant="cardTitle">
+              <AppText align="right" style={styles.metricValue} variant="cardTitle">
                 {directionSafeText(value)}
               </AppText>
             </View>
@@ -375,25 +379,42 @@ function PreviewDocument({ preview }: { preview: ReturnType<typeof buildCompanyU
       {preview.financialSnapshot ? <PreviewSection title="الأرقام الرئيسية" items={buildSnapshotMetricLines(preview.financialSnapshot)} /> : null}
 
       {preview.sections.map((section) =>
-        section.items.length > 0 ? <PreviewSection key={section.key} title={section.title} items={section.items} /> : null,
+        section.items.length > 0 ? <PreviewSection key={section.key} title={section.title} items={section.items} showCount /> : null,
       )}
     </SolidCard>
   );
 }
 
-function PreviewSection({ title, items, prose }: { title: string; items: readonly string[]; prose?: boolean }) {
+function PreviewSection({
+  title,
+  items,
+  prose,
+  showCount = false,
+}: {
+  title: string;
+  items: readonly string[];
+  prose?: boolean;
+  showCount?: boolean;
+}) {
   return (
     <View style={styles.previewSection}>
-      <AppText variant="cardTitle">{title}</AppText>
+      <View style={styles.previewSectionHeader}>
+        <View style={styles.fieldLabelSlot}>
+          <AppText align="right" style={styles.fieldLabel} variant="cardTitle">
+            {title}
+          </AppText>
+        </View>
+        {showCount ? <PointCount count={items.length} /> : null}
+      </View>
       {items.map((item) =>
         prose ? (
-          <AppText key={item} tone="secondary" variant="body">
+          <AppText align="right" key={item} style={styles.rtlText} tone="secondary" variant="body">
             {directionSafeText(item)}
           </AppText>
         ) : (
           <View key={item} style={styles.bulletRow}>
             <View style={styles.bulletDot} />
-            <AppText style={styles.bulletText} tone="secondary" variant="body">
+            <AppText align="right" style={styles.bulletText} tone="secondary" variant="body">
               {directionSafeText(item)}
             </AppText>
           </View>
@@ -419,10 +440,12 @@ function UpdateSectionField({
   return (
     <View style={styles.fieldWrap}>
       <View style={styles.fieldHeader}>
-        <AppText variant="supporting">{label}</AppText>
-        <AppText tone="secondary" variant="caption">
-          {itemCount} نقاط
-        </AppText>
+        <View style={styles.fieldLabelSlot}>
+          <AppText align="right" style={styles.fieldLabel} variant="supporting">
+            {label}
+          </AppText>
+        </View>
+        <PointCount count={itemCount} />
       </View>
       <View style={styles.textAreaWrap}>
         <TextInput
@@ -438,6 +461,19 @@ function UpdateSectionField({
           value={value}
         />
       </View>
+    </View>
+  );
+}
+
+function PointCount({ count }: { count: number }) {
+  return (
+    <View style={styles.pointCount}>
+      <AppText style={styles.pointNumber} tone="secondary" variant="caption">
+        {count}
+      </AppText>
+      <AppText style={styles.pointLabel} tone="secondary" variant="caption">
+        نقاط
+      </AppText>
     </View>
   );
 }
@@ -459,7 +495,11 @@ function SegmentButton({ label, active, onPress }: { label: string; active: bool
 }
 
 function SectionTitle({ title }: { title: string }) {
-  return <AppText variant="sectionTitle">{title}</AppText>;
+  return (
+    <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+      {title}
+    </AppText>
+  );
 }
 
 function areUpdateValuesEqual(a: CompanyUpdate, b: CompanyUpdate) {
@@ -493,12 +533,28 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   periodCard: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   periodTop: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  periodCopy: {
+    alignItems: 'flex-end',
+    flex: 1,
+    gap: spacing.xs,
+    minWidth: 0,
+  },
+  periodValue: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
   },
   statusBadge: {
     backgroundColor: colors.semantic.successTint,
@@ -510,6 +566,7 @@ const styles = StyleSheet.create({
   },
   statusBadgeGroup: {
     alignItems: 'flex-start',
+    flexShrink: 0,
     gap: spacing.xs,
   },
   futureBadge: {
@@ -528,7 +585,7 @@ const styles = StyleSheet.create({
   },
   manualNoticeHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
@@ -547,7 +604,8 @@ const styles = StyleSheet.create({
     color: colors.brand.calmGreen,
   },
   periodGrid: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
@@ -575,7 +633,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.pill,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.xs,
     padding: spacing.xs,
   },
@@ -599,11 +658,12 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   metricsGrid: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
   metricBox: {
+    alignItems: 'flex-end',
     backgroundColor: 'rgba(255,255,255,0.035)',
     borderColor: colors.surface.border,
     borderRadius: radii.input,
@@ -644,9 +704,35 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   fieldHeader: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  fieldLabel: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  fieldLabelSlot: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
+  pointCount: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: spacing.xs,
+  },
+  pointNumber: {
+    writingDirection: 'ltr',
+  },
+  pointLabel: {
+    writingDirection: 'rtl',
   },
   textAreaWrap: {
     backgroundColor: colors.surface.card,
@@ -677,12 +763,24 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   previewSection: {
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
+  },
+  previewSectionHeader: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.md,
+    justifyContent: 'space-between',
+    width: '100%',
   },
   bulletRow: {
+    alignSelf: 'stretch',
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+    width: '100%',
   },
   bulletDot: {
     backgroundColor: colors.brand.calmGreen,
@@ -692,7 +790,26 @@ const styles = StyleSheet.create({
     width: 6,
   },
   bulletText: {
+    alignSelf: 'stretch',
     flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  metricValue: {
+    textAlign: 'right',
+    width: '100%',
+  },
+  sectionTitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

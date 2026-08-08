@@ -30,11 +30,11 @@ export function CapitalSummaryCard({ label, text }: CapitalSummaryCardProps) {
           <View style={styles.icon}>
             <Ionicons color={colors.text.primary} name="sparkles-outline" size={16} />
           </View>
-          <AppText style={styles.label} variant="caption">
+          <AppText align="right" style={styles.label} variant="caption">
             {directionSafeText(label)}
           </AppText>
         </View>
-        <AppText style={styles.summaryText} variant="body">
+        <AppText align="right" style={styles.summaryText} variant="body">
           {directionSafeText(text)}
         </AppText>
       </View>
@@ -67,8 +67,10 @@ const styles = StyleSheet.create({
   },
   identity: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: 9,
+    width: '100%',
   },
   icon: {
     alignItems: 'center',
@@ -82,10 +84,19 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.brand.link,
+    flex: 1,
     fontWeight: '700',
+    minWidth: 0,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   summaryText: {
+    alignSelf: 'stretch',
     color: '#E7E9EC',
     lineHeight: 25,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

@@ -287,7 +287,7 @@ export function QuickAccessCodeScreen() {
         ) : (
           <SolidCard style={styles.formCard}>
             <View style={styles.formHeader}>
-              <AppText variant="cardTitle">{titleByMode}</AppText>
+              <AppText style={styles.formTitle} variant="cardTitle">{titleByMode}</AppText>
               <Pressable
                 accessibilityLabel={showCode ? 'إخفاء الرمز' : 'إظهار الرمز'}
                 accessibilityRole="button"
@@ -333,7 +333,7 @@ export function QuickAccessCodeScreen() {
             ) : null}
 
             {inlineError || error ? (
-              <AppText accessibilityLiveRegion="polite" tone="danger" variant="caption">
+              <AppText accessibilityLiveRegion="polite" style={styles.fieldLabel} tone="danger" variant="caption">
                 {error ?? inlineError}
               </AppText>
             ) : null}
@@ -399,7 +399,7 @@ function Header({ onBackPress }: { onBackPress: () => void }) {
         accessibilityLabel="العودة إلى الأمان"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName="chevron-forward-outline"
+        iconName="chevron-back-outline"
         iconSize={22}
         onPress={onBackPress}
         pressedStyle={styles.pressed}
@@ -407,14 +407,13 @@ function Header({ onBackPress }: { onBackPress: () => void }) {
         style={styles.backButton}
       />
       <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
+        <AppText align="right" numberOfLines={1} style={styles.headerText} variant="screenTitle">
           رمز الدخول السريع
         </AppText>
-        <AppText align="center" tone="secondary" variant="caption">
+        <AppText align="right" style={styles.headerText} tone="secondary" variant="caption">
           استخدم رمزًا من 4 أرقام للوصول السريع إلى Capital.
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -467,7 +466,7 @@ function PinInput({
 
   return (
     <View style={styles.pinGroup}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <Pressable accessibilityRole="none" onPress={() => inputRef.current?.focus()} style={styles.pinDisplayRow}>
@@ -651,9 +650,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
-    justifyContent: 'space-between',
     minHeight: 54,
   },
   backButton: {
@@ -667,33 +666,45 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   prototypeNotice: {
     alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.58)',
     borderColor: 'rgba(167,200,161,0.22)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   noticeText: {
+    alignSelf: 'stretch',
     flex: 1,
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   formCard: {
     gap: Platform.select({ ios: spacing.xxl, default: spacing.lg }),
   },
   formHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
+  },
+  formTitle: {
+    flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   showButton: {
     alignItems: 'center',
@@ -707,6 +718,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   pinGroup: {
+    alignItems: 'flex-end',
     gap: Platform.select({ ios: spacing.md, default: spacing.sm }),
     position: 'relative',
   },
@@ -774,10 +786,11 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   statusCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   statusIcon: {
@@ -791,12 +804,16 @@ const styles = StyleSheet.create({
     width: 42,
   },
   statusCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.md,
@@ -805,7 +822,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.28)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
@@ -813,15 +831,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   biometricCard: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
+  },
+  fieldLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

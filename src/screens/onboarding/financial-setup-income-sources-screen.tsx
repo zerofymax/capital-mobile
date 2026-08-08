@@ -87,8 +87,8 @@ export function FinancialSetupIncomeSourcesScreen() {
         />
 
         <View style={styles.titleBlock}>
-          <AppText variant="screenTitle">من أين يأتي دخلك؟</AppText>
-          <AppText tone="secondary" variant="body">
+          <AppText style={styles.rtlText} variant="screenTitle">من أين يأتي دخلك؟</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="body">
             يمكنك اختيار أكثر من مصدر
           </AppText>
         </View>
@@ -118,7 +118,7 @@ export function FinancialSetupIncomeSourcesScreen() {
             })}
           </View>
           {selectionError ? (
-            <AppText tone="danger" variant="caption">
+            <AppText style={styles.rtlText} tone="danger" variant="caption">
               {selectionError}
             </AppText>
           ) : null}
@@ -126,10 +126,10 @@ export function FinancialSetupIncomeSourcesScreen() {
 
         {showPrimaryIncomeCard ? (
           <View style={styles.primaryIncomeCard}>
-            <AppText variant="cardTitle">{clientPayments}</AppText>
+            <AppText style={styles.rtlText} variant="cardTitle">{clientPayments}</AppText>
             <View accessibilityRole="radiogroup" style={styles.frequencyControl}>
-              <FrequencyOption label="أسبوعي" onPress={() => setFrequency('أسبوعي')} selected={frequency === 'أسبوعي'} />
               <FrequencyOption label="شهري" onPress={() => setFrequency('شهري')} selected={frequency === 'شهري'} />
+              <FrequencyOption label="أسبوعي" onPress={() => setFrequency('أسبوعي')} selected={frequency === 'أسبوعي'} />
             </View>
           </View>
         ) : null}
@@ -189,15 +189,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   chipSection: {
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
   },
   chipGrid: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -218,10 +221,12 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(167,200,161,0.55)',
   },
   primaryIncomeCard: {
+    alignItems: 'stretch',
     backgroundColor: 'rgba(255,255,255,0.045)',
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.glass,
     borderWidth: 1,
+    direction: 'ltr',
     gap: spacing.md,
     marginTop: spacing.xxxl,
     padding: spacing.lg,
@@ -231,6 +236,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     padding: spacing.xs,
@@ -246,6 +252,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(31,90,58,0.52)',
     borderColor: 'rgba(167,200,161,0.48)',
     borderWidth: 1,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   spacer: {
     flexGrow: 1,

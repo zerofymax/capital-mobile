@@ -154,7 +154,7 @@ export function FinancialSetupRecurringCommitmentsScreen() {
           />
 
           <View style={styles.titleBlock}>
-            <AppText variant="screenTitle">هل لديك التزامات متكررة؟</AppText>
+            <AppText style={styles.rtlText} variant="screenTitle">هل لديك التزامات متكررة؟</AppText>
           </View>
 
           <View style={styles.chipSection}>
@@ -182,7 +182,7 @@ export function FinancialSetupRecurringCommitmentsScreen() {
               })}
             </View>
             {selectionError ? (
-              <AppText tone="danger" variant="caption">
+              <AppText style={styles.rtlText} tone="danger" variant="caption">
                 {selectionError}
               </AppText>
             ) : null}
@@ -199,10 +199,10 @@ export function FinancialSetupRecurringCommitmentsScreen() {
             ]}
           >
             <View style={styles.noCommitmentsCopy}>
-              <AppText tone={noCommitments ? 'primary' : 'secondary'} variant="cardTitle">
+              <AppText style={styles.rtlText} tone={noCommitments ? 'primary' : 'secondary'} variant="cardTitle">
                 {noCommitmentsLabel}
               </AppText>
-              <AppText tone="tertiary" variant="supporting">
+              <AppText style={styles.rtlText} tone="tertiary" variant="supporting">
                 {helperText}
               </AppText>
             </View>
@@ -243,13 +243,10 @@ type CommitmentAmountFieldProps = {
 function CommitmentAmountField({ value, error, disabled, onChangeText }: CommitmentAmountFieldProps) {
   return (
     <View style={[styles.inputCard, disabled && styles.inputCardDisabled, error && styles.inputCardError]}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.rtlText} tone="secondary" variant="supporting">
         إجمالي تقريبي شهري (اختياري)
       </AppText>
       <View style={styles.amountRow}>
-        <AppText style={styles.currencySuffix} tone={disabled ? 'tertiary' : 'primary'} variant="cardTitle">
-          ر.س
-        </AppText>
         <TextInput
           editable={!disabled}
           keyboardType="numeric"
@@ -259,9 +256,12 @@ function CommitmentAmountField({ value, error, disabled, onChangeText }: Commitm
           style={[styles.amountInput, disabled && styles.inputTextDisabled]}
           value={value}
         />
+        <AppText style={styles.currencySuffix} tone={disabled ? 'tertiary' : 'primary'} variant="cardTitle">
+          ر.س
+        </AppText>
       </View>
       {error ? (
-        <AppText tone="danger" variant="caption">
+        <AppText style={styles.rtlText} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -300,7 +300,7 @@ function DueDateField({ value, options, disabled, onSelect }: DueDateFieldProps)
 
   return (
     <View style={[styles.inputCard, disabled && styles.inputCardDisabled]}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.rtlText} tone="secondary" variant="supporting">
         تاريخ أقرب استحقاق (اختياري)
       </AppText>
       <Pressable
@@ -332,7 +332,7 @@ function DueDateField({ value, options, disabled, onSelect }: DueDateFieldProps)
                   إلغاء
                 </AppText>
               </Pressable>
-              <AppText variant="cardTitle">تاريخ أقرب استحقاق</AppText>
+              <AppText style={styles.pickerTitle} variant="cardTitle">تاريخ أقرب استحقاق</AppText>
             </View>
             <View style={styles.pickerOptions}>
               {options.map((option) => {
@@ -349,7 +349,9 @@ function DueDateField({ value, options, disabled, onSelect }: DueDateFieldProps)
                       pressed && styles.pressed,
                     ]}
                   >
-                    {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-circle" size={18} /> : null}
+                    <View style={styles.checkSlot}>
+                      {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-circle" size={18} /> : null}
+                    </View>
                     <AppText align="right" style={styles.pickerOptionText} tone={selected ? 'primary' : 'secondary'} variant="body">
                       {option}
                     </AppText>
@@ -377,15 +379,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   chipSection: {
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
   },
   chipGrid: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -411,6 +416,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.glass,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     marginTop: spacing.xxxl,
@@ -421,8 +427,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(167,200,161,0.55)',
   },
   noCommitmentsCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   radioIndicator: {
     alignItems: 'center',
@@ -446,10 +454,12 @@ const styles = StyleSheet.create({
     opacity: 0.58,
   },
   inputCard: {
+    alignItems: 'stretch',
     backgroundColor: 'rgba(255,255,255,0.045)',
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.glass,
     borderWidth: 1,
+    direction: 'ltr',
     gap: spacing.sm,
     padding: spacing.lg,
   },
@@ -491,6 +501,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 52,
@@ -498,6 +509,9 @@ const styles = StyleSheet.create({
   },
   dateValue: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pickerModalRoot: {
     flex: 1,
@@ -531,6 +545,7 @@ const styles = StyleSheet.create({
   },
   pickerHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: spacing.xs,
@@ -544,6 +559,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 48,
@@ -556,6 +572,25 @@ const styles = StyleSheet.create({
   },
   pickerOptionText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  pickerTitle: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  checkSlot: {
+    alignItems: 'center',
+    height: 18,
+    justifyContent: 'center',
+    width: 18,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   spacer: {
     flexGrow: 1,

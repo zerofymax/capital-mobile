@@ -11,22 +11,36 @@ type AuthHeaderProps = {
   title: string;
   subtitle: string;
   align?: 'center' | 'right';
+  rtlLayout?: boolean;
 };
 
-export function AuthHeader({ eyebrow = 'Capital', title, subtitle, align = 'right' }: AuthHeaderProps) {
+export function AuthHeader({ eyebrow = 'Capital', title, subtitle, align = 'right', rtlLayout = false }: AuthHeaderProps) {
   return (
-    <View style={[styles.root, align === 'center' && styles.center]}>
-      <View style={styles.mark}>
-        <Image resizeMode="contain" source={capitalLogo} style={styles.markImage} />
-      </View>
-      <View style={styles.copy}>
-        <AppText align={align} style={styles.eyebrow} variant="caption">
-          {eyebrow}
-        </AppText>
-        <AppText align={align} variant="screenTitle">
+    <View style={[styles.root, align === 'center' && styles.center, rtlLayout && styles.rtlRoot]}>
+      {rtlLayout ? (
+        <View style={styles.rtlBrand}>
+          <View style={styles.mark}>
+            <Image resizeMode="contain" source={capitalLogo} style={styles.markImage} />
+          </View>
+          <AppText align="left" style={styles.rtlBrandText} variant="caption">
+            {eyebrow}
+          </AppText>
+        </View>
+      ) : (
+        <View style={styles.mark}>
+          <Image resizeMode="contain" source={capitalLogo} style={styles.markImage} />
+        </View>
+      )}
+      <View style={[styles.copy, rtlLayout && styles.rtlCopy]}>
+        {!rtlLayout ? (
+          <AppText align={align} style={styles.eyebrow} variant="caption">
+            {eyebrow}
+          </AppText>
+        ) : null}
+        <AppText align={align} style={rtlLayout ? styles.rtlText : undefined} variant="screenTitle">
           {title}
         </AppText>
-        <AppText align={align} tone="secondary" variant="supporting">
+        <AppText align={align} style={rtlLayout ? styles.rtlText : undefined} tone="secondary" variant="supporting">
           {subtitle}
         </AppText>
       </View>
@@ -40,6 +54,21 @@ const styles = StyleSheet.create({
   },
   center: {
     alignItems: 'center',
+  },
+  rtlRoot: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'rtl',
+    width: '100%',
+  },
+  rtlBrand: {
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+    justifyContent: 'flex-start',
+    width: '100%',
   },
   mark: {
     alignItems: 'center',
@@ -59,8 +88,25 @@ const styles = StyleSheet.create({
   copy: {
     gap: spacing.xs,
   },
+  rtlCopy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    width: '100%',
+  },
   eyebrow: {
     color: colors.brand.link,
     fontWeight: '700',
+  },
+  rtlBrandText: {
+    color: colors.brand.link,
+    fontWeight: '700',
+    textAlign: 'left',
+    writingDirection: 'ltr',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

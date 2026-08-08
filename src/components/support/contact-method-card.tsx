@@ -14,16 +14,16 @@ type ContactMethodCardProps = {
 export function ContactMethodCard({ method }: ContactMethodCardProps) {
   return (
     <View style={styles.root}>
-      <View style={styles.iconWrap}>
-        <Ionicons color={colors.brand.green} name={method.icon} size={20} />
-      </View>
       <View style={styles.copy}>
-        <AppText numberOfLines={1} variant="cardTitle">
+        <AppText numberOfLines={1} style={styles.copyText} variant="cardTitle">
           {method.title}
         </AppText>
-        <AppText numberOfLines={2} tone="secondary" variant="supporting">
+        <AppText numberOfLines={2} style={styles.copyText} tone="secondary" variant="supporting">
           {method.description}
         </AppText>
+      </View>
+      <View style={styles.iconWrap}>
+        <Ionicons color={colors.brand.green} name={method.icon} size={20} />
       </View>
       <View style={styles.badge}>
         <AppText align="center" tone="warning" variant="caption">
@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 86,
@@ -55,9 +56,15 @@ const styles = StyleSheet.create({
     width: 40,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   badge: {
     backgroundColor: colors.semantic.warningTint,

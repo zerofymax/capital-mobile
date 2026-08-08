@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CapitalBottomSheetHeaderSurface } from '@/components/navigation/capital-bottom-sheet-header-surface';
@@ -25,14 +25,28 @@ import {
   resolveGoalStatus,
 } from './startup-goals-utils';
 
-export function ReportModalHeader({ title, subtitle, onBack }: { title: string; subtitle?: string; onBack: () => void }) {
+export function ReportModalHeader({
+  title,
+  subtitle,
+  onBack,
+  androidRtlLayout = false,
+  subtitleWritingDirection = 'rtl',
+}: {
+  title: string;
+  subtitle?: string;
+  onBack: () => void;
+  androidRtlLayout?: boolean;
+  subtitleWritingDirection?: 'ltr' | 'rtl';
+}) {
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, useAndroidRtlLayout && styles.headerAndroid]}>
       <CapitalGlassIconButton
         accessibilityLabel="رجوع"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName="chevron-forward-outline"
+        iconName={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
         iconSize={21}
         onPress={onBack}
         pressedStyle={styles.pressed}
@@ -40,25 +54,45 @@ export function ReportModalHeader({ title, subtitle, onBack }: { title: string; 
         style={styles.backButton}
       />
       <View style={styles.headerCopy}>
-        <AppText align="center" style={styles.headerTitle} variant="screenTitle">
-          {title}
+        <AppText align="right" style={[styles.headerTitle, styles.rtlText]} variant="screenTitle">
+          {directionSafeText(title)}
         </AppText>
         {subtitle ? (
-          <AppText align="center" tone="secondary" variant="supporting">
-            {subtitle}
+          <AppText
+            align="right"
+            style={[styles.rtlText, subtitleWritingDirection === 'ltr' && styles.ltrHeaderSubtitle]}
+            tone="secondary"
+            variant="supporting"
+          >
+            {directionSafeText(subtitle)}
           </AppText>
         ) : null}
       </View>
-      <View style={styles.headerSlot} />
+      <View style={[styles.headerSlot, useAndroidRtlLayout && styles.headerSlotAndroid]} />
     </View>
   );
 }
 
-export function NoticeBanner({ message, tone = 'success' }: { message: string; tone?: 'success' | 'warning' | 'danger' }) {
+export function NoticeBanner({
+  message,
+  tone = 'success',
+  androidRtlLayout = false,
+}: {
+  message: string;
+  tone?: 'success' | 'warning' | 'danger';
+  androidRtlLayout?: boolean;
+}) {
   const toneStyle = getToneStyle(tone);
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
 
   return (
-    <View style={[styles.notice, { backgroundColor: toneStyle.tint, borderColor: toneStyle.border }]}>
+    <View
+      style={[
+        styles.notice,
+        useAndroidRtlLayout && styles.noticeAndroid,
+        { backgroundColor: toneStyle.tint, borderColor: toneStyle.border },
+      ]}
+    >
       <Ionicons color={toneStyle.text} name={tone === 'success' ? 'checkmark-circle-outline' : 'warning-outline'} size={17} style={styles.noticeIcon} />
       <View style={styles.noticeTextWrap}>
         <AppText style={[styles.noticeText, { color: toneStyle.text }]} variant="supporting">
@@ -101,6 +135,7 @@ export function MiniTrend({ values, tone = 'good' }: { values: readonly number[]
 }
 
 export function StartupGoalCard({ goal, onPress }: { goal: StartupGoal; onPress: (id: string) => void }) {
+  const useAndroidRtlLayout = Platform.OS === 'android';
   const progress = calculateDisplayProgress(goal);
   const budgetUsage = calculateBudgetUsage(goal);
   const remainingBudget = calculateRemainingBudget(goal);
@@ -109,45 +144,70 @@ export function StartupGoalCard({ goal, onPress }: { goal: StartupGoal; onPress:
   const type = getStartupGoalTypeMeta(goal.type);
   const statusTone = resolvedStatus === 'delayed' ? 'intervene' : resolvedStatus === 'completed' ? 'good' : 'watch';
   const toneStyle = getStatusStyle(statusTone);
+  const goalIcon = (
+    <View style={[styles.iconBubble, { backgroundColor: toneStyle.tint }]}>
+      <Ionicons color={toneStyle.accent} name={type.icon} size={19} />
+    </View>
+  );
+  const goalTitle = (
+    <View style={[styles.goalTitleBox, useAndroidRtlLayout && styles.goalTitleBoxAndroid]}>
+      <AppText align="right" style={styles.rtlText} variant="cardTitle">
+        {goal.title}
+      </AppText>
+      <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
+        {type.label} · {goal.owner}
+      </AppText>
+    </View>
+  );
+  const manualBadge = goal.id === 'mrr-100k' ? <ManualProgressBadge /> : null;
+  const statusBadge = <StatusBadge status={resolvedStatus} />;
+  const openIcon = <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />;
 
   return (
     <Pressable accessibilityLabel={goal.title} accessibilityRole="button" onPress={() => onPress(goal.id)} style={({ pressed }) => [styles.goalCard, pressed && styles.pressed]}>
-      <View style={styles.goalTopRow}>
-        <View style={[styles.iconBubble, { backgroundColor: toneStyle.tint }]}>
-          <Ionicons color={toneStyle.accent} name={type.icon} size={19} />
-        </View>
-        <View style={styles.goalTitleBox}>
-          <AppText variant="cardTitle">{goal.title}</AppText>
-          <AppText tone="secondary" variant="caption">
-            {type.label} · {goal.owner}
-          </AppText>
-        </View>
-        {goal.id === 'mrr-100k' ? <ManualProgressBadge /> : null}
-        <StatusBadge status={resolvedStatus} />
-        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
+      <View style={[styles.goalTopRow, useAndroidRtlLayout && styles.goalTopRowAndroid]}>
+        {useAndroidRtlLayout ? (
+          <>
+            {openIcon}
+            {goalIcon}
+            <View style={styles.goalIdentityArea}>
+              {manualBadge}
+              {statusBadge}
+              {goalTitle}
+            </View>
+          </>
+        ) : (
+          <>
+            {goalIcon}
+            {goalTitle}
+            {manualBadge}
+            {statusBadge}
+            {openIcon}
+          </>
+        )}
       </View>
-      <View style={styles.goalMetaRow}>
-        <AppText tone="secondary" variant="caption">
+      <View style={[styles.goalMetaRow, useAndroidRtlLayout && styles.goalMetaRowAndroid]}>
+        <AppText align="right" style={styles.goalMetaLabel} tone="secondary" variant="caption">
           {directionSafeText(`${formatGoalNumber(goal.currentValue, goal.unit)} من ${formatGoalNumber(goal.targetValue, goal.unit)}`)}
         </AppText>
-        <AppText style={{ color: toneStyle.text }} variant="caption">
+        <AppText align="left" style={[styles.goalMetaValue, { color: toneStyle.text }]} variant="caption">
           {directionSafeText(`${Math.round(progress)}%`)}
         </AppText>
       </View>
       <ProgressBar progress={progress} tone={statusTone} />
-      <View style={styles.goalMetaRow}>
-        <AppText tone="secondary" variant="caption">
+      <View style={[styles.goalMetaRow, useAndroidRtlLayout && styles.goalMetaRowAndroid]}>
+        <AppText align="right" style={styles.goalMetaLabel} tone="secondary" variant="caption">
           {directionSafeText(`الميزانية ${formatSar(goal.allocatedBudget)} · المصروف ${formatSar(goal.spentBudget)}`)}
         </AppText>
-        <AppText tone="secondary" variant="caption">
+        <AppText align="left" style={styles.goalMetaValue} tone="secondary" variant="caption">
           {budgetUsage === null ? 'لا توجد ميزانية مخصصة' : directionSafeText(`استهلاك ${formatPercent(budgetUsage)}`)}
         </AppText>
       </View>
-      <View style={styles.goalMetaRow}>
-        <AppText tone={resolvedStatus === 'delayed' ? 'danger' : 'secondary'} variant="caption">
+      <View style={[styles.goalMetaRow, useAndroidRtlLayout && styles.goalMetaRowAndroid]}>
+        <AppText align="right" style={styles.goalMetaLabel} tone={resolvedStatus === 'delayed' ? 'danger' : 'secondary'} variant="caption">
           {formatDaysRemaining(daysRemaining)}
         </AppText>
-        <AppText tone={remainingBudget < 0 ? 'danger' : 'secondary'} variant="caption">
+        <AppText align="left" style={styles.goalMetaValue} tone={remainingBudget < 0 ? 'danger' : 'secondary'} variant="caption">
           {directionSafeText(`المتبقي ${formatSar(remainingBudget)}`)}
         </AppText>
       </View>
@@ -185,6 +245,7 @@ export function TextField({
   error,
   multiline,
   onChangeText,
+  androidRtlLayout = false,
 }: {
   label: string;
   value: string;
@@ -192,10 +253,13 @@ export function TextField({
   error?: string;
   multiline?: boolean;
   onChangeText: (value: string) => void;
+  androidRtlLayout?: boolean;
 }) {
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+
   return (
-    <View style={styles.fieldWrap}>
-      <AppText variant="supporting">{label}</AppText>
+    <View style={[styles.fieldWrap, useAndroidRtlLayout && styles.fieldWrapAndroid]}>
+      <FieldLabel label={label} useAndroidRtlLayout={useAndroidRtlLayout} />
       <View style={[styles.inputWrap, multiline && styles.multilineWrap, error && styles.fieldError]}>
         <TextInput
           accessibilityLabel={label}
@@ -203,7 +267,7 @@ export function TextField({
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor={colors.text.tertiary}
-          style={[styles.textInput, multiline && styles.multilineInput]}
+          style={[styles.textInput, useAndroidRtlLayout && styles.textInputAndroid, multiline && styles.multilineInput]}
           textAlign="right"
           value={value}
         />
@@ -221,6 +285,7 @@ export function AmountField({
   helper,
   suffix = 'ر.س',
   onChangeText,
+  androidRtlLayout = false,
 }: {
   label: string;
   value: string;
@@ -229,11 +294,14 @@ export function AmountField({
   helper?: string;
   suffix?: string;
   onChangeText: (value: string) => void;
+  androidRtlLayout?: boolean;
 }) {
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+
   return (
-    <View style={styles.fieldWrap}>
-      <AppText variant="supporting">{label}</AppText>
-      <View style={[styles.amountWrap, error && styles.fieldError]}>
+    <View style={[styles.fieldWrap, useAndroidRtlLayout && styles.fieldWrapAndroid]}>
+      <FieldLabel label={label} useAndroidRtlLayout={useAndroidRtlLayout} />
+      <View style={[styles.amountWrap, useAndroidRtlLayout && styles.amountWrapAndroid, error && styles.fieldError]}>
         <TextInput
           accessibilityLabel={label}
           keyboardType="numeric"
@@ -248,7 +316,7 @@ export function AmountField({
         </AppText>
       </View>
       {helper ? (
-        <AppText tone="warning" variant="caption">
+        <AppText align="right" style={useAndroidRtlLayout && styles.fieldHelperAndroid} tone="warning" variant="caption">
           {helper}
         </AppText>
       ) : null}
@@ -263,28 +331,69 @@ export function SelectField({
   error,
   iconName,
   onPress,
+  androidRtlLayout = false,
 }: {
   label: string;
   value: string;
   error?: string;
   iconName?: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
+  androidRtlLayout?: boolean;
 }) {
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+
   return (
-    <View style={styles.fieldWrap}>
-      <AppText variant="supporting">{label}</AppText>
-      <Pressable accessibilityLabel={label} accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.selectWrap, error && styles.fieldError, pressed && styles.pressed]}>
-        {iconName ? (
-          <View style={styles.fieldIcon}>
-            <Ionicons color={colors.text.tertiary} name={iconName} size={16} />
-          </View>
-        ) : null}
-        <AppText style={styles.selectText} variant="cardTitle">
-          {value || 'اختر'}
-        </AppText>
-        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
+    <View style={[styles.fieldWrap, useAndroidRtlLayout && styles.fieldWrapAndroid]}>
+      <FieldLabel label={label} useAndroidRtlLayout={useAndroidRtlLayout} />
+      <Pressable
+        accessibilityLabel={label}
+        accessibilityRole="button"
+        onPress={onPress}
+        style={({ pressed }) => [styles.selectWrap, useAndroidRtlLayout && styles.selectWrapAndroid, error && styles.fieldError, pressed && styles.pressed]}
+      >
+        {useAndroidRtlLayout ? (
+          <>
+            <View style={styles.selectActionSlot}>
+              <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
+            </View>
+            {iconName ? (
+              <View style={styles.fieldIcon}>
+                <Ionicons color={colors.text.tertiary} name={iconName} size={16} />
+              </View>
+            ) : null}
+            <AppText align="right" style={[styles.selectText, styles.selectTextAndroid]} variant="cardTitle">
+              {directionSafeText(value || 'اختر')}
+            </AppText>
+          </>
+        ) : (
+          <>
+            {iconName ? (
+              <View style={styles.fieldIcon}>
+                <Ionicons color={colors.text.tertiary} name={iconName} size={16} />
+              </View>
+            ) : null}
+            <AppText style={styles.selectText} variant="cardTitle">
+              {value || 'اختر'}
+            </AppText>
+            <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
+          </>
+        )}
       </Pressable>
       {error ? <FieldError message={error} /> : null}
+    </View>
+  );
+}
+
+function FieldLabel({ label, useAndroidRtlLayout }: { label: string; useAndroidRtlLayout: boolean }) {
+  if (!useAndroidRtlLayout) {
+    return <AppText variant="supporting">{label}</AppText>;
+  }
+
+  return (
+    <View style={styles.fieldLabelWrapperAndroid}>
+      <AppText align="right" style={styles.fieldLabelAndroid} variant="supporting">
+        {label}
+      </AppText>
     </View>
   );
 }
@@ -296,6 +405,7 @@ export function PickerSheet({
   selectedValue,
   onSelect,
   onClose,
+  androidRtlLayout = false,
 }: {
   title: string;
   visible: boolean;
@@ -303,36 +413,70 @@ export function PickerSheet({
   selectedValue: string;
   onSelect: (value: string) => void;
   onClose: () => void;
+  androidRtlLayout?: boolean;
 }) {
   const insets = useSafeAreaInsets();
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const bottomPadding = useAndroidRtlLayout
+    ? insets.bottom + 48 + spacing.xl
+    : insets.bottom + spacing.xl;
+  const optionRows = options.map((option) => {
+    const selected = option === selectedValue;
+
+    return (
+      <Pressable
+        accessibilityLabel={option}
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+        key={option}
+        onPress={() => onSelect(option)}
+        style={({ pressed }) => [
+          styles.optionRow,
+          useAndroidRtlLayout && styles.optionRowAndroid,
+          selected && styles.optionSelected,
+          pressed && styles.pressed,
+        ]}
+      >
+        <AppText
+          align="right"
+          style={[useAndroidRtlLayout && styles.optionTextAndroid, selected && styles.optionSelectedText]}
+          variant="body"
+        >
+          {directionSafeText(option)}
+        </AppText>
+        {useAndroidRtlLayout ? (
+          <View style={styles.optionCheckSlot}>
+            {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={18} /> : null}
+          </View>
+        ) : selected ? (
+          <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={18} />
+        ) : null}
+      </Pressable>
+    );
+  });
 
   return (
     <Modal animationType={Platform.OS === 'ios' ? 'slide' : 'fade'} onRequestClose={onClose} statusBarTranslucent transparent visible={visible}>
       <View style={styles.sheetRoot}>
         <Pressable accessibilityLabel="إغلاق القائمة" onPress={onClose} style={styles.sheetBackdrop} />
-        <View style={[styles.sheetCard, { paddingBottom: insets.bottom + spacing.xl }]}>
+        <View style={[styles.sheetCard, useAndroidRtlLayout && styles.sheetCardAndroid, { paddingBottom: bottomPadding }]}>
           <CapitalBottomSheetHeaderSurface />
           <View style={styles.sheetHandle} />
-          <AppText variant="sectionTitle">{title}</AppText>
-          {options.map((option) => {
-            const selected = option === selectedValue;
-
-            return (
-              <Pressable
-                accessibilityLabel={option}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                key={option}
-                onPress={() => onSelect(option)}
-                style={({ pressed }) => [styles.optionRow, selected && styles.optionSelected, pressed && styles.pressed]}
-              >
-                <AppText style={selected && styles.optionSelectedText} variant="body">
-                  {option}
-                </AppText>
-                {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={18} /> : null}
-              </Pressable>
-            );
-          })}
+          <AppText align="right" style={useAndroidRtlLayout && styles.sheetTitleAndroid} variant="sectionTitle">
+            {title}
+          </AppText>
+          {useAndroidRtlLayout ? (
+            <ScrollView
+              contentContainerStyle={styles.optionList}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              style={styles.optionScroll}
+            >
+              {optionRows}
+            </ScrollView>
+          ) : (
+            optionRows
+          )}
         </View>
       </View>
     </Modal>
@@ -348,6 +492,7 @@ export function ConfirmSheet({
   danger,
   onPrimaryPress,
   onSecondaryPress,
+  androidRtlLayout = false,
 }: {
   visible: boolean;
   title: string;
@@ -357,18 +502,25 @@ export function ConfirmSheet({
   danger?: boolean;
   onPrimaryPress: () => void;
   onSecondaryPress: () => void;
+  androidRtlLayout?: boolean;
 }) {
   const insets = useSafeAreaInsets();
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const bottomPadding = useAndroidRtlLayout
+    ? insets.bottom + 48 + spacing.xl
+    : insets.bottom + spacing.xl;
 
   return (
     <Modal animationType={Platform.OS === 'ios' ? 'slide' : 'fade'} onRequestClose={onSecondaryPress} statusBarTranslucent transparent visible={visible}>
       <View style={styles.sheetRoot}>
         <Pressable accessibilityLabel={secondaryLabel} onPress={onSecondaryPress} style={styles.sheetBackdrop} />
-        <View style={[styles.sheetCard, { paddingBottom: insets.bottom + spacing.xl }]}>
+        <View style={[styles.sheetCard, { paddingBottom: bottomPadding }]}>
           <CapitalBottomSheetHeaderSurface />
           <View style={styles.sheetHandle} />
-          <AppText variant="sectionTitle">{title}</AppText>
-          <AppText tone="secondary" variant="body">
+          <AppText align="right" style={useAndroidRtlLayout && styles.confirmTitleAndroid} variant="sectionTitle">
+            {title}
+          </AppText>
+          <AppText align="right" style={useAndroidRtlLayout && styles.confirmDescriptionAndroid} tone="secondary" variant="body">
             {description}
           </AppText>
           <View style={styles.confirmActions}>
@@ -420,8 +572,12 @@ function getToneStyle(tone: 'success' | 'warning' | 'danger') {
 const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
+  },
+  headerAndroid: {
+    direction: 'ltr',
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -434,14 +590,31 @@ const styles = StyleSheet.create({
     width: 38,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   headerTitle: {
     fontSize: 26,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  ltrHeaderSubtitle: {
+    textAlign: 'right',
+    writingDirection: 'ltr',
+  },
+  rtlText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   headerSlot: {
     width: 38,
+  },
+  headerSlotAndroid: {
+    display: 'none',
   },
   notice: {
     alignItems: 'flex-start',
@@ -453,6 +626,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     width: '100%',
+  },
+  noticeAndroid: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   noticeIcon: {
     flexShrink: 0,
@@ -472,6 +650,7 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   progressTrack: {
+    alignItems: 'flex-end',
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: radii.pill,
     height: 6,
@@ -517,8 +696,12 @@ const styles = StyleSheet.create({
   },
   goalTopRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+  },
+  goalTopRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   iconBubble: {
     alignItems: 'center',
@@ -528,8 +711,22 @@ const styles = StyleSheet.create({
     width: 38,
   },
   goalTitleBox: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  goalTitleBoxAndroid: {
+    flex: 0,
+    flexShrink: 1,
+  },
+  goalIdentityArea: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flex: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'flex-end',
     minWidth: 0,
   },
   statusBadge: {
@@ -554,12 +751,48 @@ const styles = StyleSheet.create({
   },
   goalMetaRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'space-between',
   },
+  goalMetaRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  goalMetaLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  goalMetaValue: {
+    flexShrink: 0,
+    textAlign: 'left',
+  },
   fieldWrap: {
     gap: spacing.sm,
+  },
+  fieldWrapAndroid: {
+    alignSelf: 'stretch',
+    width: '100%',
+  },
+  fieldLabelWrapperAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  fieldLabelAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  fieldHelperAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   inputWrap: {
     backgroundColor: colors.surface.card,
@@ -580,6 +813,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     writingDirection: 'rtl',
   },
+  textInputAndroid: {
+    textAlign: 'right',
+    textAlignVertical: 'center',
+    writingDirection: 'rtl',
+  },
   multilineInput: {
     minHeight: 86,
     textAlignVertical: 'top',
@@ -594,6 +832,11 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minHeight: 54,
     paddingHorizontal: spacing.md,
+  },
+  amountWrapAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    width: '100%',
   },
   amountInput: {
     color: colors.text.primary,
@@ -615,8 +858,24 @@ const styles = StyleSheet.create({
     minHeight: 54,
     paddingHorizontal: spacing.md,
   },
+  selectWrapAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
   selectText: {
     flex: 1,
+  },
+  selectTextAndroid: {
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  selectActionSlot: {
+    alignItems: 'center',
+    flexShrink: 0,
+    justifyContent: 'center',
+    width: 16,
   },
   fieldIcon: {
     alignItems: 'center',
@@ -654,12 +913,21 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     paddingBottom: spacing.xxl,
   },
+  sheetCardAndroid: {
+    maxHeight: '92%',
+  },
   sheetHandle: {
     alignSelf: 'center',
     backgroundColor: 'rgba(255,255,255,0.18)',
     borderRadius: radii.pill,
     height: 4,
     width: 36,
+  },
+  sheetTitleAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   optionRow: {
     alignItems: 'center',
@@ -672,6 +940,29 @@ const styles = StyleSheet.create({
     minHeight: 48,
     paddingHorizontal: spacing.md,
   },
+  optionRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  optionTextAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  optionCheckSlot: {
+    alignItems: 'center',
+    flexShrink: 0,
+    justifyContent: 'center',
+    width: 18,
+  },
+  optionList: {
+    gap: spacing.md,
+  },
+  optionScroll: {
+    flexGrow: 0,
+    flexShrink: 1,
+  },
   optionSelected: {
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.38)',
@@ -681,6 +972,19 @@ const styles = StyleSheet.create({
   },
   confirmActions: {
     gap: spacing.md,
+  },
+  confirmTitleAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  confirmDescriptionAndroid: {
+    alignSelf: 'stretch',
+    flexShrink: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.76,

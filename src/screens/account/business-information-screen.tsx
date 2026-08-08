@@ -23,6 +23,7 @@ import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 
 import {
   businessInformationOptions,
@@ -215,8 +216,11 @@ export function BusinessInformationScreen() {
           <FormSection title="هوية النشاط">
             <FormField
               accessibilityLabel="الاسم التجاري"
+              containerStyle={styles.rtlField}
               error={errors.businessName}
+              errorStyle={styles.fieldError}
               label="الاسم التجاري"
+              labelStyle={styles.fieldLabel}
               onChangeText={(businessName) => updateFormState({ businessName })}
               placeholder="استوديو رقمي"
               returnKeyType="next"
@@ -224,8 +228,11 @@ export function BusinessInformationScreen() {
             />
             <FormField
               accessibilityLabel="الاسم القانوني"
+              containerStyle={styles.rtlField}
               error={errors.legalName}
+              errorStyle={styles.fieldError}
               label="الاسم القانوني (اختياري)"
+              labelStyle={styles.fieldLabel}
               onChangeText={(legalName) => updateFormState({ legalName })}
               placeholder="شركة الاستوديو الرقمي المحدودة"
               returnKeyType="next"
@@ -234,8 +241,11 @@ export function BusinessInformationScreen() {
             <View style={styles.textAreaWrap}>
               <FormField
                 accessibilityLabel="وصف مختصر للنشاط"
+                containerStyle={styles.rtlField}
                 error={errors.description}
+                errorStyle={styles.fieldError}
                 label="وصف مختصر للنشاط (اختياري)"
+                labelStyle={styles.fieldLabel}
                 maxLength={descriptionMaxLength}
                 multiline
                 onChangeText={(description) => updateFormState({ description })}
@@ -302,9 +312,12 @@ export function BusinessInformationScreen() {
           <FormSection title="معلومات اختيارية">
             <FormField
               accessibilityLabel="الرقم الضريبي"
+              containerStyle={styles.rtlField}
               error={errors.taxNumber}
+              errorStyle={styles.fieldError}
               keyboardType="numbers-and-punctuation"
               label="الرقم الضريبي (اختياري)"
+              labelStyle={styles.fieldLabel}
               onChangeText={(taxNumber) => updateFormState({ taxNumber })}
               placeholder="غير مضاف بعد"
               returnKeyType="next"
@@ -314,9 +327,12 @@ export function BusinessInformationScreen() {
             <FormField
               accessibilityLabel="الموقع الإلكتروني"
               autoCapitalize="none"
+              containerStyle={styles.rtlField}
               error={errors.website}
+              errorStyle={styles.fieldError}
               keyboardType="url"
               label="الموقع الإلكتروني (اختياري)"
+              labelStyle={styles.fieldLabel}
               onChangeText={(website) => updateFormState({ website })}
               placeholder="https://capital.app"
               returnKeyType="done"
@@ -364,17 +380,16 @@ function BusinessInformationHeader({ onBackPress }: { onBackPress: () => void })
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText style={styles.headerText} variant="screenTitle">
           معلومات النشاط
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText style={styles.headerText} tone="secondary" variant="supporting">
           حدّث البيانات الأساسية التي يستخدمها Capital في التقارير والتحليلات.
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -382,7 +397,9 @@ function BusinessInformationHeader({ onBackPress }: { onBackPress: () => void })
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">{title}</AppText>
+      <View style={styles.sectionTitleWrap}>
+        <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
+      </View>
       <SolidCard style={styles.formCard}>{children}</SolidCard>
     </View>
   );
@@ -419,7 +436,7 @@ function BusinessSelectField({
   return (
     <View style={styles.selectFieldWrap}>
       <View style={[styles.selectRoot, props.fullWidth && styles.fullWidth]}>
-        <AppText tone="secondary" variant="supporting">
+        <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
           {props.label}
         </AppText>
         <Pressable
@@ -429,7 +446,7 @@ function BusinessSelectField({
         >
           <Ionicons color={colors.text.tertiary} name="chevron-down" size={16} />
           <AppText align="right" style={styles.selectValue} variant="body">
-            {props.value}
+            {directionSafeText(props.value)}
           </AppText>
         </Pressable>
       </View>
@@ -449,7 +466,7 @@ function BusinessSelectField({
                   إلغاء
                 </AppText>
               </Pressable>
-              <AppText variant="cardTitle">{props.label}</AppText>
+              <AppText style={styles.pickerTitle} variant="cardTitle">{props.label}</AppText>
             </View>
 
             <ScrollView
@@ -476,7 +493,7 @@ function BusinessSelectField({
                   >
                     {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-circle" size={18} /> : null}
                     <AppText align="right" style={styles.pickerOptionText} tone={selected ? 'primary' : 'secondary'} variant="body">
-                      {option}
+                      {directionSafeText(option)}
                     </AppText>
                   </Pressable>
                 );
@@ -533,7 +550,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.screenX,
@@ -550,17 +568,40 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitleWrap: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    flex: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   formCard: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.lg,
   },
   selectPair: {
@@ -571,14 +612,36 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   selectFieldWrap: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   selectRoot: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
+  },
+  fieldLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  fieldError: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlField: {
+    alignItems: 'stretch',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
   },
   fullWidth: {
     flexBasis: '100%',
@@ -589,6 +652,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 52,
@@ -596,6 +660,8 @@ const styles = StyleSheet.create({
   },
   selectValue: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   selectError: {
     paddingTop: spacing.xs,
@@ -618,6 +684,8 @@ const styles = StyleSheet.create({
   warningText: {
     flex: 1,
     lineHeight: 21,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   noticeCard: {
     alignItems: 'center',
@@ -630,6 +698,8 @@ const styles = StyleSheet.create({
   noticeText: {
     flex: 1,
     lineHeight: 23,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   ltrInput: {
     textAlign: 'left',
@@ -670,9 +740,16 @@ const styles = StyleSheet.create({
   },
   pickerHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: spacing.xs,
+  },
+  pickerTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pickerOptionsContent: {
     gap: spacing.sm,
@@ -683,6 +760,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 48,
@@ -695,6 +773,8 @@ const styles = StyleSheet.create({
   },
   pickerOptionText: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

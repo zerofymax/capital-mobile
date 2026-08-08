@@ -15,14 +15,14 @@ export function BillPaymentMethodCard({ account, balance }: BillPaymentMethodCar
   return (
     <GlassSurface>
       <View style={styles.root}>
-        <View style={styles.iconWrap}>
-          <Ionicons color={colors.brand.green} name="wallet-outline" size={20} />
-        </View>
         <View style={styles.copy}>
-          <AppText variant="cardTitle">{account}</AppText>
+          <AppText style={styles.account} variant="cardTitle">{account}</AppText>
           <AppText align="left" style={styles.balance} tone="secondary" variant="caption">
             الرصيد المتاح: {balance}
           </AppText>
+        </View>
+        <View style={styles.iconWrap}>
+          <Ionicons color={colors.brand.green} name="wallet-outline" size={20} />
         </View>
       </View>
     </GlassSurface>
@@ -32,7 +32,7 @@ export function BillPaymentMethodCard({ account, balance }: BillPaymentMethodCar
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   iconWrap: {
@@ -44,12 +44,19 @@ const styles = StyleSheet.create({
     width: 42,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  account: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   balance: {
     fontVariant: ['tabular-nums'],
+    width: '100%',
     writingDirection: 'ltr',
   },
 });

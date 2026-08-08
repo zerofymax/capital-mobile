@@ -157,11 +157,11 @@ export function FinancialSetupAnalyzingScreen() {
               <View accessibilityLabel={`${stage} ${statusText}`} key={stage} style={styles.stageRow}>
                 <StageIndicator isActive={isActive} isComplete={isComplete} />
                 <View style={styles.stageCopy}>
-                  <AppText tone={isComplete || isActive ? 'primary' : 'tertiary'} variant="supporting">
+                  <AppText style={styles.stageText} tone={isComplete || isActive ? 'primary' : 'tertiary'} variant="supporting">
                     {stage}
                   </AppText>
                   {statusText ? (
-                    <AppText tone={isComplete ? 'success' : 'link'} variant="caption">
+                    <AppText style={styles.stageText} tone={isComplete ? 'success' : 'link'} variant="caption">
                       {statusText}
                     </AppText>
                   ) : null}
@@ -264,6 +264,7 @@ const styles = StyleSheet.create({
   },
   stageRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 42,
@@ -288,8 +289,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stageCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xxs,
+    minWidth: 0,
+  },
+  stageText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   bottomArea: {
     gap: spacing.md,

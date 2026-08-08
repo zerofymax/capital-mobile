@@ -499,17 +499,16 @@ function ChangePinHeader({ onBackPress }: { onBackPress: () => void }) {
         accessibilityLabel="العودة إلى الأمان"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName="chevron-forward-outline"
+        iconName="chevron-back-outline"
         iconSize={22}
         onPress={onBackPress}
         pressedStyle={styles.pressed}
         radius={radii.control}
         style={styles.backButton}
       />
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         تغيير رمز PIN
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -658,8 +657,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -673,11 +673,11 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerTitle: {
+    alignSelf: 'stretch',
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   stepCard: {
     gap: spacing.md,
@@ -781,10 +781,14 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
   copy: {
+    alignItems: 'flex-end',
     gap: Platform.select({ ios: spacing.md, default: spacing.sm }),
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   loadingRow: {
     alignItems: 'center',
@@ -808,7 +812,10 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   errorText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   tipsCard: {
     backgroundColor: 'rgba(17,26,23,0.94)',
@@ -816,6 +823,7 @@ const styles = StyleSheet.create({
   },
   tipsHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
@@ -824,11 +832,15 @@ const styles = StyleSheet.create({
   },
   tipRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
   tipText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

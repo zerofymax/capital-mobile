@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText } from '@/components/ui';
@@ -9,8 +9,6 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { NumericText } from '@/utils/rtl';
-
-const capitalAppIcon = require('../../../assets/images/capital-app-icon.png');
 
 const previewBars = [44, 68, 54, 88, 64, 104];
 
@@ -45,22 +43,16 @@ export function WelcomeScreen() {
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.brand}>
-          <View style={styles.brandIcon}>
-            <Image resizeMode="contain" source={capitalAppIcon} style={styles.brandImage} />
-          </View>
-          <AppText align="left" style={styles.brandText} variant="cardTitle">
-            Capital
-          </AppText>
-        </View>
-
         <View style={styles.previewCard}>
           <View style={styles.previewHeader}>
-            <View>
-              <AppText tone="secondary" variant="caption">
+            <View style={styles.previewCopy}>
+              <AppText style={styles.rtlText} tone="secondary" variant="caption">
                 النقد المتاح
               </AppText>
-              <NumericText style={styles.amount}>128,340 ر.س</NumericText>
+              <View style={styles.amountRow}>
+                <NumericText style={styles.amount}>128,340</NumericText>
+                <AppText style={styles.currency} variant="screenTitle">ر.س</AppText>
+              </View>
             </View>
             <View style={styles.statusPill}>
               <AppText style={styles.statusText} variant="caption">
@@ -77,10 +69,10 @@ export function WelcomeScreen() {
               </AppText>
             </View>
             <View style={styles.flowMetric}>
-              <AppText tone="secondary" variant="caption">
+              <AppText style={styles.rtlText} tone="secondary" variant="caption">
                 التدفق النقدي
               </AppText>
-              <AppText style={styles.flowValue} variant="caption">
+              <AppText style={[styles.flowValue, styles.rtlText]} variant="caption">
                 إيجابي
               </AppText>
             </View>
@@ -109,10 +101,10 @@ export function WelcomeScreen() {
         </View>
 
         <View style={styles.copy}>
-          <AppText align="center" style={styles.headline} variant="display">
+          <AppText align="right" style={styles.headline} variant="display">
             أدر أموالك بوضوح{'\n'}وافهم ما يجب فعله بعد ذلك
           </AppText>
-          <AppText align="center" tone="secondary" variant="body">
+          <AppText align="right" style={styles.supportingCopy} tone="secondary" variant="body">
             Capital يساعدك على متابعة وضع نشاطك المالي واتخاذ قرارات أوضح.
           </AppText>
         </View>
@@ -164,30 +156,6 @@ const styles = StyleSheet.create({
     top: 108,
     width: 260,
   },
-  brand: {
-    alignItems: 'center',
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
-    justifyContent: 'flex-start',
-  },
-  brandIcon: {
-    alignItems: 'center',
-    backgroundColor: colors.brand.deepGreen,
-    borderColor: 'rgba(167,200,161,0.28)',
-    borderRadius: 15,
-    borderWidth: 1,
-    height: 42,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    width: 42,
-  },
-  brandImage: {
-    height: 40,
-    width: 40,
-  },
-  brandText: {
-    color: colors.brand.link,
-  },
   previewCard: {
     backgroundColor: 'rgba(17,20,25,0.86)',
     borderColor: 'rgba(167,200,161,0.20)',
@@ -200,13 +168,32 @@ const styles = StyleSheet.create({
   },
   previewHeader: {
     alignItems: 'flex-start',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
+  },
+  previewCopy: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
+  amountRow: {
+    alignItems: 'baseline',
+    alignSelf: 'flex-end',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.xs,
   },
   amount: {
     color: colors.text.primary,
     fontSize: 30,
     lineHeight: 38,
+  },
+  currency: {
+    fontSize: 18,
+    lineHeight: 28,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   statusPill: {
     backgroundColor: colors.semantic.successTint,
@@ -221,7 +208,8 @@ const styles = StyleSheet.create({
   },
   insightRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'space-between',
   },
@@ -245,8 +233,10 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
   flowMetric: {
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
+    flex: 1,
     gap: 2,
+    minWidth: 0,
   },
   flowValue: {
     color: colors.brand.calmGreen,
@@ -321,11 +311,30 @@ const styles = StyleSheet.create({
     right: 24,
   },
   copy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   headline: {
+    alignSelf: 'stretch',
     fontSize: 31,
     lineHeight: 42,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  supportingCopy: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.md,

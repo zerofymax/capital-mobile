@@ -7,6 +7,7 @@ import type { TransactionItem } from '@/screens/home/home-data';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 
 type TransactionRowProps = {
   transaction: TransactionItem;
@@ -30,6 +31,15 @@ export function TransactionRow({ transaction, isLast, onPress, currencySymbol }:
       onPress={() => onPress?.(transaction)}
       style={({ pressed }) => [styles.root, !isLast && styles.withBorder, pressed && styles.pressed]}
     >
+      <View style={styles.copy}>
+        <AppText numberOfLines={1} style={styles.copyText} variant="body">
+          {transaction.title}
+        </AppText>
+        <AppText numberOfLines={1} style={styles.copyText} tone="secondary" variant="caption">
+          {directionSafeText(`${transaction.category} · ${transaction.date}`)}
+        </AppText>
+      </View>
+      <FinancialAmount currencySymbol={currencySymbol} signed size="row" tone={isIncome ? 'success' : 'danger'} value={displayAmount} />
       <View style={[styles.icon, isIncome ? styles.incomeIcon : styles.expenseIcon]}>
         <Ionicons
           color={isIncome ? colors.semantic.success : colors.semantic.danger}
@@ -37,15 +47,6 @@ export function TransactionRow({ transaction, isLast, onPress, currencySymbol }:
           size={16}
         />
       </View>
-      <View style={styles.copy}>
-        <AppText numberOfLines={1} variant="body">
-          {transaction.title}
-        </AppText>
-        <AppText numberOfLines={1} tone="secondary" variant="caption">
-          {transaction.category} · {transaction.date}
-        </AppText>
-      </View>
-      <FinancialAmount currencySymbol={currencySymbol} signed size="row" tone={isIncome ? 'success' : 'danger'} value={displayAmount} />
     </Pressable>
   );
 }
@@ -53,6 +54,7 @@ export function TransactionRow({ transaction, isLast, onPress, currencySymbol }:
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     paddingHorizontal: 14,
@@ -76,8 +78,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.semantic.dangerTint,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     minWidth: 0,
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     backgroundColor: 'rgba(255,255,255,0.03)',

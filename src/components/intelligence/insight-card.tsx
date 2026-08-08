@@ -39,6 +39,9 @@ export function InsightCard({ insight, expanded, reducedMotion, onPress, onCtaPr
           onPress={onPress}
           style={({ pressed }) => [styles.header, pressed && styles.pressed]}
         >
+          <Animated.View style={[styles.chevron, expanded && styles.chevronOpen]}>
+            <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
+          </Animated.View>
           <View
             style={[
               styles.iconWrap,
@@ -51,19 +54,16 @@ export function InsightCard({ insight, expanded, reducedMotion, onPress, onCtaPr
             <Ionicons color={meta.color} name={meta.icon} size={18} />
           </View>
           <View style={styles.copy}>
-            <AppText style={{ color: meta.color }} variant="caption">
+            <AppText align="right" style={[styles.rtlText, { color: meta.color }]} variant="caption">
               {insight.statusLabel}
             </AppText>
-            <AppText numberOfLines={2} variant="cardTitle">
+            <AppText align="right" numberOfLines={2} style={styles.rtlText} variant="cardTitle">
               {insight.title}
             </AppText>
-            <AppText numberOfLines={2} tone="secondary" variant="caption">
+            <AppText align="right" numberOfLines={2} style={styles.rtlText} tone="secondary" variant="caption">
               {directionSafeText(insight.summary)}
             </AppText>
           </View>
-          <Animated.View style={[styles.chevron, expanded && styles.chevronOpen]}>
-            <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
-          </Animated.View>
         </Pressable>
         {expanded ? (
           <Animated.View entering={FadeIn.duration(reducedMotion ? 0 : 140)} exiting={FadeOut.duration(reducedMotion ? 0 : 100)}>
@@ -86,8 +86,10 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     borderRadius: 16,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: 11,
+    width: '100%',
   },
   iconWrap: {
     alignItems: 'center',
@@ -98,9 +100,15 @@ const styles = StyleSheet.create({
     width: 36,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: 3,
     minWidth: 0,
+  },
+  rtlText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   chevron: {
     alignItems: 'center',

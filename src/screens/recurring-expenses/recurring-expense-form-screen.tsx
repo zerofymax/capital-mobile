@@ -71,6 +71,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
   const bottomPadding = Math.max(insets.bottom + spacing.xxxl + spacing.xl, spacing.screenBottom);
   const title = mode === 'add' ? 'إضافة مصروف متكرر' : 'تعديل مصروف متكرر';
   const subtitle = mode === 'add' ? 'سجّل الاشتراك أو الالتزام وحدد موعده ودورية دفعه.' : 'حدّث بيانات الالتزام وتذكيراته.';
+  const formRtlLayout = Platform.OS === 'android';
 
   if (mode === 'edit' && !existingExpense) {
     return (
@@ -120,7 +121,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <ModalHeader subtitle={subtitle} title={title} />
+          <ModalHeader rtlLayout={formRtlLayout} subtitle={subtitle} title={title} />
 
           <InfoCard message="المصروف المتكرر يضيف تقديرًا شهريًا ولا يسجل عملية مالية جديدة تلقائيًا." />
 
@@ -129,6 +130,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             label="اسم المصروف"
             onChangeText={(value) => updateField('name', value)}
             placeholder="مثال: اشتراك أدوات التصميم"
+            rtlLayout={formRtlLayout}
             value={values.name}
           />
           <Field
@@ -136,6 +138,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             label="المورد"
             onChangeText={(value) => updateField('vendor', value)}
             placeholder="مثال: Adobe"
+            rtlLayout={formRtlLayout}
             value={values.vendor}
           />
 
@@ -143,7 +146,9 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             error={errors.categoryId}
             label="التصنيف"
             options={categories.map((category) => ({ id: category.id, label: category.name, icon: category.icon }))}
+            rtlLayout={formRtlLayout}
             selectedId={values.categoryId}
+            stretchTitle={formRtlLayout}
             onSelect={(id) => updateField('categoryId', id)}
           />
 
@@ -153,6 +158,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             label="المبلغ"
             onChangeText={(value) => updateField('amount', value)}
             placeholder="أدخل مبلغ المصروف"
+            rtlLayout={formRtlLayout}
             suffix="ر.س"
             value={values.amount}
           />
@@ -161,7 +167,9 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             error={errors.frequency}
             label="التكرار"
             options={recurringFrequencyOptions}
+            rtlLayout={formRtlLayout}
             selectedId={values.frequency}
+            stretchTitle={formRtlLayout}
             onSelect={(id) => updateField('frequency', id as RecurringFrequency)}
           />
 
@@ -173,6 +181,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
                 label="كل"
                 onChangeText={(value) => updateField('customIntervalValue', value)}
                 placeholder="1"
+                rtlLayout={formRtlLayout}
                 value={values.customIntervalValue}
               />
               <SelectSection
@@ -182,6 +191,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
                   { id: 'days', label: 'أيام' },
                   { id: 'months', label: 'أشهر' },
                 ]}
+                rtlLayout={formRtlLayout}
                 selectedId={values.customIntervalUnit}
                 onSelect={(id) => updateField('customIntervalUnit', id as CustomRecurringInterval['unit'])}
               />
@@ -193,6 +203,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             label="تاريخ البداية"
             onPress={() => setDatePicker('startDate')}
             placeholder="اختر تاريخ البداية"
+            rtlLayout={formRtlLayout}
             value={values.startDate}
           />
           <DateSelectField
@@ -200,6 +211,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             label="الاستحقاق القادم"
             onPress={() => setDatePicker('nextDueDate')}
             placeholder="اختر موعد الاستحقاق"
+            rtlLayout={formRtlLayout}
             value={values.nextDueDate}
           />
 
@@ -209,20 +221,25 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             onPress={() => setDatePicker('endDate')}
             optional
             placeholder="اختياري"
+            rtlLayout={formRtlLayout}
             value={values.endDate}
           />
 
         <SelectSection
           label="طريقة التجديد"
           options={renewalModeOptions}
+          rtlLayout={formRtlLayout}
           selectedId={values.renewalMode}
+          stretchTitle={formRtlLayout}
           onSelect={(id) => updateField('renewalMode', id as RenewalMode)}
         />
 
         <SelectSection
           label="طريقة الدفع"
           options={paymentMethodOptions}
+          rtlLayout={formRtlLayout}
           selectedId={values.paymentMethod}
+          stretchTitle={formRtlLayout}
           onSelect={(id) => updateField('paymentMethod', id as RecurringPaymentMethod)}
         />
 
@@ -231,6 +248,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
           onChangeText={(value) => updateField('accountId', value)}
           optional
           placeholder="مثال: بطاقة الشركة"
+          rtlLayout={formRtlLayout}
           value={values.accountId}
         />
         <Field
@@ -238,25 +256,30 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
           onChangeText={(value) => updateField('reference', value)}
           optional
           placeholder="اختياري"
+          rtlLayout={formRtlLayout}
           value={values.reference}
         />
         <Field
           label="المسؤول"
           onChangeText={(value) => updateField('owner', value)}
           placeholder="مثال: فريق التقنية"
+          rtlLayout={formRtlLayout}
           value={values.owner}
         />
 
         <SelectSection
           label="التذكير"
           options={reminderOptions.map((item) => ({ id: item.value, label: item.label }))}
+          rtlLayout={formRtlLayout}
           selectedId={values.reminderDays}
+          stretchTitle={formRtlLayout}
           onSelect={(id) => updateField('reminderDays', id)}
         />
 
         <SwitchRow
           label="يحتاج مراجعة"
           onValueChange={(value) => updateField('needsReview', value)}
+          rtlLayout={formRtlLayout}
           value={values.needsReview}
         />
 
@@ -267,6 +290,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             onChangeText={(value) => updateField('monthlySavingOpportunity', value)}
             optional
             placeholder="0"
+            rtlLayout={formRtlLayout}
             suffix="ر.س"
             value={values.monthlySavingOpportunity}
           />
@@ -278,6 +302,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
           onChangeText={(value) => updateField('notes', value)}
           optional
           placeholder="أي تفاصيل تساعدك لاحقًا"
+          rtlLayout={formRtlLayout}
           value={values.notes}
         />
 
@@ -287,6 +312,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
             frequency={values.frequency}
             monthlyEquivalent={hasAmountValue && parsedAmount !== null ? monthlyEquivalent : null}
             paymentMethod={values.paymentMethod}
+            rtlLayout={formRtlLayout}
           />
 
           <AppButton iconName="checkmark-outline" onPress={handleSave}>
@@ -314,6 +340,7 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
         }}
         selectedValue={datePicker ? values[datePicker] : ''}
         title={datePicker ? getDatePickerTitle(datePicker) : ''}
+        rtlLayout={formRtlLayout}
         visible={datePicker !== null}
       />
     </SafeAreaView>
@@ -326,6 +353,7 @@ function DateSelectField({
   placeholder,
   error,
   optional,
+  rtlLayout,
   onPress,
 }: {
   label: string;
@@ -333,11 +361,12 @@ function DateSelectField({
   placeholder: string;
   error?: string;
   optional?: boolean;
+  rtlLayout: boolean;
   onPress: () => void;
 }) {
   return (
     <View style={styles.fieldWrap}>
-      <View style={styles.labelRow}>
+      <View style={[styles.labelRow, rtlLayout && styles.physicalLtrRow]}>
         {optional ? (
           <View style={styles.optionalBadge}>
             <AppText align="center" tone="secondary" variant="caption">
@@ -345,19 +374,36 @@ function DateSelectField({
             </AppText>
           </View>
         ) : null}
-        <AppText variant="cardTitle">{label}</AppText>
+        <AppText style={rtlLayout ? styles.rtlFieldLabel : undefined} variant="cardTitle">{label}</AppText>
       </View>
       <Pressable
         accessibilityLabel={`${label} ${formatDateInputValue(value, placeholder)}`}
         accessibilityRole="button"
         onPress={onPress}
-        style={({ pressed }) => [styles.dateField, error && styles.inputError, pressed && styles.pressed]}
+        style={({ pressed }) => [
+          styles.dateField,
+          rtlLayout && styles.physicalLtrRow,
+          error && styles.inputError,
+          pressed && styles.pressed,
+        ]}
       >
-        <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={19} />
-        <AppText style={[styles.dateValue, !value && styles.placeholderText]} variant="body">
-          {formatDateInputValue(value, placeholder)}
-        </AppText>
-        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+        {rtlLayout ? (
+          <>
+            <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+            <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={19} />
+            <AppText style={[styles.dateValue, styles.rtlDateValue, !value && styles.placeholderText]} variant="body">
+              {formatDateInputValue(value, placeholder)}
+            </AppText>
+          </>
+        ) : (
+          <>
+            <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={19} />
+            <AppText style={[styles.dateValue, !value && styles.placeholderText]} variant="body">
+              {formatDateInputValue(value, placeholder)}
+            </AppText>
+            <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+          </>
+        )}
       </Pressable>
       {error ? (
         <AppText tone="danger" variant="caption">
@@ -373,6 +419,7 @@ function DatePickerSheet({
   title,
   selectedValue,
   allowClear,
+  rtlLayout,
   onSelect,
   onClear,
   onClose,
@@ -381,6 +428,7 @@ function DatePickerSheet({
   title: string;
   selectedValue: string;
   allowClear: boolean;
+  rtlLayout: boolean;
   onSelect: (value: string) => void;
   onClear: () => void;
   onClose: () => void;
@@ -393,17 +441,23 @@ function DatePickerSheet({
         <Pressable accessibilityLabel="إغلاق اختيار التاريخ" onPress={onClose} style={styles.pickerBackdrop} />
         <View style={[styles.pickerSheet, { paddingBottom: Math.max(insets.bottom + spacing.xxl, 52) }]}>
           <View style={styles.pickerHandle} />
-          <View style={styles.pickerHeader}>
+          <View style={[styles.pickerHeader, rtlLayout && styles.physicalLtrRow]}>
             <Pressable accessibilityRole="button" hitSlop={10} onPress={onClose}>
               <AppText tone="link" variant="supporting">
                 إلغاء
               </AppText>
             </Pressable>
-            <AppText variant="sectionTitle">{title}</AppText>
+            <AppText style={rtlLayout ? styles.rtlPickerTitle : undefined} variant="sectionTitle">{title}</AppText>
           </View>
           {allowClear ? (
-            <Pressable accessibilityRole="button" onPress={onClear} style={styles.clearDateButton}>
-              <AppText align="center" tone="secondary" variant="caption">
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: !selectedValue }}
+              onPress={onClear}
+              style={[styles.clearDateButton, rtlLayout && styles.rtlPickerOptionRow]}
+            >
+              {!selectedValue ? <Ionicons color={colors.brand.calmGreen} name="checkmark-circle" size={18} /> : null}
+              <AppText style={rtlLayout ? styles.rtlPickerOptionText : undefined} tone="secondary" variant="caption">
                 بدون تاريخ نهاية
               </AppText>
             </Pressable>
@@ -419,10 +473,19 @@ function DatePickerSheet({
                   accessibilityState={{ selected }}
                   key={option}
                   onPress={() => onSelect(option)}
-                  style={({ pressed }) => [styles.pickerOption, selected && styles.pickerOptionSelected, pressed && styles.pressed]}
+                  style={({ pressed }) => [
+                    styles.pickerOption,
+                    rtlLayout && styles.physicalLtrRow,
+                    selected && styles.pickerOptionSelected,
+                    pressed && styles.pressed,
+                  ]}
                 >
                   {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-circle" size={18} /> : null}
-                  <AppText style={styles.pickerOptionText} tone={selected ? 'primary' : 'secondary'} variant="body">
+                  <AppText
+                    style={[styles.pickerOptionText, rtlLayout && styles.rtlPickerOptionText]}
+                    tone={selected ? 'primary' : 'secondary'}
+                    variant="body"
+                  >
                     {formatDisplayDateForOption(option)}
                   </AppText>
                 </Pressable>
@@ -435,17 +498,57 @@ function DatePickerSheet({
   );
 }
 
-function ModalHeader({ title, subtitle }: { title: string; subtitle: string }) {
+function ModalHeader({
+  title,
+  subtitle,
+  rtlLayout = false,
+}: {
+  title: string;
+  subtitle: string;
+  rtlLayout?: boolean;
+}) {
+  if (rtlLayout) {
+    return (
+      <View style={styles.addHeader}>
+        <Pressable
+          accessibilityLabel="رجوع"
+          accessibilityRole="button"
+          onPress={() => router.back()}
+          style={styles.addBackButton}
+        >
+          <Ionicons color={colors.text.primary} name="chevron-back-outline" size={21} />
+        </Pressable>
+        <View style={styles.addHeaderCopy}>
+          <AppText style={styles.addHeaderText} variant="screenTitle">
+            {title}
+          </AppText>
+          <AppText style={styles.addHeaderText} tone="secondary" variant="supporting">
+            {subtitle}
+          </AppText>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.header}>
-      <Pressable accessibilityLabel="رجوع" accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons color={colors.text.primary} name="chevron-forward-outline" size={21} />
+      <Pressable
+        accessibilityLabel="رجوع"
+        accessibilityRole="button"
+        onPress={() => router.back()}
+        style={styles.backButton}
+      >
+        <Ionicons
+          color={colors.text.primary}
+          name={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+          size={21}
+        />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText align="right" variant="screenTitle">
           {title}
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText align="right" tone="secondary" variant="supporting">
           {subtitle}
         </AppText>
       </View>
@@ -473,6 +576,7 @@ function Field({
   suffix,
   multiline,
   inputMode,
+  rtlLayout,
   onChangeText,
 }: {
   label: string;
@@ -483,11 +587,12 @@ function Field({
   suffix?: string;
   multiline?: boolean;
   inputMode?: 'numeric';
+  rtlLayout: boolean;
   onChangeText: (value: string) => void;
 }) {
   return (
     <View style={styles.fieldWrap}>
-      <View style={styles.labelRow}>
+      <View style={[styles.labelRow, rtlLayout && styles.physicalLtrRow]}>
         {optional ? (
           <View style={styles.optionalBadge}>
             <AppText align="center" tone="secondary" variant="caption">
@@ -495,9 +600,9 @@ function Field({
             </AppText>
           </View>
         ) : null}
-        <AppText variant="cardTitle">{label}</AppText>
+        <AppText style={rtlLayout ? styles.rtlFieldLabel : undefined} variant="cardTitle">{label}</AppText>
       </View>
-      <View style={[styles.inputWrap, error && styles.inputError, multiline && styles.textArea]}>
+      <View style={[styles.inputWrap, rtlLayout && styles.physicalLtrRow, error && styles.inputError, multiline && styles.textArea]}>
         {suffix ? (
           <AppText style={styles.inputSuffix} tone="secondary" variant="caption">
             {suffix}
@@ -509,7 +614,7 @@ function Field({
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor={colors.text.tertiary}
-          style={[styles.input, multiline && styles.textAreaInput]}
+          style={[styles.input, rtlLayout && styles.rtlInput, multiline && styles.textAreaInput]}
           value={value}
         />
       </View>
@@ -528,6 +633,8 @@ function SelectSection({
   selectedId,
   error,
   compact,
+  rtlLayout,
+  stretchTitle = false,
   onSelect,
 }: {
   label: string;
@@ -535,12 +642,20 @@ function SelectSection({
   selectedId: string;
   error?: string;
   compact?: boolean;
+  rtlLayout: boolean;
+  stretchTitle?: boolean;
   onSelect: (id: string) => void;
 }) {
   return (
     <View style={[styles.fieldWrap, compact && styles.compactSelect]}>
-      <AppText variant="cardTitle">{label}</AppText>
-      <View style={styles.chipGrid}>
+      {stretchTitle ? (
+        <View style={styles.sectionTitleWrapper}>
+          <AppText style={styles.sectionTitle} variant="cardTitle">{label}</AppText>
+        </View>
+      ) : (
+        <AppText style={rtlLayout ? styles.rtlSectionLabel : undefined} variant="cardTitle">{label}</AppText>
+      )}
+      <View style={[styles.chipGrid, rtlLayout && styles.physicalRtlWrap]}>
         {options.map((option) => {
           const selected = option.id === selectedId;
 
@@ -575,21 +690,23 @@ function SelectSection({
 function SwitchRow({
   label,
   value,
+  rtlLayout,
   onValueChange,
 }: {
   label: string;
   value: boolean;
+  rtlLayout: boolean;
   onValueChange: (value: boolean) => void;
 }) {
   return (
-    <View style={styles.switchRow}>
+    <View style={[styles.switchRow, rtlLayout && styles.physicalLtrRow]}>
       <Switch
         onValueChange={onValueChange}
         thumbColor={colors.text.primary}
         trackColor={{ false: colors.surface.muted, true: colors.brand.mediumGreen }}
         value={value}
       />
-      <AppText variant="cardTitle">{label}</AppText>
+      <AppText style={rtlLayout ? styles.rtlSwitchLabel : undefined} variant="cardTitle">{label}</AppText>
     </View>
   );
 }
@@ -600,31 +717,37 @@ function PreviewCard({
   frequency,
   monthlyEquivalent,
   paymentMethod,
+  rtlLayout,
 }: {
   amount: number | null;
   categoryName: string;
   frequency: RecurringFrequency | '';
   monthlyEquivalent: number | null;
   paymentMethod: RecurringPaymentMethod;
+  rtlLayout: boolean;
 }) {
   return (
     <SolidCard style={styles.previewCard}>
-      <AppText variant="sectionTitle">معاينة المصروف</AppText>
+      <AppText style={rtlLayout ? styles.rtlSectionLabel : undefined} variant="sectionTitle">معاينة المصروف</AppText>
       <View style={styles.previewRows}>
-        <PreviewItem label="التصنيف" value={categoryName} />
-        <PreviewItem label="المبلغ" value={amount === null ? 'غير محدد' : formatSar(amount)} />
-        <PreviewItem label="التكرار" value={frequency ? formatFrequencyLabel(frequency) : 'غير محدد'} />
-        <PreviewItem label="طريقة الدفع" value={formatPaymentMethodLabel(paymentMethod)} />
-        <PreviewItem label="الأثر الشهري التقريبي" value={monthlyEquivalent === null ? 'غير محدد' : formatSar(monthlyEquivalent)} />
+        <PreviewItem label="التصنيف" rtlLayout={rtlLayout} value={categoryName} />
+        <PreviewItem label="المبلغ" rtlLayout={rtlLayout} value={amount === null ? 'غير محدد' : formatSar(amount)} />
+        <PreviewItem label="التكرار" rtlLayout={rtlLayout} value={frequency ? formatFrequencyLabel(frequency) : 'غير محدد'} />
+        <PreviewItem label="طريقة الدفع" rtlLayout={rtlLayout} value={formatPaymentMethodLabel(paymentMethod)} />
+        <PreviewItem
+          label="الأثر الشهري التقريبي"
+          rtlLayout={rtlLayout}
+          value={monthlyEquivalent === null ? 'غير محدد' : formatSar(monthlyEquivalent)}
+        />
       </View>
     </SolidCard>
   );
 }
 
-function PreviewItem({ label, value }: { label: string; value: string }) {
+function PreviewItem({ label, value, rtlLayout }: { label: string; value: string; rtlLayout: boolean }) {
   return (
-    <View style={styles.previewItem}>
-      <AppText tone="secondary" variant="caption">
+    <View style={[styles.previewItem, rtlLayout && styles.physicalRtlRow]}>
+      <AppText style={rtlLayout ? styles.rtlPreviewLabel : undefined} tone="secondary" variant="caption">
         {label}
       </AppText>
       <AppText align="left" style={styles.previewValue} variant="caption">
@@ -762,6 +885,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 72,
   },
+  addHeader: {
+    alignItems: 'flex-start',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
+    minHeight: 72,
+    width: '100%',
+  },
   backButton: {
     alignItems: 'center',
     backgroundColor: colors.surface.card,
@@ -771,14 +902,41 @@ const styles = StyleSheet.create({
     height: 42,
     justifyContent: 'center',
     position: 'absolute',
-    right: 0,
+    ...Platform.select({ android: { left: 0 }, default: { right: 0 } }),
     top: 0,
     width: 42,
   },
-  headerCopy: {
+  addBackButton: {
     alignItems: 'center',
+    backgroundColor: colors.surface.card,
+    borderColor: colors.surface.border,
+    borderRadius: radii.button,
+    borderWidth: 1,
+    height: 42,
+    justifyContent: 'center',
+    width: 42,
+  },
+  headerCopy: {
+    alignItems: 'stretch',
+    ...Platform.select({ android: { alignSelf: 'stretch' } }),
     gap: spacing.xs,
     paddingHorizontal: 52,
+    minWidth: 0,
+  },
+  addHeaderCopy: {
+    alignItems: 'stretch',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flex: 1,
+    gap: spacing.xs,
+    justifyContent: 'flex-start',
+    minWidth: 0,
+  },
+  addHeaderText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   infoCard: {
     alignItems: 'center',
@@ -797,10 +955,48 @@ const styles = StyleSheet.create({
   fieldWrap: {
     gap: spacing.sm,
   },
+  physicalLtrRow: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
+  physicalRtlRow: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  physicalRtlWrap: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+  },
   labelRow: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  rtlFieldLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlSectionLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   optionalBadge: {
     backgroundColor: colors.surface.muted,
@@ -829,6 +1025,10 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     writingDirection: 'rtl',
   },
+  rtlInput: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   dateField: {
     alignItems: 'center',
     backgroundColor: colors.surface.card,
@@ -842,6 +1042,11 @@ const styles = StyleSheet.create({
   },
   dateValue: {
     flex: 1,
+    writingDirection: 'rtl',
+  },
+  rtlDateValue: {
+    minWidth: 0,
+    textAlign: 'right',
     writingDirection: 'rtl',
   },
   placeholderText: {
@@ -901,6 +1106,12 @@ const styles = StyleSheet.create({
     minHeight: 54,
     paddingHorizontal: spacing.md,
   },
+  rtlSwitchLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   previewCard: {
     gap: spacing.md,
   },
@@ -913,6 +1124,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     paddingTop: spacing.sm,
+  },
+  rtlPreviewLabel: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   previewValue: {
     color: colors.text.primary,
@@ -952,6 +1167,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  rtlPickerTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   clearDateButton: {
     backgroundColor: colors.surface.muted,
@@ -960,6 +1182,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+  },
+  rtlPickerOptionRow: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.sm,
+    minHeight: 48,
   },
   pickerOptions: {
     gap: spacing.sm,
@@ -981,6 +1210,12 @@ const styles = StyleSheet.create({
   },
   pickerOptionText: {
     flex: 1,
+  },
+  rtlPickerOptionText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.86,

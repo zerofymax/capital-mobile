@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmationDialog } from '@/components/system';
@@ -104,8 +104,8 @@ export function RecurringExpenseDetailsScreen() {
               />
             </View>
             <View style={styles.heroCopy}>
-              <AppText variant="screenTitle">{expense.name}</AppText>
-              <AppText tone="secondary" variant="supporting">
+              <AppText style={styles.heroTitle} variant="screenTitle">{expense.name}</AppText>
+              <AppText style={styles.heroDescription} tone="secondary" variant="supporting">
                 {expense.vendor} · {category?.name ?? 'مصروفات'}
               </AppText>
             </View>
@@ -118,7 +118,7 @@ export function RecurringExpenseDetailsScreen() {
         </SolidCard>
 
         <SolidCard style={styles.sectionCard}>
-          <AppText variant="sectionTitle">الاستحقاق القادم</AppText>
+          <SectionTitle>الاستحقاق القادم</SectionTitle>
           <View style={styles.dueSummary}>
             <View>
               <AppText tone="secondary" variant="caption">
@@ -170,13 +170,13 @@ export function RecurringExpenseDetailsScreen() {
 
         <SolidCard style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <AppText variant="sectionTitle">سجل الدفعات</AppText>
             <Pressable accessibilityRole="button" onPress={() => setPaymentVisible(true)} style={styles.inlineButton}>
               <Ionicons color={colors.brand.calmGreen} name="add-outline" size={16} />
               <AppText style={styles.inlineButtonText} variant="caption">
                 تسجيل دفعة
               </AppText>
             </Pressable>
+            <AppText style={styles.sectionHeaderTitle} variant="sectionTitle">سجل الدفعات</AppText>
           </View>
           {expense.payments.length > 0 ? (
             <View style={styles.paymentList}>
@@ -196,7 +196,7 @@ export function RecurringExpenseDetailsScreen() {
 
         {expense.notes ? (
           <SolidCard style={styles.sectionCard}>
-            <AppText variant="sectionTitle">ملاحظات</AppText>
+            <SectionTitle>ملاحظات</SectionTitle>
             <AppText style={styles.notes} variant="supporting">
               {expense.notes}
             </AppText>
@@ -240,12 +240,31 @@ export function RecurringExpenseDetailsScreen() {
 function ModalHeader({ title }: { title: string }) {
   return (
     <View style={styles.header}>
-      <Pressable accessibilityLabel="رجوع" accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons color={colors.text.primary} name="chevron-forward-outline" size={21} />
+      <Pressable
+        accessibilityLabel="رجوع"
+        accessibilityRole="button"
+        onPress={() => router.back()}
+        style={styles.backButton}
+      >
+        <Ionicons
+          color={colors.text.primary}
+          name={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+          size={21}
+        />
       </Pressable>
-      <AppText align="center" variant="screenTitle">
-        {title}
-      </AppText>
+      <View style={styles.headerTitleContainer}>
+        <AppText align={Platform.OS === 'android' ? 'right' : 'center'} style={styles.headerTitle} variant="screenTitle">
+          {title}
+        </AppText>
+      </View>
+    </View>
+  );
+}
+
+function SectionTitle({ children }: { children: string }) {
+  return (
+    <View style={styles.sectionTitleWrapper}>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">{children}</AppText>
     </View>
   );
 }
@@ -266,7 +285,7 @@ function Metric({ label, value }: { label: string; value: string }) {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.infoLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
       <AppText align="left" style={styles.infoValue} variant="caption">
@@ -343,10 +362,17 @@ function RecordPaymentSheet({
         <Pressable accessibilityLabel="إغلاق" onPress={onClose} style={styles.sheetBackdrop} />
         <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom + spacing.xxl, 52) }]}>
           <View style={styles.sheetGrabber} />
-          <AppText variant="sectionTitle">تسجيل دفعة</AppText>
+          <View style={styles.sheetHeader}>
+            {Platform.OS === 'android' ? (
+              <Pressable accessibilityRole="button" hitSlop={10} onPress={onClose}>
+                <AppText tone="link" variant="supporting">إلغاء</AppText>
+              </Pressable>
+            ) : null}
+            <AppText style={styles.sheetTitle} variant="sectionTitle">تسجيل دفعة</AppText>
+          </View>
           <SheetField label="مبلغ الدفعة" onChangeText={setAmount} suffix="ر.س" value={amount} />
           <View style={styles.fieldWrap}>
-            <AppText variant="cardTitle">تاريخ الدفعة</AppText>
+            <AppText style={styles.sheetSectionTitle} variant="cardTitle">تاريخ الدفعة</AppText>
             <View style={styles.datePickerRow}>
               {paymentDateOptions.map((option) => {
                 const selected = option === date;
@@ -360,7 +386,11 @@ function RecordPaymentSheet({
                     onPress={() => setDate(option)}
                     style={[styles.dateChip, selected && styles.dateChipActive]}
                   >
-                    <AppText align="center" style={selected && styles.dateChipTextActive} variant="caption">
+                    <AppText
+                      align="center"
+                      style={[styles.sheetChipText, selected && styles.dateChipTextActive]}
+                      variant="caption"
+                    >
                       {formatDisplayDate(option)}
                     </AppText>
                   </Pressable>
@@ -369,7 +399,7 @@ function RecordPaymentSheet({
             </View>
           </View>
           <View style={styles.fieldWrap}>
-            <AppText variant="cardTitle">طريقة الدفع</AppText>
+            <AppText style={styles.sheetSectionTitle} variant="cardTitle">طريقة الدفع</AppText>
             <View style={styles.sheetChips}>
               {paymentMethodOptions.map((option) => {
                 const selected = option.id === method;
@@ -383,7 +413,11 @@ function RecordPaymentSheet({
                     onPress={() => setMethod(option.id)}
                     style={[styles.sheetChip, selected && styles.sheetChipActive]}
                   >
-                    <AppText align="center" style={selected && styles.sheetChipTextActive} variant="caption">
+                    <AppText
+                      align="center"
+                      style={[styles.sheetChipText, selected && styles.sheetChipTextActive]}
+                      variant="caption"
+                    >
                       {option.label}
                     </AppText>
                   </Pressable>
@@ -391,14 +425,14 @@ function RecordPaymentSheet({
               })}
             </View>
           </View>
-          <SheetField label="ملاحظة" onChangeText={setNote} optional value={note} />
+          <SheetField label="ملاحظة" multiline onChangeText={setNote} optional value={note} />
           {error ? (
             <AppText tone="danger" variant="caption">
               {error}
             </AppText>
           ) : null}
           <AppButton iconName="checkmark-outline" onPress={handleSave}>حفظ الدفعة</AppButton>
-          <AppButton onPress={onClose} variant="ghost">إلغاء</AppButton>
+          {Platform.OS === 'ios' ? <AppButton onPress={onClose} variant="ghost">إلغاء</AppButton> : null}
         </View>
       </View>
     </Modal>
@@ -410,12 +444,14 @@ function SheetField({
   value,
   suffix,
   optional,
+  multiline,
   onChangeText,
 }: {
   label: string;
   value: string;
   suffix?: string;
   optional?: boolean;
+  multiline?: boolean;
   onChangeText: (value: string) => void;
 }) {
   return (
@@ -426,20 +462,21 @@ function SheetField({
             اختياري
           </AppText>
         ) : null}
-        <AppText variant="cardTitle">{label}</AppText>
+        <AppText style={styles.sheetFieldLabel} variant="cardTitle">{label}</AppText>
       </View>
-      <View style={styles.sheetInputWrap}>
+      <View style={[styles.sheetInputWrap, suffix && styles.physicalLtrRow, multiline && styles.sheetTextArea]}>
+        <TextInput
+          multiline={multiline}
+          onChangeText={onChangeText}
+          placeholderTextColor={colors.text.tertiary}
+          style={[styles.sheetInput, suffix && styles.sheetNumericInput, multiline && styles.sheetTextAreaInput]}
+          value={value}
+        />
         {suffix ? (
           <AppText tone="secondary" variant="caption">
             {suffix}
           </AppText>
         ) : null}
-        <TextInput
-          onChangeText={onChangeText}
-          placeholderTextColor={colors.text.tertiary}
-          style={styles.sheetInput}
-          value={value}
-        />
       </View>
     </View>
   );
@@ -462,9 +499,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   header: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
+    direction: 'ltr',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
     minHeight: 52,
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -474,10 +514,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 42,
     justifyContent: 'center',
-    position: 'absolute',
-    right: 0,
-    top: 0,
     width: 42,
+  },
+  headerTitleContainer: {
+    alignItems: 'flex-end',
+    direction: 'rtl',
+    flex: 1,
+    minWidth: 0,
+  },
+  headerTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   heroCard: {
     gap: spacing.lg,
@@ -488,7 +537,8 @@ const styles = StyleSheet.create({
   },
   heroTop: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   heroIcon: {
@@ -503,8 +553,23 @@ const styles = StyleSheet.create({
     backgroundColor: colors.semantic.warningTint,
   },
   heroCopy: {
+    alignItems: 'flex-end',
+    direction: 'rtl',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  heroTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  heroDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   heroMetrics: {
     flexDirection: 'row-reverse',
@@ -524,6 +589,21 @@ const styles = StyleSheet.create({
   sectionCard: {
     gap: spacing.md,
   },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    flex: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   dueSummary: {
     backgroundColor: colors.surface.muted,
     borderRadius: radii.input,
@@ -537,9 +617,15 @@ const styles = StyleSheet.create({
   infoRow: {
     borderTopColor: colors.surface.separator,
     borderTopWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     paddingTop: spacing.sm,
+    width: '100%',
+  },
+  infoLabel: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoValue: {
     color: colors.text.primary,
@@ -567,8 +653,17 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.sm,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  sectionHeaderTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   inlineButton: {
     alignItems: 'center',
@@ -615,7 +710,11 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
   },
   notes: {
+    alignSelf: 'stretch',
     lineHeight: 25,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.md,
@@ -649,13 +748,41 @@ const styles = StyleSheet.create({
     opacity: 0.55,
     width: 34,
   },
+  sheetHeader: {
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
+    width: '100%',
+  },
+  sheetTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   fieldWrap: {
     gap: spacing.sm,
   },
+  sheetSectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   sheetLabel: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  sheetFieldLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   sheetInputWrap: {
     alignItems: 'center',
@@ -667,6 +794,10 @@ const styles = StyleSheet.create({
     minHeight: 52,
     paddingHorizontal: spacing.md,
   },
+  physicalLtrRow: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
   sheetInput: {
     color: colors.text.primary,
     flex: 1,
@@ -675,7 +806,21 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     writingDirection: 'rtl',
   },
+  sheetNumericInput: {
+    textAlign: 'right',
+    writingDirection: 'ltr',
+  },
+  sheetTextArea: {
+    alignItems: 'flex-start',
+    minHeight: 92,
+    paddingVertical: spacing.sm,
+  },
+  sheetTextAreaInput: {
+    minHeight: 72,
+    textAlignVertical: 'top',
+  },
   datePickerRow: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -696,6 +841,7 @@ const styles = StyleSheet.create({
     color: colors.brand.calmGreen,
   },
   sheetChips: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -714,5 +860,8 @@ const styles = StyleSheet.create({
   },
   sheetChipTextActive: {
     color: colors.text.primary,
+  },
+  sheetChipText: {
+    writingDirection: 'rtl',
   },
 });

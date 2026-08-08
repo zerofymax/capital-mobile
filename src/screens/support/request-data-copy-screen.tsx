@@ -428,17 +428,16 @@ function RequestDataCopyHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={2} variant="screenTitle">
+        <AppText align="right" numberOfLines={2} style={styles.headerText} variant="screenTitle">
           طلب نسخة من بياناتي
         </AppText>
-        <AppText align="center" numberOfLines={2} tone="secondary" variant="supporting">
+        <AppText align="right" numberOfLines={2} style={styles.headerText} tone="secondary" variant="supporting">
           اختر البيانات التي تريد تضمينها في النسخة
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -648,8 +647,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 54,
   },
   backButton: {
@@ -663,18 +663,21 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   introCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.30)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -689,24 +692,33 @@ const styles = StyleSheet.create({
     width: 42,
   },
   introCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   introText: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
   sectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
   },
   sectionTitle: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   selectAllButton: {
     alignItems: 'center',
@@ -723,6 +735,7 @@ const styles = StyleSheet.create({
   },
   checkboxRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 78,
@@ -733,12 +746,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(79,138,91,0.055)',
   },
   checkboxCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   rowDescription: {
+    alignSelf: 'stretch',
     lineHeight: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   checkbox: {
     alignItems: 'center',
@@ -783,12 +800,14 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 76,
     padding: spacing.lg,
   },
   radioCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -816,7 +835,8 @@ const styles = StyleSheet.create({
     width: 12,
   },
   estimatedCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -829,33 +849,44 @@ const styles = StyleSheet.create({
     width: 40,
   },
   estimatedCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   estimatedDescription: {
+    alignSelf: 'stretch',
     lineHeight: 21,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   privacyNotice: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.26)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
   noticeCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   noticeText: {
+    alignSelf: 'stretch',
     lineHeight: 21,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryCard: {
     padding: 0,
   },
   summaryRow: {
+    width: '100%',
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',

@@ -43,14 +43,16 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 58,
     padding: spacing.lg,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   disabled: {
     opacity: 0.55,

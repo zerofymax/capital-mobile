@@ -38,20 +38,22 @@ export function MonthlyBriefCard({ label, statusLabel, items }: MonthlyBriefCard
       />
       <View style={styles.content}>
         <View style={styles.header}>
-          <AppText style={styles.label} variant="body">
+          <StatusBadge label={statusLabel} tone="success" />
+          <AppText align="right" style={styles.label} variant="body">
             {label}
           </AppText>
-          <StatusBadge label={statusLabel} tone="success" />
         </View>
         <View style={styles.grid}>
           {items.map((item) => (
             <View key={item.id} style={[styles.item, item.id === 'opportunity' && styles.fullWidthItem]}>
-              <AppText tone="secondary" variant="caption">
-                {item.label}
-              </AppText>
-              <AppText style={{ color: itemToneColor[item.tone] }} variant="body">
-                {directionSafeText(item.value)}
-              </AppText>
+              <View style={styles.itemCopy}>
+                <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
+                  {item.label}
+                </AppText>
+                <AppText align="right" style={[styles.value, { color: itemToneColor[item.tone] }]} variant="body">
+                  {directionSafeText(item.value)}
+                </AppText>
+              </View>
             </View>
           ))}
         </View>
@@ -85,19 +87,26 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
   },
   label: {
     color: '#A7AFBB',
+    flex: 1,
     fontWeight: '500',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   grid: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
   item: {
+    alignItems: 'flex-end',
     backgroundColor: 'rgba(255,255,255,0.04)',
     borderColor: 'rgba(255,255,255,0.07)',
     borderRadius: radii.button,
@@ -110,5 +119,22 @@ const styles = StyleSheet.create({
   },
   fullWidthItem: {
     flexBasis: '100%',
+  },
+  itemCopy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    width: '100%',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  value: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

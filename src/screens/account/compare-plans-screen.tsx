@@ -160,17 +160,16 @@ function ComparePlansHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
+        <AppText align="right" numberOfLines={1} style={styles.fullWidthRtlText} variant="screenTitle">
           مقارنة الخطط
         </AppText>
-        <AppText align="center" tone="secondary" variant="caption">
+        <AppText align="right" style={styles.fullWidthRtlText} tone="secondary" variant="caption">
           اختر الخطة المناسبة لاحتياجات نشاطك
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -241,11 +240,11 @@ function AnnualSavingsCard() {
     <SolidCard style={styles.savingsCard}>
       <Ionicons color={colors.brand.calmGreen} name="trending-up-outline" size={20} />
       <View style={styles.savingsCopy}>
-        <AppText variant="cardTitle">وفّر عند الدفع السنوي</AppText>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={styles.fullWidthRtlText} variant="cardTitle">وفّر عند الدفع السنوي</AppText>
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           470 ر.س سنويًا بدلًا من 588 ر.س. توفير 118 ر.س سنويًا.
         </AppText>
-        <AppText tone="tertiary" variant="caption">
+        <AppText style={styles.fullWidthRtlText} tone="tertiary" variant="caption">
           الفوترة السنوية قادمة لاحقًا ولا تغيّر الاشتراك الحالي.
         </AppText>
       </View>
@@ -286,35 +285,30 @@ function PlanCard({
             size={22}
           />
         </View>
-        <View style={styles.planCopy}>
-          <AppText align="left" style={styles.ltrText} variant="cardTitle">
-            {plan.name}
-          </AppText>
-          <AppText tone="secondary" variant="caption">
-            {plan.arabicLabel}
-          </AppText>
-        </View>
         <View style={styles.badgeStack}>
           {plan.isCurrent ? <PlanBadge label="خطتك الحالية" tone="success" /> : null}
           {plan.isPopular ? <PlanBadge label="الأكثر استخدامًا" tone="success" /> : null}
         </View>
+        <View style={styles.planCopy}>
+          <AppText align="right" style={styles.planName} variant="cardTitle">
+            {plan.name}
+          </AppText>
+          <AppText style={styles.fullWidthRtlText} tone="secondary" variant="caption">
+            {plan.arabicLabel}
+          </AppText>
+        </View>
       </View>
 
-      <AppText style={styles.description} tone="secondary" variant="supporting">
+      <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
         {plan.description}
       </AppText>
 
       <View style={styles.priceBlock}>
-        <View style={styles.priceRow}>
-          <AppText align="left" style={styles.priceText} variant="numericValue">
-            {price} {plan.currency}
-          </AppText>
-          <AppText tone="secondary" variant="supporting">
-            / {period}
-          </AppText>
-        </View>
+        <AppText align="right" numberOfLines={1} style={styles.priceText} variant="numericValue">
+          {`${price} ${plan.currency} / ${period}`}
+        </AppText>
         {billingCycle === 'annual' && plan.annualMonthlyEquivalent ? (
-          <AppText tone="tertiary" variant="caption">
+          <AppText style={styles.fullWidthRtlText} tone="tertiary" variant="caption">
             يعادل نحو {plan.annualMonthlyEquivalent} ر.س شهريًا
           </AppText>
         ) : null}
@@ -330,7 +324,7 @@ function PlanCard({
                 size={15}
               />
             </View>
-            <AppText style={styles.featureText} tone={feature.included ? 'primary' : 'tertiary'} variant="caption">
+            <AppText style={[styles.featureText, styles.rtlText]} tone={feature.included ? 'primary' : 'tertiary'} variant="caption">
               {feature.label}
             </AppText>
           </View>
@@ -349,11 +343,11 @@ function RecommendationCard() {
     <SolidCard style={styles.recommendationCard}>
       <Ionicons color={colors.brand.calmGreen} name="bulb-outline" size={20} />
       <View style={styles.recommendationCopy}>
-        <AppText variant="cardTitle">الخطة الأنسب لك حاليًا</AppText>
-        <AppText align="left" style={styles.ltrText} tone="success" variant="body">
+        <AppText style={styles.fullWidthRtlText} variant="cardTitle">الخطة الأنسب لك حاليًا</AppText>
+        <AppText align="right" style={styles.planName} tone="success" variant="body">
           Capital Pro
         </AppText>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           تناسب مستوى استخدامك الحالي وتمنحك التقارير والرؤى التي تحتاجها.
         </AppText>
       </View>
@@ -364,7 +358,7 @@ function RecommendationCard() {
 function ComparisonSection() {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">مقارنة المزايا</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">مقارنة المزايا</AppText>
       <SolidCard style={styles.comparisonCard}>
         <View style={styles.comparisonHeader}>
           <AppText style={styles.comparisonFeatureHeader} tone="secondary" variant="caption">
@@ -418,7 +412,7 @@ function SupportCard() {
         <Ionicons color={colors.brand.calmGreen} name="chatbubble-ellipses-outline" size={20} />
       </View>
       <View style={styles.supportCopy}>
-        <AppText variant="cardTitle">تحتاج مساعدة في اختيار الخطة؟</AppText>
+        <AppText style={styles.fullWidthRtlText} variant="cardTitle">تحتاج مساعدة في اختيار الخطة؟</AppText>
         <AppButton onPress={() => router.push(routes.contactSupport)} style={styles.supportButton} variant="secondary">
           التواصل مع الدعم
         </AppButton>
@@ -448,9 +442,11 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 54,
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -463,19 +459,17 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
   },
   segmentedControl: {
     backgroundColor: colors.surface.card,
     borderColor: colors.surface.border,
     borderRadius: radii.button,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.xs,
     padding: spacing.xs,
@@ -505,16 +499,20 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   savingsCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   description: {
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   planStack: {
     gap: spacing.lg,
@@ -531,7 +529,8 @@ const styles = StyleSheet.create({
   },
   planHeader: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   planIcon: {
@@ -545,11 +544,15 @@ const styles = StyleSheet.create({
     width: 42,
   },
   planCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  ltrText: {
+  planName: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
     writingDirection: 'ltr',
   },
   badgeStack: {
@@ -565,15 +568,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   priceBlock: {
+    alignItems: 'flex-end',
     gap: spacing.xs,
-  },
-  priceRow: {
-    alignItems: 'baseline',
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
+    width: '100%',
   },
   priceText: {
+    alignSelf: 'stretch',
     color: colors.text.primary,
+    textAlign: 'right',
+    width: '100%',
     writingDirection: 'ltr',
   },
   featureList: {
@@ -581,7 +584,8 @@ const styles = StyleSheet.create({
   },
   featureRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   featureIcon: {
@@ -606,18 +610,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   feedbackText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   prototypeNotice: {
     alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.58)',
     borderColor: 'rgba(167,200,161,0.22)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
@@ -625,22 +634,33 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   recommendationCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   section: {
+    alignItems: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   comparisonCard: {
     padding: 0,
   },
   comparisonHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.xs,
     paddingHorizontal: spacing.md,
@@ -648,18 +668,24 @@ const styles = StyleSheet.create({
   },
   comparisonRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.xs,
     minHeight: 58,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    width: '100%',
   },
   comparisonFeatureHeader: {
     flex: 1.28,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   comparisonFeature: {
     flex: 1.28,
     lineHeight: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   planColumn: {
     flex: 0.88,
@@ -668,7 +694,8 @@ const styles = StyleSheet.create({
   },
   supportCard: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   supportIcon: {
@@ -682,6 +709,7 @@ const styles = StyleSheet.create({
     width: 42,
   },
   supportCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
@@ -690,6 +718,16 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     minHeight: 42,
     paddingHorizontal: spacing.lg,
+  },
+  fullWidthRtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

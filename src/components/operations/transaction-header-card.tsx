@@ -17,18 +17,18 @@ export function TransactionHeaderCard({ transaction }: TransactionHeaderCardProp
   return (
     <GlassSurface style={styles.root}>
       <View style={styles.topRow}>
+        <View style={styles.copy}>
+          <AppText style={styles.copyText} variant="cardTitle">{transaction.title}</AppText>
+          <AppText style={styles.copyText} tone="secondary" variant="supporting">
+            {isIncome ? 'دخل' : 'مصروف'} · {transaction.category}
+          </AppText>
+        </View>
         <View style={[styles.iconWrap, isIncome ? styles.incomeIcon : styles.expenseIcon]}>
           <Ionicons
             color={isIncome ? colors.semantic.success : colors.semantic.danger}
             name={isIncome ? 'arrow-down-outline' : 'arrow-up-outline'}
             size={22}
           />
-        </View>
-        <View style={styles.copy}>
-          <AppText variant="cardTitle">{transaction.title}</AppText>
-          <AppText tone="secondary" variant="supporting">
-            {isIncome ? 'دخل' : 'مصروف'} · {transaction.category}
-          </AppText>
         </View>
       </View>
       <AppText
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   topRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   iconWrap: {
@@ -75,8 +75,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.semantic.dangerTint,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   amount: {
     fontVariant: ['tabular-nums'],
@@ -90,7 +97,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   statusBadge: {

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -64,13 +64,26 @@ export function BudgetDetailsScreen() {
             <Metric label="المصروف" value={summary.spent} />
             <Metric label="المتبقي" tone={summary.status.tone} value={summary.remaining} />
           </View>
-          <View style={styles.usageRow}>
-            <AppText tone="secondary" variant="caption">
-              نسبة الاستخدام
-            </AppText>
-            <AppText style={{ color: toneColors[summary.status.tone].text }} variant="caption">
-              {summary.usage}%
-            </AppText>
+          <View style={[styles.usageRow, Platform.OS === 'android' && styles.usageRowAndroid]}>
+            {Platform.OS === 'android' ? (
+              <>
+                <AppText style={[styles.usageValueAndroid, { color: toneColors[summary.status.tone].text }]} variant="caption">
+                  {summary.usage}%
+                </AppText>
+                <AppText style={styles.usageLabelAndroid} tone="secondary" variant="caption">
+                  نسبة الاستخدام
+                </AppText>
+              </>
+            ) : (
+              <>
+                <AppText tone="secondary" variant="caption">
+                  نسبة الاستخدام
+                </AppText>
+                <AppText style={{ color: toneColors[summary.status.tone].text }} variant="caption">
+                  {summary.usage}%
+                </AppText>
+              </>
+            )}
           </View>
           <BudgetProgressBar marker={summary.alertThreshold} tone={summary.status.tone} usage={summary.usage} />
         </SolidCard>
@@ -176,19 +189,41 @@ function ExpensesCard() {
       <SolidCard style={styles.expensesCard}>
         {recentMarketingExpenses.map((expense, index) => (
           <View key={expense.id}>
-            <View style={styles.expenseRow}>
-              <View style={styles.expenseIcon}>
-                <Ionicons color={colors.text.tertiary} name="megaphone-outline" size={16} />
-              </View>
-              <View style={styles.expenseCopy}>
-                <AppText variant="cardTitle">{expense.title}</AppText>
-                <AppText tone="secondary" variant="caption">
-                  {expense.date}
-                </AppText>
-              </View>
-              <AppText align="left" style={styles.expenseAmount} variant="caption">
-                {directionSafeText(`-${expense.amount.toLocaleString('en-US')} ر.س`)}
-              </AppText>
+            <View style={[styles.expenseRow, Platform.OS === 'android' && styles.expenseRowAndroid]}>
+              {Platform.OS === 'android' ? (
+                <>
+                  <View style={styles.expenseIcon}>
+                    <Ionicons color={colors.text.tertiary} name="megaphone-outline" size={16} />
+                  </View>
+                  <AppText align="left" style={[styles.expenseAmount, styles.expenseAmountAndroid]} variant="caption">
+                    {directionSafeText(`-${expense.amount.toLocaleString('en-US')} ر.س`)}
+                  </AppText>
+                  <View style={styles.expenseSpacerAndroid} />
+                  <View style={[styles.expenseCopy, styles.expenseCopyAndroid]}>
+                    <AppText style={styles.expenseTitleAndroid} variant="cardTitle">
+                      {expense.title}
+                    </AppText>
+                    <AppText style={styles.expenseDateAndroid} tone="secondary" variant="caption">
+                      {expense.date}
+                    </AppText>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View style={styles.expenseIcon}>
+                    <Ionicons color={colors.text.tertiary} name="megaphone-outline" size={16} />
+                  </View>
+                  <View style={styles.expenseCopy}>
+                    <AppText variant="cardTitle">{expense.title}</AppText>
+                    <AppText tone="secondary" variant="caption">
+                      {expense.date}
+                    </AppText>
+                  </View>
+                  <AppText align="left" style={styles.expenseAmount} variant="caption">
+                    {directionSafeText(`-${expense.amount.toLocaleString('en-US')} ر.س`)}
+                  </AppText>
+                </>
+              )}
             </View>
             {index < recentMarketingExpenses.length - 1 ? <Divider /> : null}
           </View>
@@ -199,25 +234,49 @@ function ExpensesCard() {
 }
 
 function InsightCard({ summary }: { summary: ReturnType<typeof getBudgetSummary> }) {
+  const insightIcon = <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={17} />;
+  const insightTitle = (
+    <AppText style={Platform.OS === 'android' ? styles.insightTitleAndroid : undefined} variant="cardTitle">
+      معدل إنفاقك الحالي
+    </AppText>
+  );
+  const prototypeBadge = (
+    <View style={[styles.prototypeBadge, Platform.OS === 'android' && styles.prototypeBadgeAndroid]}>
+      <AppText align={Platform.OS === 'android' ? 'right' : 'center'} style={Platform.OS === 'android' ? styles.prototypeTextAndroid : undefined} variant="caption">
+        تقدير تجريبي
+      </AppText>
+    </View>
+  );
+
   return (
     <SolidCard style={styles.insightCard}>
-      <View style={styles.insightHeader}>
-        <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={17} />
-        <AppText variant="cardTitle">معدل إنفاقك الحالي</AppText>
-        <View style={styles.prototypeBadge}>
-          <AppText align="center" variant="caption">
-            تقدير تجريبي
-          </AppText>
-        </View>
+      <View style={[styles.insightHeader, Platform.OS === 'android' && styles.insightHeaderAndroid]}>
+        {Platform.OS === 'android' ? (
+          <>
+            {insightIcon}
+            <View style={styles.insightHeaderCopyAndroid}>
+              <View style={styles.insightTitleGroupAndroid}>
+                {prototypeBadge}
+                {insightTitle}
+              </View>
+            </View>
+          </>
+        ) : (
+          <>
+            {insightIcon}
+            {insightTitle}
+            {prototypeBadge}
+          </>
+        )}
       </View>
-      <AppText variant="body">
+      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} variant="body">
         {directionSafeText(`أنفقت ${summary.usage}% من ميزانية ${summary.category.name}، ويتبقى ${summary.remaining.toLocaleString('en-US')} ر.س حتى نهاية الشهر.`)}
       </AppText>
-      <AppText variant="body">
+      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} variant="body">
         بناءً على وتيرة الإنفاق الحالية، قد تصل إلى 92% من الميزانية بنهاية يوليو.
       </AppText>
-      <View style={styles.recommendationBox}>
-        <AppText style={styles.linkText} variant="supporting">
+      <View style={[styles.recommendationBox, Platform.OS === 'android' && styles.recommendationBoxAndroid]}>
+        <AppText style={[styles.linkText, Platform.OS === 'android' && styles.insightTextAndroid]} variant="supporting">
           خفّض الإنفاق اليومي المتبقي إلى 150 ر.س للحفاظ على الميزانية.
         </AppText>
       </View>
@@ -275,6 +334,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
   },
+  usageRowAndroid: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  usageLabelAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  usageValueAndroid: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'ltr',
+  },
   progressDetailCard: {
     gap: spacing.md,
   },
@@ -286,14 +362,16 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   sectionHeader: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
   },
   infoCard: {
     gap: spacing.md,
   },
   infoRow: {
-    flexDirection: 'row-reverse',
+    width: '100%',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 34,
   },
@@ -311,6 +389,11 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     minHeight: 52,
   },
+  expenseRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
   expenseIcon: {
     alignItems: 'center',
     backgroundColor: colors.surface.muted,
@@ -324,10 +407,31 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     minWidth: 0,
   },
+  expenseCopyAndroid: {
+    alignItems: 'flex-end',
+  },
+  expenseSpacerAndroid: {
+    flex: 0.25,
+    minWidth: spacing.xs,
+  },
+  expenseTitleAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  expenseDateAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   expenseAmount: {
     color: colors.semantic.danger,
     fontWeight: '700',
     writingDirection: 'ltr',
+  },
+  expenseAmountAndroid: {
+    flexShrink: 0,
+    textAlign: 'left',
   },
   insightCard: {
     backgroundColor: 'rgba(4,24,40,0.78)',
@@ -339,6 +443,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
+  insightHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  insightHeaderCopyAndroid: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
+  insightTitleGroupAndroid: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.sm,
+    maxWidth: '100%',
+  },
+  insightTitleAndroid: {
+    flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  insightTextAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   prototypeBadge: {
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: radii.pill,
@@ -346,10 +478,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
   },
+  prototypeBadgeAndroid: {
+    marginRight: 0,
+  },
+  prototypeTextAndroid: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   recommendationBox: {
     backgroundColor: 'rgba(44,159,224,0.12)',
     borderRadius: radii.control,
     padding: spacing.md,
+  },
+  recommendationBoxAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    width: '100%',
   },
   linkText: {
     color: colors.brand.calmGreen,

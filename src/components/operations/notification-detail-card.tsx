@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { AppText, SolidCard } from '@/components/ui';
 import type { CapitalNotification } from '@/screens/operations/notification-data';
@@ -7,6 +7,42 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { getNotificationAccent } from './notification-status-dot';
+
+const androidPhysicalRtlRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
+  : {};
+const androidSavingsContent = Platform.OS === 'android'
+  ? {
+      alignItems: 'center' as const,
+      direction: 'ltr' as const,
+      flex: 1,
+      flexDirection: 'row-reverse' as const,
+      gap: spacing.md,
+      minWidth: 0,
+    }
+  : {};
+const androidSavingsLabelSlot = Platform.OS === 'android'
+  ? { flex: 1, minWidth: 0 }
+  : {};
+const androidSavingsLabel = Platform.OS === 'android'
+  ? {
+      alignSelf: 'stretch' as const,
+      textAlign: 'right' as const,
+      width: '100%' as const,
+      writingDirection: 'rtl' as const,
+    }
+  : {};
+const androidBodyText = Platform.OS === 'android'
+  ? {
+      alignSelf: 'stretch' as const,
+      textAlign: 'right' as const,
+      width: '100%' as const,
+      writingDirection: 'rtl' as const,
+    }
+  : {};
+const androidAmountValue = Platform.OS === 'android'
+  ? { marginTop: 0 }
+  : {};
 
 type NotificationDetailCardProps = {
   notification: CapitalNotification;
@@ -37,11 +73,19 @@ export function NotificationDetailCard({ notification }: NotificationDetailCardP
 
       {notification.amount ? (
         <SolidCard style={styles.savingsCard}>
-          <View>
-            <AppText tone="secondary" variant="supporting">
-              {notification.category === 'intelligence' ? 'التوفير المحتمل' : 'القيمة المرتبطة'}
-            </AppText>
-            <AppText align="left" style={styles.amountValue} tone="success" variant="sectionTitle">
+          <View style={styles.savingsContent}>
+            <View style={styles.savingsLabelSlot}>
+              <AppText style={styles.savingsLabel} tone="secondary" variant="supporting">
+                {notification.category === 'intelligence' ? 'التوفير المحتمل' : 'القيمة المرتبطة'}
+              </AppText>
+            </View>
+            <AppText
+              align="left"
+              numberOfLines={1}
+              style={styles.amountValue}
+              tone="success"
+              variant="sectionTitle"
+            >
               {notification.amount}
             </AppText>
           </View>
@@ -76,6 +120,7 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     lineHeight: 26,
+    ...androidBodyText,
   },
   savingsCard: {
     alignItems: 'center',
@@ -84,19 +129,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     width: '100%',
+    ...androidPhysicalRtlRow,
+  },
+  savingsContent: {
+    ...androidSavingsContent,
+  },
+  savingsLabelSlot: {
+    ...androidSavingsLabelSlot,
+  },
+  savingsLabel: {
+    ...androidSavingsLabel,
   },
   savingsIcon: {
     alignItems: 'center',
     backgroundColor: 'rgba(79,138,91,0.16)',
     borderRadius: radii.control,
+    flexShrink: 0,
     height: 42,
     justifyContent: 'center',
     width: 42,
   },
   amountValue: {
+    flexShrink: 0,
     fontVariant: ['tabular-nums'],
     marginTop: spacing.xs,
+    textAlign: 'left',
     writingDirection: 'ltr',
+    ...androidAmountValue,
   },
   ltrValue: {
     writingDirection: 'ltr',

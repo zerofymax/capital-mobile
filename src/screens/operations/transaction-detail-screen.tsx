@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -118,12 +118,11 @@ function ModalHeader({ title, onClose }: { title: string; onClose: () => void })
         onPress={onClose}
         style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="arrow-forward-outline" size={22} />
+        <Feather color={colors.text.muted} name="chevron-left" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         {title}
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -143,8 +142,8 @@ function TransactionHero({ transaction }: { transaction: TransactionRecord }) {
           />
         </View>
         <View style={styles.heroCopy}>
-          <AppText variant="cardTitle">{transaction.description}</AppText>
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.heroText} variant="cardTitle">{transaction.description}</AppText>
+          <AppText style={styles.heroText} tone="secondary" variant="supporting">
             {isIncome ? 'دخل' : 'مصروف'} · {category.name}
           </AppText>
         </View>
@@ -173,7 +172,9 @@ function TransactionInfo({ transaction }: { transaction: TransactionRecord }) {
 
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">معلومات العملية</AppText>
+      <View style={styles.sectionTitleWrapper}>
+        <AppText style={styles.sectionTitle} variant="sectionTitle">معلومات العملية</AppText>
+      </View>
       <SolidCard style={styles.infoCard}>
         {rows.map(([label, value, ltr], index) => (
           <View key={label}>
@@ -195,7 +196,7 @@ function InfoRow({ label, value, isLtr = false }: { label: string; value: string
       {isLtr ? (
         <NumericText style={styles.infoValue}>{value}</NumericText>
       ) : (
-        <AppText align="left" style={styles.infoValue} variant="body">
+        <AppText align="left" style={[styles.infoValue, styles.infoValueRtl]} variant="body">
           {directionSafeText(value)}
         </AppText>
       )}
@@ -206,7 +207,9 @@ function InfoRow({ label, value, isLtr = false }: { label: string; value: string
 function TransactionActions({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">إجراءات</AppText>
+      <View style={styles.sectionTitleWrapper}>
+        <AppText style={styles.sectionTitle} variant="sectionTitle">إجراءات</AppText>
+      </View>
       <View style={styles.actions}>
         <AppButton iconName="create-outline" onPress={onEdit}>
           تعديل العملية
@@ -247,12 +250,12 @@ function DeleteTransactionSheet({
             <AppText align="center" variant="sectionTitle">
               حذف العملية؟
             </AppText>
-            <AppText align="center" tone="secondary" variant="body">
+            <AppText style={styles.deleteDescription} tone="secondary" variant="body">
               سيتم حذف هذه العملية من النموذج المحلي، ولا يمكن التراجع عن ذلك داخل الجلسة الحالية.
             </AppText>
           </View>
           <SolidCard style={styles.deleteSummary}>
-            <AppText numberOfLines={1} variant="cardTitle">
+            <AppText numberOfLines={1} style={styles.deleteSummaryTitle} variant="cardTitle">
               {transaction.description}
             </AppText>
             <NumericText style={[styles.deleteAmount, transaction.type === 'income' ? styles.incomeText : styles.expenseText]}>
@@ -319,7 +322,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 42,
   },
@@ -335,17 +339,17 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   heroCard: {
     gap: spacing.lg,
   },
   heroHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   heroIcon: {
@@ -362,9 +366,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.semantic.dangerTint,
   },
   heroCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  heroText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   heroAmount: {
     fontSize: 30,
@@ -380,25 +391,44 @@ const styles = StyleSheet.create({
   section: {
     gap: spacing.md,
   },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   infoCard: {
     gap: spacing.md,
   },
   infoRow: {
     alignItems: 'flex-start',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.lg,
     justifyContent: 'space-between',
     paddingVertical: spacing.xs,
+    width: '100%',
   },
   infoLabel: {
     flexShrink: 0,
     maxWidth: '42%',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoValue: {
     flex: 1,
     minWidth: 0,
     textAlign: 'left',
     writingDirection: 'ltr',
+  },
+  infoValueRtl: {
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.sm,
@@ -448,15 +478,32 @@ const styles = StyleSheet.create({
     width: 56,
   },
   deleteCopy: {
+    alignItems: 'stretch',
     gap: spacing.sm,
+  },
+  deleteDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   deleteSummary: {
+    alignItems: 'stretch',
     gap: spacing.sm,
   },
+  deleteSummaryTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   deleteAmount: {
+    alignSelf: 'stretch',
     fontSize: 18,
     lineHeight: 24,
-    textAlign: 'left',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
   },
   pressed: {
     opacity: 0.72,

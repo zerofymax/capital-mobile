@@ -28,17 +28,6 @@ export function SettingsRow({ row, isLast = false, onPress }: SettingsRowProps) 
           pressed && { backgroundColor: colors.glass.overlay },
         ]}
       >
-        <View style={[styles.iconWrap, { borderColor: colors.surface.border }]}>
-          <Ionicons color={colors.brand.green} name={row.icon} size={18} />
-        </View>
-        <View style={styles.copy}>
-          <AppText numberOfLines={1} variant="body">
-            {directionSafeText(row.title)}
-          </AppText>
-          <AppText numberOfLines={2} tone="secondary" variant="caption">
-            {directionSafeText(row.description)}
-          </AppText>
-        </View>
         {row.soon ? (
           <View style={[styles.soonBadge, { borderColor: colors.surface.border }]}>
             <AppText align="center" style={styles.soonText} variant="caption">
@@ -48,6 +37,17 @@ export function SettingsRow({ row, isLast = false, onPress }: SettingsRowProps) 
         ) : (
           <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
         )}
+        <View style={[styles.iconWrap, { borderColor: colors.surface.border }]}>
+          <Ionicons color={colors.brand.green} name={row.icon} size={18} />
+        </View>
+        <View style={styles.copy}>
+          <AppText numberOfLines={1} style={styles.copyText} variant="body">
+            {directionSafeText(row.title)}
+          </AppText>
+          <AppText numberOfLines={2} style={styles.copyText} tone="secondary" variant="caption">
+            {directionSafeText(row.description)}
+          </AppText>
+        </View>
       </Pressable>
       {isLast ? null : <Divider />}
     </View>
@@ -57,7 +57,8 @@ export function SettingsRow({ row, isLast = false, onPress }: SettingsRowProps) 
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 78,
     paddingHorizontal: spacing.md,
@@ -73,9 +74,17 @@ const styles = StyleSheet.create({
     width: 36,
   },
   copy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  copyText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   soonBadge: {
     backgroundColor: 'rgba(255,255,255,0.055)',

@@ -61,8 +61,8 @@ export function FinancialReportPreviewScreen() {
               <Ionicons color={colors.brand.calmGreen} name="document-text-outline" size={21} />
             </View>
             <View style={styles.previewTitle}>
-              <AppText variant="sectionTitle">ملخص Capital المالي</AppText>
-              <AppText tone="secondary" variant="supporting">
+              <AppText style={styles.rtlText} variant="sectionTitle">ملخص Capital المالي</AppText>
+              <AppText style={styles.rtlText} tone="secondary" variant="supporting">
                 {report.periodLabel}
               </AppText>
             </View>
@@ -75,7 +75,7 @@ export function FinancialReportPreviewScreen() {
         </SolidCard>
 
         <SolidCard style={styles.previewCard}>
-          <AppText variant="sectionTitle">أكبر ثلاثة تصنيفات مصروفات</AppText>
+          <AppText style={styles.sectionTitle} variant="sectionTitle">أكبر ثلاثة تصنيفات مصروفات</AppText>
           {topExpenses.length > 0 ? (
             topExpenses.map((expense) => <PreviewRow key={expense.id} label={expense.category} value={formatSar(expense.amount)} />)
           ) : (
@@ -101,7 +101,7 @@ export function FinancialReportPreviewScreen() {
 function PreviewRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.previewRow}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.previewLabel} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <AppText style={styles.previewValue} variant="cardTitle">
@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
   },
   previewTop: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -142,33 +143,58 @@ const styles = StyleSheet.create({
     width: 42,
   },
   previewTitle: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   previewRow: {
     alignItems: 'center',
     borderTopColor: colors.surface.separator,
     borderTopWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
     paddingTop: spacing.md,
+    width: '100%',
+  },
+  previewLabel: {
+    flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   previewValue: {
     color: colors.text.primary,
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   insightCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.28)',
     borderRadius: radii.card,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     padding: spacing.lg,
   },
   insightText: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

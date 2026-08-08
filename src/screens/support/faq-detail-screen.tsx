@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SupportSectionHeading } from '@/components/support';
 import { AppButton, AppText, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
@@ -71,9 +72,11 @@ export function FaqDetailScreen() {
 
           {faq ? (
             <>
-              <AppText accessibilityRole="header" style={styles.question} variant="screenTitle">
-                {faq.question}
-              </AppText>
+              <View style={styles.questionWrap}>
+                <AppText accessibilityRole="header" style={styles.question} variant="screenTitle">
+                  {faq.question}
+                </AppText>
+              </View>
 
               <SolidCard style={styles.answerCard}>
                 <AppText style={styles.answerText} tone="secondary" variant="body">
@@ -82,7 +85,7 @@ export function FaqDetailScreen() {
               </SolidCard>
 
               <View style={styles.section}>
-                <AppText variant="sectionTitle">مقالات ذات صلة</AppText>
+                <SupportSectionHeading>مقالات ذات صلة</SupportSectionHeading>
                 <SolidCard style={styles.relatedCard}>
                   {relatedArticles.map((article, index) => (
                     <RelatedArticleRow
@@ -96,19 +99,21 @@ export function FaqDetailScreen() {
               </View>
 
               <SolidCard style={styles.feedbackCard}>
-                <AppText align="center" variant="body">
-                  هل كانت هذه الإجابة مفيدة؟
-                </AppText>
+                <View style={styles.feedbackPromptWrap}>
+                  <AppText style={styles.feedbackPrompt} variant="body">
+                    هل كانت هذه الإجابة مفيدة؟
+                  </AppText>
+                </View>
                 <View style={styles.feedbackActions}>
-                  <FeedbackButton
-                    label="نعم مفيدة"
-                    onPress={() => handleFeedbackPress('helpful')}
-                    selected={feedback === 'helpful'}
-                  />
                   <FeedbackButton
                     label="غير مفيدة"
                     onPress={() => handleFeedbackPress('not-helpful')}
                     selected={feedback === 'not-helpful'}
+                  />
+                  <FeedbackButton
+                    label="نعم مفيدة"
+                    onPress={() => handleFeedbackPress('helpful')}
+                    selected={feedback === 'helpful'}
                   />
                 </View>
               </SolidCard>
@@ -154,12 +159,11 @@ function FaqDetailHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         سؤال شائع
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -180,10 +184,10 @@ function RelatedArticleRow({
       onPress={onPress}
       style={({ pressed }) => [styles.relatedRow, divider && styles.relatedDivider, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
       <AppText style={styles.relatedTitle} variant="body">
         {title}
       </AppText>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
     </Pressable>
   );
 }
@@ -231,8 +235,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -247,25 +252,37 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  questionWrap: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
   },
   question: {
+    alignSelf: 'stretch',
     lineHeight: 34,
     textAlign: 'right',
+    width: '100%',
     writingDirection: 'rtl',
   },
   answerCard: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     padding: spacing.xl,
   },
   answerText: {
+    alignSelf: 'stretch',
     lineHeight: 27,
     textAlign: 'right',
+    width: '100%',
     writingDirection: 'rtl',
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.md,
   },
   relatedCard: {
@@ -273,7 +290,8 @@ const styles = StyleSheet.create({
   },
   relatedRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 58,
     paddingHorizontal: spacing.lg,
@@ -285,12 +303,30 @@ const styles = StyleSheet.create({
   },
   relatedTitle: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   feedbackCard: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
+  feedbackPromptWrap: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  feedbackPrompt: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   feedbackActions: {
-    flexDirection: 'row-reverse',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   feedbackButton: {

@@ -102,8 +102,8 @@ export function FinancialSetupExpenseCategoriesScreen() {
         />
 
         <View style={styles.titleBlock}>
-          <AppText variant="screenTitle">ما أبرز مصروفات نشاطك؟</AppText>
-          <AppText tone="secondary" variant="body">
+          <AppText style={styles.rtlText} variant="screenTitle">ما أبرز مصروفات نشاطك؟</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="body">
             {getSelectionCounterText(selectedCategories.length)}
           </AppText>
         </View>
@@ -133,7 +133,7 @@ export function FinancialSetupExpenseCategoriesScreen() {
             })}
           </View>
           {selectionError ? (
-            <AppText tone="danger" variant="caption">
+            <AppText style={styles.rtlText} tone="danger" variant="caption">
               {selectionError}
             </AppText>
           ) : null}
@@ -159,15 +159,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   chipSection: {
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
   },
   chipGrid: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -189,6 +192,12 @@ const styles = StyleSheet.create({
   chipSelected: {
     backgroundColor: 'rgba(31,90,58,0.32)',
     borderColor: 'rgba(167,200,161,0.55)',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   spacer: {
     flexGrow: 1,

@@ -322,7 +322,7 @@ function Header({ onBackPress }: { onBackPress: () => void }) {
         accessibilityLabel="رجوع"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName="chevron-forward-outline"
+        iconName="chevron-back-outline"
         iconSize={22}
         onPress={onBackPress}
         pressedStyle={styles.pressed}
@@ -330,14 +330,13 @@ function Header({ onBackPress }: { onBackPress: () => void }) {
         style={styles.backButton}
       />
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText align="right" style={styles.headerText} variant="screenTitle">
           إعدادات الإشعارات
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText align="right" style={styles.headerText} tone="secondary" variant="supporting">
           خصص التنبيهات التي تساعدك على متابعة شركتك.
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -349,7 +348,7 @@ function IntroCard() {
         <Ionicons color={colors.brand.calmGreen} name="notifications-outline" size={20} />
       </View>
       <View style={styles.introCopy}>
-        <AppText variant="cardTitle">تنبيهات مالية محلية</AppText>
+        <AppText style={styles.rtlText} variant="cardTitle">تنبيهات مالية محلية</AppText>
         <AppText style={styles.description} tone="secondary" variant="supporting">
           هذه الإعدادات تتحكم في تجربة النموذج داخل التطبيق فقط، ولا تطلب صلاحيات إشعارات الهاتف.
         </AppText>
@@ -421,7 +420,7 @@ function LowBalanceSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">حد انخفاض الرصيد النقدي</AppText>
+      <AppText style={styles.sectionHeading} variant="sectionTitle">حد انخفاض الرصيد النقدي</AppText>
       <SolidCard style={[styles.amountCard, error && styles.inputError]}>
         <View style={styles.amountLine}>
           <TextInput
@@ -474,7 +473,7 @@ function ChannelsSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">طريقة استلام التنبيهات</AppText>
+      <SectionTitle icon="notifications-outline" title="طريقة استلام التنبيهات" />
       <SolidCard style={styles.rowsCard}>
         {notificationChannels.map((channel, index) => (
           <View key={channel.id}>
@@ -508,7 +507,7 @@ function QuietHoursSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">وضع عدم الإزعاج</AppText>
+      <SectionTitle icon="moon-outline" title="وضع عدم الإزعاج" />
       <SolidCard style={styles.rowsCard}>
         <ToggleRow
           description="إيقاف التنبيهات غير العاجلة خلال فترة محددة."
@@ -631,7 +630,7 @@ function InlineSelectRow({
       onPress={onPress}
       style={({ pressed }) => [styles.inlineSelect, pressed && styles.pressed]}
     >
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.inlineLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
       <View style={styles.inlineValueWrap}>
@@ -650,7 +649,7 @@ function SectionTitle({ title, icon }: { title: string; icon: keyof typeof Ionic
       <View style={styles.sectionIcon}>
         <Ionicons color={colors.brand.calmGreen} name={icon} size={17} />
       </View>
-      <AppText variant="sectionTitle">{title}</AppText>
+      <AppText style={styles.sectionTitleText} variant="sectionTitle">{title}</AppText>
     </View>
   );
 }
@@ -823,7 +822,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.screenX,
@@ -840,12 +840,16 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   content: {
     gap: spacing.lg,
@@ -855,6 +859,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.28)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -869,6 +874,7 @@ const styles = StyleSheet.create({
     width: 40,
   },
   introCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
   },
@@ -877,8 +883,10 @@ const styles = StyleSheet.create({
   },
   sectionTitleRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+    width: '100%',
   },
   sectionIcon: {
     alignItems: 'center',
@@ -888,11 +896,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 28,
   },
+  sectionTitleText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  sectionHeading: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   rowsCard: {
     padding: 0,
   },
   switchRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 78,
@@ -903,20 +924,29 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   switchCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   rowTitleLine: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+    width: '100%',
   },
   rowTitle: {
     flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   badge: {
     borderRadius: radii.pill,
@@ -941,6 +971,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.035)',
     borderRadius: radii.control,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     marginBottom: spacing.md,
@@ -950,8 +981,14 @@ const styles = StyleSheet.create({
   },
   inlineValueWrap: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+  },
+  inlineLabel: {
+    flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   amountCard: {
     gap: spacing.md,
@@ -980,7 +1017,8 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   segmentedRow: {
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   segment: {
@@ -1010,6 +1048,7 @@ const styles = StyleSheet.create({
   },
   noticeCard: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingVertical: spacing.md,
@@ -1025,12 +1064,20 @@ const styles = StyleSheet.create({
   noticeText: {
     flex: 1,
     lineHeight: 23,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.md,
   },
   ltrValue: {
     writingDirection: 'ltr',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.82,

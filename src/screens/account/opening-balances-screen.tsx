@@ -304,12 +304,11 @@ function OpeningBalancesHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         الأرصدة الابتدائية
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -343,16 +342,16 @@ function OpeningAmountInput({
   return (
     <SolidCard style={[styles.amountCard, error && styles.inputCardError]}>
       <View style={styles.amountHeader}>
-        <View style={styles.amountIcon}>
-          <Ionicons color={tone === 'danger' ? colors.semantic.danger : colors.brand.calmGreen} name="wallet-outline" size={18} />
-        </View>
         <View style={styles.amountCopy}>
-          <AppText variant="cardTitle">{label}</AppText>
+          <AppText style={styles.amountTitle} variant="cardTitle">{label}</AppText>
           {description ? (
             <AppText style={styles.description} tone="secondary" variant="caption">
               {description}
             </AppText>
           ) : null}
+        </View>
+        <View style={styles.amountIcon}>
+          <Ionicons color={tone === 'danger' ? colors.semantic.danger : colors.brand.calmGreen} name="wallet-outline" size={18} />
         </View>
       </View>
       <View style={styles.amountLine}>
@@ -381,7 +380,7 @@ function OpeningAmountInput({
 function DateSelectField({ value, error, onPress }: { value: string; error?: string; onPress: () => void }) {
   return (
     <View style={styles.fieldGroup}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
         تاريخ البداية
       </AppText>
       <Pressable
@@ -390,11 +389,11 @@ function DateSelectField({ value, error, onPress }: { value: string; error?: str
         onPress={onPress}
         style={({ pressed }) => [styles.dateField, error && styles.inputCardError, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.brand.link} name="calendar-outline" size={19} />
+        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
         <AppText style={styles.dateValue} variant="body">
           {value}
         </AppText>
-        <Ionicons color={colors.text.tertiary} name="chevron-down" size={16} />
+        <Ionicons color={colors.brand.link} name="calendar-outline" size={19} />
       </Pressable>
       {error ? (
         <AppText accessibilityLiveRegion="polite" tone="danger" variant="caption">
@@ -440,8 +439,8 @@ function DatePickerSheet({
               <AppText tone="link" variant="supporting">
                 إلغاء
               </AppText>
-            </Pressable>
-            <AppText variant="cardTitle">تاريخ البداية</AppText>
+              </Pressable>
+            <AppText style={styles.pickerTitle} variant="cardTitle">تاريخ البداية</AppText>
           </View>
           <View style={styles.pickerOptions}>
             {startDateOptions.map((option) => {
@@ -509,8 +508,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -524,11 +524,11 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerTitle: {
+    alignSelf: 'stretch',
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    width: '100%',
   },
   warningCard: {
     alignItems: 'center',
@@ -560,7 +560,8 @@ const styles = StyleSheet.create({
   },
   amountHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   amountIcon: {
@@ -574,12 +575,23 @@ const styles = StyleSheet.create({
     width: 38,
   },
   amountCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  amountTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   description: {
     lineHeight: 18,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   amountLine: {
     alignItems: 'flex-end',
@@ -605,9 +617,18 @@ const styles = StyleSheet.create({
   currency: {
     color: colors.brand.link,
     paddingBottom: spacing.sm,
+    writingDirection: 'rtl',
   },
   fieldGroup: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
+  },
+  fieldLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   dateField: {
     alignItems: 'center',
@@ -615,13 +636,17 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 56,
     paddingHorizontal: spacing.lg,
   },
   dateValue: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.md,
@@ -658,9 +683,16 @@ const styles = StyleSheet.create({
   },
   pickerHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: spacing.xs,
+  },
+  pickerTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pickerOptions: {
     gap: spacing.sm,
@@ -671,6 +703,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 48,
@@ -684,6 +717,7 @@ const styles = StyleSheet.create({
   pickerOptionText: {
     flex: 1,
     textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

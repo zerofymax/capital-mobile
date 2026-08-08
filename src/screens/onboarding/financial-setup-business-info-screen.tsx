@@ -41,6 +41,15 @@ export function FinancialSetupBusinessInfoScreen() {
     router.push(routes.financialSetupBusinessProfile);
   }
 
+  function handleBack() {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace(routes.register);
+  }
+
   return (
     <View style={styles.root}>
       <LinearGradient
@@ -65,34 +74,37 @@ export function FinancialSetupBusinessInfoScreen() {
         >
           <FinancialSetupProgressHeader
             currentStep={1}
-            onBack={() => router.push(routes.financialSetup)}
+            onBack={handleBack}
             totalSteps={10}
           />
 
           <View style={styles.titleBlock}>
-            <AppText variant="screenTitle">معلومات النشاط</AppText>
-            <AppText tone="secondary" variant="body">
+            <AppText style={styles.rtlText} variant="screenTitle">معلومات النشاط</AppText>
+            <AppText style={styles.rtlText} tone="secondary" variant="body">
               أساسيات نحتاجها لبناء نظرتك المالية
             </AppText>
           </View>
 
           <View style={styles.form}>
-            <AuthInput
-              error={businessNameError}
-              label="اسم النشاط"
-              onChangeText={(value) => {
-                setBusinessName(value);
-                if (value.trim()) {
-                  setBusinessNameError(undefined);
-                }
-              }}
-              placeholder="استوديو كابيتال"
-              returnKeyType="done"
-              value={businessName}
-            />
+            <View style={styles.fieldWrapper}>
+              <AuthInput
+                error={businessNameError}
+                label="اسم النشاط"
+                onChangeText={(value) => {
+                  setBusinessName(value);
+                  if (value.trim()) {
+                    setBusinessNameError(undefined);
+                  }
+                }}
+                placeholder="استوديو كابيتال"
+                returnKeyType="done"
+                rtlLayout
+                value={businessName}
+              />
+            </View>
 
             <View style={styles.fieldGroup}>
-              <AppText tone="secondary" variant="supporting">
+              <AppText style={styles.rtlText} tone="secondary" variant="supporting">
                 القطاع
               </AppText>
               <View style={styles.chipGrid}>
@@ -149,18 +161,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   form: {
     gap: spacing.xxl,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   fieldGroup: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
+    width: '100%',
+  },
+  fieldWrapper: {
+    alignItems: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   chipGrid: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -181,6 +212,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(167,200,161,0.55)',
   },
   selectRow: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },

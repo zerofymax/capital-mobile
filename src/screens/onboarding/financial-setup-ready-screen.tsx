@@ -84,13 +84,13 @@ export function FinancialSetupReadyScreen() {
             <View style={styles.headerIcon}>
               <Ionicons color={colors.brand.calmGreen} name="wallet-outline" size={18} />
             </View>
-            <AppText variant="cardTitle">ملخص وضعك المالي</AppText>
+            <AppText style={styles.cardTitleText} variant="cardTitle">ملخص وضعك المالي</AppText>
           </View>
 
           <View style={styles.metricsGrid}>
             {summaryMetrics.map((metric) => (
               <View key={metric.label} style={styles.metricTile}>
-                <AppText tone="secondary" variant="caption">
+                <AppText style={styles.rtlText} tone="secondary" variant="caption">
                   {metric.label}
                 </AppText>
                 <AppText style={styles.metricValue} tone={metric.tone ?? 'primary'} variant="cardTitle">
@@ -106,7 +106,7 @@ export function FinancialSetupReadyScreen() {
             <View style={styles.headerIcon}>
               <Ionicons color={colors.brand.calmGreen} name="pulse-outline" size={18} />
             </View>
-            <AppText variant="cardTitle">حالة النشاط</AppText>
+            <AppText style={styles.cardTitleText} variant="cardTitle">حالة النشاط</AppText>
           </View>
 
           <View style={styles.statusPill}>
@@ -116,7 +116,7 @@ export function FinancialSetupReadyScreen() {
             </AppText>
           </View>
 
-          <AppText tone="secondary" variant="body">
+          <AppText style={styles.rtlText} tone="secondary" variant="body">
             إيراداتك الحالية تغطي مصروفاتك، مع تدفق نقدي إيجابي يحتاج إلى متابعة منتظمة.
           </AppText>
         </GlassSurface>
@@ -126,11 +126,11 @@ export function FinancialSetupReadyScreen() {
             <View style={styles.insightIcon}>
               <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={18} />
             </View>
-            <AppText tone="success" variant="cardTitle">
+            <AppText style={styles.cardTitleText} tone="success" variant="cardTitle">
               ملاحظة Capital
             </AppText>
           </View>
-          <AppText tone="secondary" variant="body">
+          <AppText style={styles.rtlText} tone="secondary" variant="body">
             لديك تدفق نقدي إيجابي، لكن الالتزامات الشهرية تمثل جزءًا ملحوظًا من مصروفاتك. متابعة المصروفات المتكررة قد تساعدك على تحسين هامش الأمان المالي.
           </AppText>
         </View>
@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     marginBottom: spacing.lg,
@@ -221,10 +222,12 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   metricTile: {
+    alignItems: 'stretch',
     backgroundColor: 'rgba(255,255,255,0.045)',
     borderColor: colors.surface.border,
     borderRadius: radii.card,
     borderWidth: 1,
+    direction: 'ltr',
     flexBasis: '47%',
     flexGrow: 1,
     gap: spacing.xs,
@@ -232,8 +235,10 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   metricValue: {
+    alignSelf: 'stretch',
     direction: 'ltr',
     textAlign: 'right',
+    width: '100%',
     writingDirection: 'ltr',
   },
   healthCard: {
@@ -241,6 +246,7 @@ const styles = StyleSheet.create({
   },
   healthHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -272,6 +278,7 @@ const styles = StyleSheet.create({
   },
   insightHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -284,6 +291,18 @@ const styles = StyleSheet.create({
     height: 38,
     justifyContent: 'center',
     width: 38,
+  },
+  cardTitleText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   spacer: {
     flexGrow: 1,

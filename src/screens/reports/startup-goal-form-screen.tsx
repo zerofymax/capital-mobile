@@ -31,6 +31,9 @@ type GoalFormDraft = Omit<StartupGoalDraft, 'allocatedBudget' | 'currentValue' |
 };
 type FormErrors = Partial<Record<keyof GoalFormDraft, string>>;
 
+const useAndroidRtlLayout = Platform.OS === 'android';
+const androidSystemNavigationClearance = 48;
+
 export function AddStartupGoalScreen() {
   return <StartupGoalFormScreen mode="add" />;
 }
@@ -69,7 +72,9 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
     draft.allocatedBudget !== null && draft.spentBudget !== null && draft.allocatedBudget >= 0 && draft.spentBudget > draft.allocatedBudget
       ? 'المصروف أعلى من الميزانية. يمكنك الحفظ إذا كان ذلك قرارًا مقصودًا.'
       : undefined;
-  const bottomPadding = Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
+  const bottomPadding = useAndroidRtlLayout
+    ? insets.bottom + androidSystemNavigationClearance + spacing.xl
+    : Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
 
   function handleSave() {
     setSubmitted(true);
@@ -125,7 +130,7 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
     return (
       <SafeAreaView edges={['top']} style={styles.root}>
         <View style={[styles.notFound, { paddingBottom: bottomPadding }]}>
-          <ReportModalHeader onBack={() => router.back()} subtitle="قد يكون الهدف حُذف من النسخة التجريبية." title="تعذر العثور على الهدف" />
+          <ReportModalHeader androidRtlLayout onBack={() => router.back()} subtitle="قد يكون الهدف حُذف من النسخة التجريبية." title="تعذر العثور على الهدف" />
           <AppButton onPress={() => router.replace(routes.startupGoals)}>العودة إلى الأهداف</AppButton>
         </View>
       </SafeAreaView>
@@ -143,25 +148,35 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
           style={styles.scrollArea}
         >
           <ReportModalHeader
+            androidRtlLayout
             onBack={() => router.back()}
             subtitle={mode === 'edit' ? 'حدّث بيانات الهدف وميزانيته ومراحل التنفيذ.' : 'حدد الهدف وقيمته وخطته وميزانيته.'}
             title={mode === 'edit' ? 'تعديل هدف' : 'إضافة هدف'}
           />
 
-          {budgetWarning ? <NoticeBanner message={budgetWarning} tone="warning" /> : null}
+          {budgetWarning ? <NoticeBanner androidRtlLayout message={budgetWarning} tone="warning" /> : null}
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">معلومات أساسية</AppText>
-            <TextField error={submitted ? errors.title : undefined} label="اسم الهدف" onChangeText={setTitle} placeholder="مثال: الوصول إلى 1,000 عميل" value={title} />
-            <SelectField error={submitted ? errors.type : undefined} label="نوع الهدف" onPress={() => setPicker('type')} value={typeLabel} />
-            <TextField label="وصف" multiline onChangeText={setDescription} placeholder="اكتب وصفًا مختصرًا للهدف" value={description} />
-            <TextField error={submitted ? errors.owner : undefined} label="المسؤول" onChangeText={setOwner} placeholder="مثال: فريق النمو" value={owner} />
+            <View style={styles.sectionTitleWrapper}>
+              <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+                معلومات أساسية
+              </AppText>
+            </View>
+            <TextField androidRtlLayout error={submitted ? errors.title : undefined} label="اسم الهدف" onChangeText={setTitle} placeholder="مثال: الوصول إلى 1,000 عميل" value={title} />
+            <SelectField androidRtlLayout error={submitted ? errors.type : undefined} label="نوع الهدف" onPress={() => setPicker('type')} value={typeLabel} />
+            <TextField androidRtlLayout label="وصف" multiline onChangeText={setDescription} placeholder="اكتب وصفًا مختصرًا للهدف" value={description} />
+            <TextField androidRtlLayout error={submitted ? errors.owner : undefined} label="المسؤول" onChangeText={setOwner} placeholder="مثال: فريق النمو" value={owner} />
           </View>
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">قياس الهدف</AppText>
-            <SelectField error={submitted ? errors.unit : undefined} label="وحدة القياس" onPress={() => setPicker('unit')} value={unitLabel} />
+            <View style={styles.sectionTitleWrapper}>
+              <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+                قياس الهدف
+              </AppText>
+            </View>
+            <SelectField androidRtlLayout error={submitted ? errors.unit : undefined} label="وحدة القياس" onPress={() => setPicker('unit')} value={unitLabel} />
             <AmountField
+              androidRtlLayout
               error={submitted ? errors.currentValue : undefined}
               label="القيمة الحالية"
               onChangeText={(value) => setCurrentValue(formatNumericInput(value))}
@@ -170,6 +185,7 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
               value={currentValue}
             />
             <AmountField
+              androidRtlLayout
               error={submitted ? errors.targetValue : undefined}
               label="القيمة المستهدفة"
               onChangeText={(value) => setTargetValue(formatNumericInput(value))}
@@ -180,10 +196,15 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
           </View>
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">الوقت والميزانية</AppText>
-            <SelectField iconName="calendar-outline" label="تاريخ البداية" onPress={() => setPicker('startDate')} value={formatDate(startDate)} />
-            <SelectField error={submitted ? errors.targetDate : undefined} iconName="calendar-outline" label="الموعد المستهدف" onPress={() => setPicker('targetDate')} value={formatDate(targetDate)} />
+            <View style={styles.sectionTitleWrapper}>
+              <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+                الوقت والميزانية
+              </AppText>
+            </View>
+            <SelectField androidRtlLayout iconName="calendar-outline" label="تاريخ البداية" onPress={() => setPicker('startDate')} value={formatDate(startDate)} />
+            <SelectField androidRtlLayout error={submitted ? errors.targetDate : undefined} iconName="calendar-outline" label="الموعد المستهدف" onPress={() => setPicker('targetDate')} value={formatDate(targetDate)} />
             <AmountField
+              androidRtlLayout
               error={submitted ? errors.allocatedBudget : undefined}
               label="الميزانية المخصصة"
               onChangeText={(value) => setAllocatedBudget(formatNumericInput(value))}
@@ -191,6 +212,7 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
               value={allocatedBudget}
             />
             <AmountField
+              androidRtlLayout
               error={submitted ? errors.spentBudget : undefined}
               helper={budgetWarning}
               label="المصروف حتى الآن"
@@ -201,9 +223,13 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
           </View>
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">ملاحظات وحالة</AppText>
-            <SelectField label="حالة الهدف" onPress={() => setPicker('status')} value={statusLabel} />
-            <TextField label="ملاحظات" multiline onChangeText={setNotes} placeholder="اكتب ملاحظات تشغيلية مختصرة" value={notes} />
+            <View style={styles.sectionTitleWrapper}>
+              <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+                ملاحظات وحالة
+              </AppText>
+            </View>
+            <SelectField androidRtlLayout label="حالة الهدف" onPress={() => setPicker('status')} value={statusLabel} />
+            <TextField androidRtlLayout label="ملاحظات" multiline onChangeText={setNotes} placeholder="اكتب ملاحظات تشغيلية مختصرة" value={notes} />
           </View>
 
           <AppButton disabled={submitted && hasErrors} onPress={handleSave}>
@@ -213,6 +239,7 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setType(labelToType(value));
@@ -224,6 +251,7 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
         visible={picker === 'type'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setUnit(value as StartupGoalUnit);
@@ -235,6 +263,7 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
         visible={picker === 'unit'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setStartDate(labelToDate(value));
@@ -246,6 +275,7 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
         visible={picker === 'startDate'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setTargetDate(labelToDate(value));
@@ -257,6 +287,7 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
         visible={picker === 'targetDate'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setStatus(labelToStatus(value));
@@ -367,6 +398,18 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: spacing.md,
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   notFound: {
     flex: 1,

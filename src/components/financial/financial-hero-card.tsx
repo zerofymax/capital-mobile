@@ -41,8 +41,6 @@ export function FinancialHeroCard({
   onCtaPress,
   currencySymbol,
 }: FinancialHeroCardProps) {
-  const rtlMetrics = [...metrics].reverse();
-
   return (
     <View style={styles.root}>
       <View style={styles.blurFallback} />
@@ -88,7 +86,7 @@ export function FinancialHeroCard({
         </View>
 
         <View style={styles.metricsRow}>
-          {rtlMetrics.map((metric) => (
+          {metrics.map((metric) => (
             <View key={metric.key} style={styles.metricCell}>
               <AppText tone="secondary" variant="caption">
                 {metric.label}
@@ -155,7 +153,7 @@ const styles = StyleSheet.create({
   },
   titleRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   heroLabel: {
@@ -186,7 +184,8 @@ const styles = StyleSheet.create({
   metricsRow: {
     borderTopColor: 'rgba(255,255,255,0.10)',
     borderTopWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingTop: 18,
   },

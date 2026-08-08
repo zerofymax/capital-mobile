@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -22,6 +22,14 @@ import {
   useFinancialAccounts,
   type FinancialAccount,
 } from './financial-accounts-data';
+
+const androidPhysicalLtrRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
+  : {};
+const androidPhysicalRtlRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
+  : {};
+const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
 
 export function FinancialAccountDetailsScreen() {
   const insets = useSafeAreaInsets();
@@ -154,11 +162,17 @@ function Header({ title, onBackPress }: { title: string; onBackPress: () => void
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        {Platform.OS === 'android' ? (
+          <Feather color={colors.text.muted} name="chevron-left" size={22} />
+        ) : (
+          <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        )}
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
-        {title}
-      </AppText>
+      <View style={styles.headerCopy}>
+        <AppText numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+          {title}
+        </AppText>
+      </View>
       <View style={styles.headerSlot} />
     </View>
   );
@@ -174,8 +188,8 @@ function AccountHero({ account }: { account: FinancialAccount }) {
           <Ionicons color={colors.brand.calmGreen} name={getFinancialAccountTypeIcon(account.type)} size={22} />
         </View>
         <View style={styles.heroCopy}>
-          <AppText variant="screenTitle">{account.name}</AppText>
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.heroText} variant="screenTitle">{account.name}</AppText>
+          <AppText style={styles.heroText} tone="secondary" variant="supporting">
             {getFinancialAccountTypeLabel(account.type)}
             {account.institution ? ` · ${account.institution}` : ''}
           </AppText>
@@ -228,11 +242,12 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.screenX,
     paddingTop: spacing.md,
+    ...androidPhysicalLtrRow,
   },
   backButton: {
     alignItems: 'center',
@@ -245,11 +260,20 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
+    minWidth: 0,
   },
   headerSlot: {
     height: 40,
     width: 40,
+    ...androidHeaderSlot,
   },
   content: {
     gap: spacing.lg,
@@ -268,6 +292,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row-reverse',
     gap: spacing.md,
+    ...androidPhysicalLtrRow,
   },
   accountIcon: {
     alignItems: 'center',
@@ -280,15 +305,23 @@ const styles = StyleSheet.create({
     width: 46,
   },
   heroCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  heroText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   heroBalance: {
+    alignItems: Platform.OS === 'android' ? 'flex-end' : undefined,
     gap: spacing.xs,
   },
   amountText: {
-    textAlign: 'left',
+    textAlign: Platform.OS === 'android' ? 'right' : 'left',
     writingDirection: 'ltr',
   },
   badgeRow: {
@@ -313,10 +346,13 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(79,138,91,0.30)',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+    ...androidPhysicalLtrRow,
   },
   noteText: {
     flex: 1,
     lineHeight: 21,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   detailsCard: {
     gap: spacing.md,
@@ -325,20 +361,24 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     borderBottomColor: colors.surface.border,
     borderBottomWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.lg,
     justifyContent: 'space-between',
     paddingBottom: spacing.md,
     width: '100%',
+    ...androidPhysicalRtlRow,
   },
   detailLabel: {
     flexShrink: 0,
     maxWidth: '44%',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   detailValue: {
     flex: 1,
     minWidth: 0,
     textAlign: 'left',
+    writingDirection: 'rtl',
   },
   ltrText: {
     textAlign: 'left',

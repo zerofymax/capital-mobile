@@ -7,28 +7,48 @@ import { typography } from '@/theme/typography';
 
 type AmountInputCardProps = {
   value: string;
+  displayValue?: string;
+  currencyLabel?: string;
   error?: string;
+  alignLabelRight?: boolean;
+  physicalLtrLayout?: boolean;
   onChangeText: (value: string) => void;
 };
 
-export function AmountInputCard({ value, error, onChangeText }: AmountInputCardProps) {
+export function AmountInputCard({
+  value,
+  displayValue,
+  currencyLabel = 'رس',
+  error,
+  alignLabelRight = false,
+  physicalLtrLayout = false,
+  onChangeText,
+}: AmountInputCardProps) {
   return (
     <GlassSurface>
       <View style={styles.root}>
-        <AppText tone="secondary" variant="supporting">
-          مبلغ العملية
-        </AppText>
-        <View style={styles.amountRow}>
+        {alignLabelRight ? (
+          <View style={styles.rtlLabelWrapper}>
+            <AppText style={styles.rtlLabel} tone="secondary" variant="supporting">
+              مبلغ العملية
+            </AppText>
+          </View>
+        ) : (
+          <AppText tone="secondary" variant="supporting">
+            مبلغ العملية
+          </AppText>
+        )}
+        <View style={[styles.amountRow, physicalLtrLayout && styles.physicalLtrRow]}>
           <TextInput
             keyboardType="decimal-pad"
             onChangeText={onChangeText}
             placeholder="0.00"
             placeholderTextColor={colors.text.tertiary}
             style={styles.input}
-            value={value}
+            value={displayValue ?? value}
           />
           <AppText style={styles.currency} variant="sectionTitle">
-            رس
+            {currencyLabel}
           </AppText>
         </View>
         {error ? (
@@ -45,12 +65,28 @@ const styles = StyleSheet.create({
   root: {
     gap: spacing.md,
   },
+  rtlLabelWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  rtlLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   amountRow: {
     alignItems: 'flex-end',
     flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'flex-start',
     width: '100%',
+  },
+  physicalLtrRow: {
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   input: {
     color: colors.text.primary,

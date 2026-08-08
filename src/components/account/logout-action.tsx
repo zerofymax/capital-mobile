@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(229,103,90,0.22)',
     borderRadius: radii.button,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'center',
     minHeight: 52,
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   },
   confirmHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   actions: {

@@ -98,12 +98,11 @@ function Header({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         تسجيل الخروج من جميع الأجهزة
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -226,8 +225,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -241,16 +241,17 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerTitle: {
+    alignSelf: 'stretch',
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   warningCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.28)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -265,14 +266,19 @@ const styles = StyleSheet.create({
     width: 42,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
   rowsCard: {
@@ -280,6 +286,7 @@ const styles = StyleSheet.create({
   },
   resultRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 56,
@@ -301,7 +308,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(232,163,61,0.26)',
   },
   resultText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   checkboxCard: {
     alignItems: 'center',
@@ -309,6 +319,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 64,
@@ -319,8 +330,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(232,163,61,0.30)',
   },
   checkboxLabel: {
+    alignSelf: 'stretch',
     flex: 1,
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   checkbox: {
     alignItems: 'center',
@@ -339,9 +353,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   completedCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.30)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },

@@ -148,17 +148,16 @@ function DeviceManagementHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
+        <AppText align="right" numberOfLines={1} style={styles.headerText} variant="screenTitle">
           إدارة الأجهزة
         </AppText>
-        <AppText align="center" tone="secondary" variant="caption">
+        <AppText align="right" style={styles.headerText} tone="secondary" variant="caption">
           راجع الأجهزة والجلسات التي استخدمت حساب Capital.
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -229,6 +228,7 @@ function DeviceSessionCard({
       onPress={onPress}
       style={({ pressed }) => [styles.deviceCard, signedOut && styles.signedOutCard, selected && styles.selectedCard, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name={selected ? 'chevron-up-outline' : 'chevron-back-outline'} size={16} />
       <View style={styles.deviceIcon}>
         <Ionicons color={signedOut ? colors.text.tertiary : colors.brand.calmGreen} name={getPlatformIcon(session.platform)} size={21} />
       </View>
@@ -247,7 +247,6 @@ function DeviceSessionCard({
           {session.location} · {session.lastActiveAt}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name={selected ? 'chevron-up-outline' : 'chevron-back-outline'} size={16} />
     </Pressable>
   );
 }
@@ -360,9 +359,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
-    justifyContent: 'space-between',
     minHeight: 54,
   },
   backButton: {
@@ -376,31 +375,38 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   prototypeNotice: {
     alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.58)',
     borderColor: 'rgba(167,200,161,0.22)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   noticeText: {
+    alignSelf: 'stretch',
     flex: 1,
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   summaryIcon: {
@@ -414,12 +420,15 @@ const styles = StyleSheet.create({
     width: 42,
   },
   summaryCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   summaryLine: {
+    width: '100%',
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
@@ -428,6 +437,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
   deviceCard: {
@@ -436,7 +446,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.card,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     padding: spacing.lg,
   },
@@ -457,12 +468,14 @@ const styles = StyleSheet.create({
     width: 40,
   },
   deviceCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   titleLine: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -494,7 +507,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
   },
   infoRow: {
+    width: '100%',
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
@@ -507,7 +522,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.28)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     marginTop: spacing.sm,
     paddingVertical: spacing.md,
@@ -517,10 +533,11 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   signOutOthersCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   warningIcon: {
@@ -534,13 +551,17 @@ const styles = StyleSheet.create({
     width: 42,
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   feedbackCard: {
     alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.28)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },

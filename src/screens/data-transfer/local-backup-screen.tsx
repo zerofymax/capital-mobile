@@ -275,17 +275,16 @@ function Header({ title, subtitle }: { title: string; subtitle: string }) {
         onPress={() => router.back()}
         style={styles.backButton}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText align="right" style={styles.headerText} variant="screenTitle">
           {title}
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText align="right" style={styles.headerText} tone="secondary" variant="supporting">
           {subtitle}
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -295,7 +294,7 @@ function PrivacyCard() {
     <SolidCard style={styles.privacyCard}>
       <Ionicons color={colors.brand.calmGreen} name="shield-checkmark-outline" size={21} />
       <View style={styles.flexCopy}>
-        <AppText variant="cardTitle">نسخة محلية فقط</AppText>
+        <AppText style={styles.rtlText} variant="cardTitle">نسخة محلية فقط</AppText>
         <AppText style={styles.wrappingText} tone="secondary" variant="supporting">
           يُنشأ الملف محليًا ولا يُرفع تلقائيًا إلى أي خادم. قد يحتوي على بيانات شخصية
           ومالية، فلا تشاركه إلا مع جهة موثوقة. ولا تتضمن النسخة كلمات مرور أو رموز دخول.
@@ -318,7 +317,7 @@ function ExportContent({
     <>
       <SolidCard style={styles.sectionCard}>
         <SectionHeader iconName="archive-outline" title="تصدير نسخة احتياطية" />
-        <AppText tone="secondary" variant="supporting">
+        <AppText style={styles.rtlText} tone="secondary" variant="supporting">
           أنشئ ملفًا محليًا يحتوي على بيانات Capital القابلة للاستعادة لاحقًا.
         </AppText>
         <SummaryGrid expanded summary={summary} />
@@ -352,13 +351,13 @@ function ImportContent({
     <>
       <SolidCard style={styles.sectionCard}>
         <SectionHeader iconName="cloud-upload-outline" title="استيراد نسخة احتياطية" />
-        <AppText tone="secondary" variant="supporting">
+        <AppText style={styles.rtlText} tone="secondary" variant="supporting">
           اختر ملف JSON صادرًا من Capital. ستتم مراجعته بالكامل قبل استبدال أي بيانات.
         </AppText>
         <View style={styles.warningBox}>
           <Ionicons color={colors.semantic.warning} name="warning-outline" size={19} />
           <View style={styles.flexCopy}>
-            <AppText tone="warning" variant="cardTitle">
+            <AppText style={styles.rtlText} tone="warning" variant="cardTitle">
               استبدال البيانات المحلية
             </AppText>
             <AppText style={styles.wrappingText} tone="secondary" variant="caption">
@@ -514,7 +513,7 @@ function SectionHeader({
   return (
     <View style={styles.sectionHeader}>
       <Ionicons color={colors.brand.calmGreen} name={iconName} size={21} />
-      <AppText variant="sectionTitle">{title}</AppText>
+      <AppText style={styles.sectionHeaderText} variant="sectionTitle">{title}</AppText>
     </View>
   );
 }
@@ -584,7 +583,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 68,
     paddingHorizontal: 16,
@@ -601,13 +601,16 @@ const styles = StyleSheet.create({
     width: 44,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  headerSlot: {
-    height: 44,
-    width: 44,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   scrollArea: {
     flex: 1,
@@ -618,33 +621,49 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
   },
   privacyCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.30)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   flexCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   flexText: {
+    alignSelf: 'stretch',
     flex: 1,
     flexShrink: 1,
     minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   wrappingText: {
+    alignSelf: 'stretch',
     flexShrink: 1,
     lineHeight: 22,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   sectionCard: {
     gap: spacing.md,
   },
   sectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
+  },
+  sectionHeaderText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryGrid: {
     flexDirection: 'row-reverse',
@@ -665,12 +684,16 @@ const styles = StyleSheet.create({
   },
   summaryRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 38,
+    width: '100%',
   },
   summaryLabel: {
     flexShrink: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryValue: {
     flex: 1,
@@ -683,12 +706,13 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   warningBox: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.28)',
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     padding: spacing.md,
   },
@@ -727,11 +751,18 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xs,
   },
   importWarning: {
+    alignItems: 'flex-end',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.28)',
     borderRadius: radii.input,
     borderWidth: 1,
     gap: spacing.sm,
     padding: spacing.md,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

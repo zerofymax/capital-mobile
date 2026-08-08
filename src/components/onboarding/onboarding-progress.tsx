@@ -13,7 +13,7 @@ type OnboardingProgressProps = {
 export function OnboardingProgress({ currentStep, totalSteps }: OnboardingProgressProps) {
   return (
     <View style={styles.root}>
-      <AppText tone="tertiary" variant="caption">
+      <AppText style={styles.progressText} tone="tertiary" variant="caption">
         {currentStep} / {totalSteps}
       </AppText>
       <View style={styles.track} accessibilityRole="progressbar">
@@ -32,8 +32,11 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   track: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.xs,
+  },
+  progressText: {
+    writingDirection: 'ltr',
   },
   segment: {
     backgroundColor: 'rgba(255,255,255,0.09)',

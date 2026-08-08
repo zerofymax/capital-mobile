@@ -437,6 +437,7 @@ export function PaymentMethodScreen() {
         cancelLabel="إلغاء"
         confirmLabel="فهمت"
         description={currentPaymentRemoveWarning}
+        forceRtlContent
         onCancel={() => setRemoveDialogVisible(false)}
         onConfirm={confirmRemove}
         title="إزالة وسيلة الدفع؟"
@@ -468,12 +469,11 @@ function PaymentHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         وسيلة الدفع
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -485,8 +485,8 @@ function IntroCard() {
         <Ionicons color={colors.brand.calmGreen} name="wallet-outline" size={21} />
       </View>
       <View style={styles.cardCopy}>
-        <AppText variant="cardTitle">إدارة وسيلة الدفع</AppText>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={styles.fullWidthRtlText} variant="cardTitle">إدارة وسيلة الدفع</AppText>
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           أضف أو حدّث وسيلة الدفع المستخدمة في الاشتراك. جميع البيانات في هذه الصفحة تجريبية ومحلية فقط.
         </AppText>
       </View>
@@ -509,7 +509,7 @@ function CurrentPaymentSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">وسيلة الدفع الحالية</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">وسيلة الدفع الحالية</AppText>
       {card ? (
         <>
           <MaskedCard card={card} />
@@ -529,15 +529,15 @@ function CurrentPaymentSection({
           <SolidCard style={styles.warningCard}>
             <Ionicons color={colors.semantic.warning} name="alert-circle-outline" size={19} />
             <View style={styles.cardCopy}>
-              <AppText tone="warning" variant="body">
+              <AppText style={styles.fullWidthRtlText} tone="warning" variant="body">
                 وسيلة الدفع مرتبطة بالاشتراك
               </AppText>
-              <AppText style={styles.description} tone="secondary" variant="caption">
+              <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="caption">
                 في النسخة الإنتاجية، قد تحتاج إلى إضافة وسيلة بديلة للحفاظ على التجديد التلقائي.
               </AppText>
             </View>
           </SolidCard>
-          <AppButton onPress={onAdd} variant="secondary">
+          <AppButton onPress={onAdd} style={styles.fullWidthButton} variant="secondary">
             إضافة وسيلة دفع جديدة
           </AppButton>
         </>
@@ -583,23 +583,23 @@ function MaskedCard({ card }: { card: MaskedPaymentMethod }) {
       </AppText>
       <View style={styles.maskedCardBottom}>
         <View style={styles.cardMeta}>
-          <AppText tone="tertiary" variant="caption">
+          <AppText style={styles.cardMetaLabel} tone="tertiary" variant="caption">
             الاسم
           </AppText>
-          <AppText align="left" numberOfLines={1} style={styles.ltrText} variant="supporting">
+          <AppText align="left" numberOfLines={1} style={styles.cardMetaValue} variant="supporting">
             {card.holderName}
           </AppText>
         </View>
         <View style={styles.cardMeta}>
-          <AppText tone="tertiary" variant="caption">
+          <AppText style={styles.cardMetaLabel} tone="tertiary" variant="caption">
             الانتهاء
           </AppText>
-          <AppText align="left" style={styles.ltrText} variant="supporting">
+          <AppText align="left" style={styles.cardMetaValue} variant="supporting">
             {card.expiry}
           </AppText>
         </View>
       </View>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.cardStatusText} tone="secondary" variant="caption">
         مفعلة للاشتراك الحالي
       </AppText>
     </View>
@@ -630,20 +630,20 @@ function ActionRow({
       onPress={onPress}
       style={({ pressed }) => [styles.actionRow, disabled && styles.disabled, pressed && !disabled && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
       <View style={[styles.actionIcon, danger && styles.dangerIcon]}>
         <Ionicons color={danger ? colors.semantic.danger : colors.brand.calmGreen} name={icon} size={18} />
       </View>
       <View style={styles.cardCopy}>
-        <AppText tone={danger ? 'danger' : 'primary'} variant="body">
+        <AppText style={styles.fullWidthRtlText} tone={danger ? 'danger' : 'primary'} variant="body">
           {label}
         </AppText>
         {supporting ? (
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.fullWidthRtlText} tone="secondary" variant="caption">
             {supporting}
           </AppText>
         ) : null}
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
     </Pressable>
   );
 }
@@ -671,15 +671,17 @@ function PaymentForm({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">{title}</AppText>
+      <View style={styles.rtlTextWrapper}>
+        <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
+      </View>
       <SolidCard style={styles.formCard}>
         <View style={styles.detectedBrandRow}>
           <View style={styles.infoIcon}>
             <Ionicons color={colors.brand.calmGreen} name="card-outline" size={20} />
           </View>
           <View style={styles.cardCopy}>
-            <AppText variant="body">{getBrandLabel(brand)}</AppText>
-            <AppText tone="secondary" variant="caption">
+            <AppText style={styles.brandText} variant="body">{getBrandLabel(brand)}</AppText>
+            <AppText style={styles.fullWidthRtlText} tone="secondary" variant="caption">
               كشف محلي تجريبي فقط، بدون تحقق بنكي.
             </AppText>
           </View>
@@ -738,10 +740,10 @@ function PaymentForm({
           </View>
         </Pressable>
         <View style={styles.formActions}>
-          <AppButton disabled={saving} loading={saving} onPress={onSave}>
+          <AppButton disabled={saving} loading={saving} onPress={onSave} style={styles.fullWidthButton}>
             {saving ? 'جاري الحفظ' : mode === 'edit' ? 'حفظ التعديلات' : 'إضافة البطاقة'}
           </AppButton>
-          <AppButton disabled={saving} onPress={onCancel} variant="secondary">
+          <AppButton disabled={saving} onPress={onCancel} style={styles.fullWidthButton} variant="secondary">
             إلغاء
           </AppButton>
         </View>
@@ -753,9 +755,11 @@ function PaymentForm({
 function PaymentInput({ error, label, style, ...props }: { label: string; error?: string } & TextInputProps) {
   return (
     <View style={styles.inputGroup}>
-      <AppText tone="secondary" variant="supporting">
-        {label}
-      </AppText>
+      <View style={styles.rtlTextWrapper}>
+        <AppText style={styles.inputLabel} tone="secondary" variant="supporting">
+          {label}
+        </AppText>
+      </View>
       <TextInput
         {...props}
         accessibilityLabel={label}
@@ -764,7 +768,7 @@ function PaymentInput({ error, label, style, ...props }: { label: string; error?
         textAlign="left"
       />
       {error ? (
-        <AppText accessibilityLiveRegion="polite" tone="danger" variant="caption">
+        <AppText accessibilityLiveRegion="polite" style={styles.inputError} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -779,11 +783,11 @@ function SecurityNotice() {
         <Ionicons color={colors.brand.calmGreen} name="shield-checkmark-outline" size={21} />
       </View>
       <View style={styles.cardCopy}>
-        <AppText variant="cardTitle">بيانات الدفع محمية</AppText>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={styles.fullWidthRtlText} variant="cardTitle">بيانات الدفع محمية</AppText>
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           في النسخة الإنتاجية، تُرسل بيانات البطاقة مباشرة إلى مزود الدفع ولا يحتفظ Capital بالرقم الكامل أو رمز CVV.
         </AppText>
-        <AppText tone="tertiary" variant="caption">
+        <AppText style={styles.fullWidthRtlText} tone="tertiary" variant="caption">
           هذه الصفحة نموذج محلي. لا يتم إرسال بيانات دفع أو تنفيذ عملية مالية.
         </AppText>
       </View>
@@ -817,9 +821,11 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 48,
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -833,16 +839,16 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   introCard: {
     alignItems: 'flex-start',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   infoIcon: {
@@ -856,15 +862,26 @@ const styles = StyleSheet.create({
     width: 42,
   },
   cardCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   description: {
     lineHeight: 23,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   maskedCard: {
     borderColor: 'rgba(167,200,161,0.28)',
@@ -877,7 +894,8 @@ const styles = StyleSheet.create({
   },
   maskedCardTop: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   defaultBadge: {
@@ -891,17 +909,37 @@ const styles = StyleSheet.create({
   cardNumber: {
     color: colors.text.primary,
     letterSpacing: 1,
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   maskedCardBottom: {
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.lg,
   },
   cardMeta: {
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  cardMetaLabel: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  cardMetaValue: {
+    textAlign: 'left',
+    width: '100%',
+    writingDirection: 'ltr',
+  },
+  cardStatusText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   ltrText: {
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   rowsCard: {
@@ -909,7 +947,8 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 64,
     paddingHorizontal: spacing.lg,
@@ -933,19 +972,22 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   securityCard: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   feedbackCard: {
     alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.26)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
@@ -955,18 +997,41 @@ const styles = StyleSheet.create({
   },
   feedbackText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   formCard: {
     gap: spacing.lg,
   },
   detectedBrandRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   inputGroup: {
     flex: 1,
     gap: spacing.sm,
+    minWidth: 0,
+  },
+  rtlTextWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  inputLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  inputError: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   input: {
     backgroundColor: colors.surface.card,
@@ -981,6 +1046,7 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   formSplitRow: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -990,6 +1056,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 54,
@@ -997,6 +1064,9 @@ const styles = StyleSheet.create({
   },
   checkboxLabel: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   checkbox: {
     alignItems: 'center',
@@ -1013,6 +1083,22 @@ const styles = StyleSheet.create({
   },
   formActions: {
     gap: spacing.md,
+    width: '100%',
+  },
+  brandText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
+  },
+  fullWidthButton: {
+    width: '100%',
+  },
+  fullWidthRtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   disabled: {
     opacity: 0.48,

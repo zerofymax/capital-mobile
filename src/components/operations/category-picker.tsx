@@ -11,13 +11,20 @@ type CategoryPickerProps = {
   options: readonly string[];
   selectedValue: string;
   error?: string;
+  alignTitleRight?: boolean;
   onSelect: (value: string) => void;
 };
 
-export function CategoryPicker({ title, options, selectedValue, error, onSelect }: CategoryPickerProps) {
+export function CategoryPicker({ title, options, selectedValue, error, alignTitleRight = false, onSelect }: CategoryPickerProps) {
   return (
     <View style={styles.root}>
-      <AppText variant="sectionTitle">{title}</AppText>
+      {alignTitleRight ? (
+        <View style={styles.sectionTitleWrapper}>
+          <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
+        </View>
+      ) : (
+        <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
+      )}
       <View style={styles.options}>
         {options.map((option) => {
           const selected = selectedValue === option;
@@ -40,7 +47,7 @@ export function CategoryPicker({ title, options, selectedValue, error, onSelect 
         })}
       </View>
       {error ? (
-        <AppText tone="danger" variant="caption">
+        <AppText style={styles.helperText} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -52,10 +59,27 @@ const styles = StyleSheet.create({
   root: {
     gap: spacing.md,
   },
+  sectionTitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
   options: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
+  },
+  helperText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   option: {
     backgroundColor: colors.surface.muted,

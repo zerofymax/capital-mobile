@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
@@ -122,6 +122,9 @@ export function AddTransactionScreen({ initialType }: AddTransactionScreenProps)
   const isDirty = useMemo(() => !formValuesAreEqual(currentValues, initialValues), [currentValues, initialValues]);
   const validation = useMemo(() => validateForm(currentValues, validCategoryIds), [currentValues, validCategoryIds]);
   const isSaveDisabled = saving || Object.keys(validation).length > 0 || (editing && !isDirty);
+  const incomeRtlLayout = Platform.OS === 'android' && !editing;
+  const editRtlLayout = Platform.OS === 'android' && editing;
+  const formRtlLayout = incomeRtlLayout || editRtlLayout;
 
   const requestNavigation = useCallback(
     (action: () => void) => {
@@ -257,22 +260,29 @@ export function AddTransactionScreen({ initialType }: AddTransactionScreenProps)
         showsVerticalScrollIndicator={false}
       >
         <ModalHeader
+          editRtlLayout={editRtlLayout}
+          incomeRtlLayout={incomeRtlLayout}
           onClose={() => requestNavigation(() => router.back())}
           title={editing ? 'تعديل العملية' : transactionType === 'income' ? 'إضافة دخل' : 'إضافة مصروف'}
         />
 
-        <TransactionTypeSelector onChange={handleTypeChange} value={transactionType} />
+        <TransactionTypeSelector physicalRtlLayout={editRtlLayout} onChange={handleTypeChange} value={transactionType} />
 
         <AmountInputCard
+          alignLabelRight={formRtlLayout}
+          currencyLabel={editRtlLayout ? 'ر.س' : undefined}
+          displayValue={editRtlLayout ? formatAmountInputValue(amount) : undefined}
           error={errors.amount}
           onChangeText={(value) => {
             setAmount(normalizeAmountInput(value));
             setErrors((current) => ({ ...current, amount: undefined }));
           }}
+          physicalLtrLayout={editRtlLayout}
           value={amount}
         />
 
         <CategoryPicker
+          alignTitleRight={formRtlLayout}
           error={errors.categoryId}
           onSelect={handleCategorySelect}
           options={categoryOptions}
@@ -281,13 +291,16 @@ export function AddTransactionScreen({ initialType }: AddTransactionScreenProps)
         />
 
         <TransactionDateField
+          editRtlLayout={editRtlLayout}
           error={errors.transactionDate}
+          incomeRtlLayout={incomeRtlLayout}
           onPress={() => setDatePickerVisible(true)}
           value={formatTransactionDateLabel(transactionDate, todayIso, yesterdayIso)}
         />
 
         <TextField
           error={errors.description}
+          alignLabelRight={formRtlLayout}
           label="الوصف"
           onChangeText={(value) => {
             setDescription(value);
@@ -302,6 +315,7 @@ export function AddTransactionScreen({ initialType }: AddTransactionScreenProps)
             setNote(value.slice(0, 300));
             setErrors((current) => ({ ...current, note: undefined }));
           }}
+          rtlLayout={editRtlLayout}
           value={note}
         />
 
@@ -327,6 +341,7 @@ export function AddTransactionScreen({ initialType }: AddTransactionScreenProps)
       />
       {datePickerVisible ? (
         <TransactionDateSheet
+          incomeRtlLayout={incomeRtlLayout}
           onClose={() => setDatePickerVisible(false)}
           onSelect={handleDateSelect}
           selectedValue={transactionDate}
@@ -479,29 +494,71 @@ function buildMonthDays(monthDate: Date) {
   return Array.from({ length: daysCount }, (_, index) => formatIsoDate(new Date(year, month, index + 1)));
 }
 
+function formatAmountInputValue(value: string) {
+  const [integerPart = '', decimalPart] = value.split('.');
+  const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  return decimalPart === undefined ? groupedInteger : `${groupedInteger}.${decimalPart}`;
+}
+
 function TransactionDateField({
   value,
   error,
+  incomeRtlLayout,
+  editRtlLayout,
   onPress,
 }: {
   value: string;
   error?: string;
+  incomeRtlLayout: boolean;
+  editRtlLayout: boolean;
   onPress: () => void;
 }) {
   return (
     <View style={styles.fieldRoot}>
-      <AppText variant="sectionTitle">تاريخ العملية</AppText>
+      {incomeRtlLayout || editRtlLayout ? (
+        <View style={styles.rtlLabelWrapper}>
+          <AppText style={styles.rtlLabel} variant="sectionTitle">تاريخ العملية</AppText>
+        </View>
+      ) : (
+        <AppText variant="sectionTitle">تاريخ العملية</AppText>
+      )}
       <Pressable
         accessibilityLabel={`تاريخ العملية ${value}`}
         accessibilityRole="button"
         onPress={onPress}
-        style={({ pressed }) => [styles.dateField, error && styles.inputError, pressed && styles.pressed]}
+        style={({ pressed }) => [
+          styles.dateField,
+          (incomeRtlLayout || editRtlLayout) && styles.physicalLtrRow,
+          error && styles.inputError,
+          pressed && styles.pressed,
+        ]}
       >
-        <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={19} />
-        <AppText numberOfLines={1} style={styles.dateValue} variant="body">
-          {value}
-        </AppText>
-        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+        {incomeRtlLayout ? (
+          <>
+            <Feather color={colors.text.tertiary} name="chevron-left" size={17} />
+            <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={19} />
+            <AppText numberOfLines={1} style={styles.dateValue} variant="body">
+              {directionSafeText(value)}
+            </AppText>
+          </>
+        ) : editRtlLayout ? (
+          <>
+            <Feather color={colors.text.tertiary} name="chevron-left" size={17} />
+            <AppText numberOfLines={1} style={styles.dateValue} variant="body">
+              {directionSafeText(value)}
+            </AppText>
+            <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={19} />
+          </>
+        ) : (
+          <>
+            <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={19} />
+            <AppText numberOfLines={1} style={styles.dateValue} variant="body">
+              {directionSafeText(value)}
+            </AppText>
+            <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+          </>
+        )}
       </Pressable>
       {error ? (
         <AppText tone="danger" variant="caption">
@@ -517,6 +574,7 @@ function TransactionDateSheet({
   selectedValue,
   todayIso,
   yesterdayIso,
+  incomeRtlLayout,
   onSelect,
   onClose,
 }: {
@@ -524,6 +582,7 @@ function TransactionDateSheet({
   selectedValue: string;
   todayIso: string;
   yesterdayIso: string;
+  incomeRtlLayout: boolean;
   onSelect: (value: string) => void;
   onClose: () => void;
 }) {
@@ -542,24 +601,45 @@ function TransactionDateSheet({
         <Pressable accessibilityLabel="إغلاق اختيار التاريخ" onPress={onClose} style={styles.dateSheetBackdrop} />
         <View style={[styles.dateSheet, { paddingBottom: Math.max(insets.bottom + spacing.xxl, 56) }]}>
           <View style={styles.dateSheetHandle} />
-          <View style={styles.dateSheetHeader}>
-            <Pressable accessibilityRole="button" hitSlop={10} onPress={onClose}>
-              <AppText tone="link" variant="supporting">
-                إلغاء
-              </AppText>
-            </Pressable>
-            <AppText variant="sectionTitle">تاريخ العملية</AppText>
+          <View style={[styles.dateSheetHeader, incomeRtlLayout && styles.physicalLtrRow]}>
+            {incomeRtlLayout ? (
+              <>
+                <Pressable accessibilityRole="button" hitSlop={10} onPress={onClose}>
+                  <AppText tone="link" variant="supporting">
+                    إلغاء
+                  </AppText>
+                </Pressable>
+                <View style={styles.dateSheetTitleWrapper}>
+                  <AppText style={styles.dateSheetTitle} variant="sectionTitle">
+                    تاريخ العملية
+                  </AppText>
+                </View>
+              </>
+            ) : (
+              <>
+                <AppText style={styles.dateSheetTitle} variant="sectionTitle">
+                  تاريخ العملية
+                </AppText>
+                <Pressable accessibilityRole="button" hitSlop={10} onPress={onClose}>
+                  <AppText tone="link" variant="supporting">
+                    إلغاء
+                  </AppText>
+                </Pressable>
+              </>
+            )}
           </View>
 
           {!fullPickerVisible ? (
             <View style={styles.quickDateOptions}>
               <DateSheetOption
+                incomeRtlLayout={incomeRtlLayout}
                 label="اليوم"
                 onPress={() => onSelect(todayIso)}
                 selected={selectedValue === todayIso}
                 value={formatArabicDate(todayIso)}
               />
               <DateSheetOption
+                incomeRtlLayout={incomeRtlLayout}
                 label="أمس"
                 onPress={() => onSelect(yesterdayIso)}
                 selected={selectedValue === yesterdayIso}
@@ -568,13 +648,29 @@ function TransactionDateSheet({
               <Pressable
                 accessibilityRole="button"
                 onPress={() => setFullPickerVisible(true)}
-                style={({ pressed }) => [styles.otherDateButton, pressed && styles.pressed]}
+                style={({ pressed }) => [
+                  styles.otherDateButton,
+                  incomeRtlLayout && styles.physicalLtrRow,
+                  pressed && styles.pressed,
+                ]}
               >
-                <Ionicons color={colors.brand.calmGreen} name="calendar-number-outline" size={18} />
-                <AppText style={styles.otherDateText} variant="body">
-                  اختيار تاريخ آخر
-                </AppText>
-                <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+                {incomeRtlLayout ? (
+                  <>
+                    <Feather color={colors.text.tertiary} name="chevron-left" size={17} />
+                    <Ionicons color={colors.brand.calmGreen} name="calendar-number-outline" size={18} />
+                    <AppText style={[styles.otherDateText, styles.rtlRowText]} variant="body">
+                      اختيار تاريخ آخر
+                    </AppText>
+                  </>
+                ) : (
+                  <>
+                    <Ionicons color={colors.brand.calmGreen} name="calendar-number-outline" size={18} />
+                    <AppText style={styles.otherDateText} variant="body">
+                      اختيار تاريخ آخر
+                    </AppText>
+                    <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+                  </>
+                )}
               </Pressable>
             </View>
           ) : (
@@ -624,11 +720,13 @@ function DateSheetOption({
   label,
   value,
   selected,
+  incomeRtlLayout,
   onPress,
 }: {
   label: string;
   value: string;
   selected: boolean;
+  incomeRtlLayout: boolean;
   onPress: () => void;
 }) {
   return (
@@ -636,13 +734,18 @@ function DateSheetOption({
       accessibilityRole="button"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={({ pressed }) => [styles.dateOption, selected && styles.dateOptionSelected, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.dateOption,
+        incomeRtlLayout && styles.physicalLtrRow,
+        selected && styles.dateOptionSelected,
+        pressed && styles.pressed,
+      ]}
     >
       {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-circle" size={18} /> : null}
       <View style={styles.dateOptionCopy}>
-        <AppText variant="body">{label}</AppText>
-        <AppText tone="secondary" variant="caption">
-          {value}
+        <AppText style={incomeRtlLayout ? styles.rtlLabel : undefined} variant="body">{label}</AppText>
+        <AppText style={[styles.dateOptionValue, incomeRtlLayout && styles.rtlLabel]} tone="secondary" variant="caption">
+          {directionSafeText(value)}
         </AppText>
       </View>
     </Pressable>
@@ -672,9 +775,21 @@ function MissingTransactionState({ onBack }: { onBack: () => void }) {
   );
 }
 
-function ModalHeader({ title, onClose }: { title: string; onClose: () => void }) {
+function ModalHeader({
+  title,
+  incomeRtlLayout,
+  editRtlLayout,
+  onClose,
+}: {
+  title: string;
+  incomeRtlLayout: boolean;
+  editRtlLayout: boolean;
+  onClose: () => void;
+}) {
+  const rtlLayout = incomeRtlLayout || editRtlLayout;
+
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, rtlLayout && styles.physicalLtrRow]}>
       <Pressable
         accessibilityLabel="رجوع"
         accessibilityRole="button"
@@ -682,12 +797,16 @@ function ModalHeader({ title, onClose }: { title: string; onClose: () => void })
         onPress={onClose}
         style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="arrow-forward-outline" size={22} />
+        {rtlLayout ? (
+          <Feather color={colors.text.muted} name="chevron-left" size={22} />
+        ) : (
+          <Ionicons color={colors.text.muted} name="arrow-forward-outline" size={22} />
+        )}
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         {title}
       </AppText>
-      <View style={styles.headerSlot} />
+      {!rtlLayout ? <View style={styles.headerSlot} /> : null}
     </View>
   );
 }
@@ -696,18 +815,26 @@ function TextField({
   label,
   value,
   error,
+  alignLabelRight = false,
   placeholder,
   onChangeText,
 }: {
   label: string;
   value: string;
   error?: string;
+  alignLabelRight?: boolean;
   placeholder: string;
   onChangeText: (value: string) => void;
 }) {
   return (
     <View style={styles.fieldRoot}>
-      <AppText variant="sectionTitle">{label}</AppText>
+      {alignLabelRight ? (
+        <View style={styles.rtlLabelWrapper}>
+          <AppText style={styles.rtlLabel} variant="sectionTitle">{label}</AppText>
+        </View>
+      ) : (
+        <AppText variant="sectionTitle">{label}</AppText>
+      )}
       <SolidCard style={[styles.inputCard, error && styles.inputError]}>
         <TextInput
           maxLength={100}
@@ -727,16 +854,27 @@ function TextField({
   );
 }
 
-function NotesField({ value, onChangeText }: { value: string; onChangeText: (value: string) => void }) {
+function NotesField({ value, rtlLayout, onChangeText }: { value: string; rtlLayout: boolean; onChangeText: (value: string) => void }) {
   const remaining = 300 - value.length;
 
   return (
     <View style={styles.fieldRoot}>
-      <View style={styles.labelRow}>
-        <AppText variant="sectionTitle">الملاحظة</AppText>
-        <AppText tone={remaining < 30 ? 'warning' : 'tertiary'} variant="caption">
-          {directionSafeText(`${remaining} حرف متبقٍ`)}
-        </AppText>
+      <View style={[styles.labelRow, rtlLayout && styles.physicalLtrRow]}>
+        {rtlLayout ? (
+          <>
+            <AppText style={styles.noteCounter} tone={remaining < 30 ? 'warning' : 'tertiary'} variant="caption">
+              {directionSafeText(`${remaining} حرف متبقٍ`)}
+            </AppText>
+            <AppText style={styles.noteLabel} variant="sectionTitle">الملاحظة</AppText>
+          </>
+        ) : (
+          <>
+            <AppText variant="sectionTitle">الملاحظة</AppText>
+            <AppText tone={remaining < 30 ? 'warning' : 'tertiary'} variant="caption">
+              {directionSafeText(`${remaining} حرف متبقٍ`)}
+            </AppText>
+          </>
+        )}
       </View>
       <SolidCard style={styles.notesCard}>
         <TextInput
@@ -764,9 +902,13 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 42,
+  },
+  physicalLtrRow: {
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   closeButton: {
     alignItems: 'center',
@@ -780,6 +922,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   headerSlot: {
     height: 40,
@@ -787,6 +932,23 @@ const styles = StyleSheet.create({
   },
   fieldRoot: {
     gap: spacing.sm,
+  },
+  rtlLabelWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  rtlLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlRowText: {
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   inputCard: {
     minHeight: 54,
@@ -802,7 +964,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.card,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 56,
     paddingHorizontal: spacing.lg,
@@ -824,8 +986,20 @@ const styles = StyleSheet.create({
   },
   labelRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  noteCounter: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'rtl',
+  },
+  noteLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   notesCard: {
     minHeight: 104,
@@ -883,6 +1057,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  dateSheetTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  dateSheetTitleWrapper: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
   quickDateOptions: {
     gap: spacing.sm,
   },
@@ -892,7 +1077,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.card,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 58,
     paddingHorizontal: spacing.lg,
@@ -906,6 +1091,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     flex: 1,
     gap: 2,
+    minWidth: 0,
+  },
+  dateOptionValue: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   otherDateButton: {
     alignItems: 'center',
@@ -913,7 +1103,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.card,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 58,
     paddingHorizontal: spacing.lg,
@@ -927,14 +1117,14 @@ const styles = StyleSheet.create({
   },
   monthHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   monthTitle: {
     flex: 1,
   },
   monthGrid: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
     justifyContent: 'center',

@@ -6,3 +6,4 @@ export { HelpTopicCard } from './help-topic-card';
 export { LegalRow } from './legal-row';
 export { SupportActionCard } from './support-action-card';
 export { SupportModalHeader } from './support-modal-header';
+export { SupportSectionHeading } from './support-section-heading';

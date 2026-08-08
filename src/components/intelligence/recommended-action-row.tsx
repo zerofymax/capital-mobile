@@ -23,6 +23,7 @@ export function RecommendedActionRow({ action, completed, isLast = false, onPres
       onPress={onPress}
       style={({ pressed }) => [styles.root, !isLast && styles.withBorder, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
       <View style={[styles.priority, completed && styles.priorityDone]}>
         {completed ? (
           <Ionicons color={colors.semantic.success} name="checkmark-outline" size={16} />
@@ -33,14 +34,13 @@ export function RecommendedActionRow({ action, completed, isLast = false, onPres
         )}
       </View>
       <View style={styles.copy}>
-        <AppText numberOfLines={1} style={completed && styles.completedTitle} variant="body">
+        <AppText align="right" numberOfLines={1} style={[styles.rtlText, completed && styles.completedTitle]} variant="body">
           {action.title}
         </AppText>
-        <AppText numberOfLines={2} tone="secondary" variant="caption">
+        <AppText align="right" numberOfLines={2} style={styles.rtlText} tone="secondary" variant="caption">
           {directionSafeText(action.description)}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
     </Pressable>
   );
 }
@@ -48,7 +48,8 @@ export function RecommendedActionRow({ action, completed, isLast = false, onPres
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 76,
     paddingHorizontal: 14,
@@ -77,9 +78,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: 3,
     minWidth: 0,
+  },
+  rtlText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   completedTitle: {
     color: colors.text.tertiary,

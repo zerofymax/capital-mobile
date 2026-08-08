@@ -82,7 +82,7 @@ function TermDetailsContent({ term }: { term: FinancialTerm }) {
             <Ionicons color={colors.brand.calmGreen} name={term.icon} size={24} />
           </View>
           <View style={styles.heroCopy}>
-            <AppText variant="sectionTitle">{term.titleAr}</AppText>
+            <AppText style={styles.rtlText} variant="sectionTitle">{term.titleAr}</AppText>
             <View style={styles.metaRow}>
               {term.acronym ? <LtrBadge value={term.acronym} /> : null}
               {term.englishName ? (
@@ -91,16 +91,16 @@ function TermDetailsContent({ term }: { term: FinancialTerm }) {
                 </AppText>
               ) : null}
             </View>
-            <AppText tone="secondary" variant="caption">
+            <AppText style={styles.rtlText} tone="secondary" variant="caption">
               {getFinancialTermCategoryLabel(term.category)}
             </AppText>
           </View>
         </View>
-        <AppText variant="body">{directionSafeText(term.shortDefinition)}</AppText>
+        <AppText style={styles.rtlText} variant="body">{directionSafeText(term.shortDefinition)}</AppText>
       </SolidCard>
 
       <DetailCard icon="book-outline" title="ما معنى المصطلح؟">
-        <AppText tone="secondary" variant="body">
+        <AppText style={styles.rtlText} tone="secondary" variant="body">
           {directionSafeText(term.simpleExplanation)}
         </AppText>
       </DetailCard>
@@ -112,22 +112,22 @@ function TermDetailsContent({ term }: { term: FinancialTerm }) {
         style={({ pressed }) => [styles.simplerCard, pressed && styles.pressed]}
       >
         <View style={styles.simplerHeader}>
-          <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={18} />
-          <AppText variant="cardTitle">شرح أبسط</AppText>
           <Ionicons color={colors.text.tertiary} name={showSimpler ? 'chevron-up-outline' : 'chevron-down-outline'} size={17} />
+          <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={18} />
+          <AppText style={styles.detailTitle} variant="cardTitle">شرح أبسط</AppText>
         </View>
         {showSimpler ? (
           <View style={styles.simplerBody}>
-            <AppText tone="secondary" variant="caption">
+            <AppText style={styles.rtlText} tone="secondary" variant="caption">
               الخلاصة في جملة واحدة
             </AppText>
-            <AppText variant="body">{directionSafeText(term.simplerSummary)}</AppText>
+            <AppText style={styles.rtlText} variant="body">{directionSafeText(term.simplerSummary)}</AppText>
           </View>
         ) : null}
       </Pressable>
 
       <DetailCard icon="flag-outline" title="لماذا يهم مؤسس الشركة؟">
-        <AppText tone="secondary" variant="body">
+        <AppText style={styles.rtlText} tone="secondary" variant="body">
           {directionSafeText(term.founderImportance)}
         </AppText>
       </DetailCard>
@@ -136,11 +136,11 @@ function TermDetailsContent({ term }: { term: FinancialTerm }) {
         <DetailCard icon="calculator-outline" title="طريقة الحساب">
           <View style={styles.formulaBox}>
             <AppText style={styles.formulaText} variant="cardTitle">
-              {term.formula}
+              {directionSafeText(term.formula)}
             </AppText>
           </View>
           {term.formulaExplanation ? (
-            <AppText tone="secondary" variant="supporting">
+            <AppText style={styles.rtlText} tone="secondary" variant="supporting">
               {directionSafeText(term.formulaExplanation)}
             </AppText>
           ) : null}
@@ -149,8 +149,8 @@ function TermDetailsContent({ term }: { term: FinancialTerm }) {
 
       {term.example ? (
         <DetailCard icon="receipt-outline" title="مثال مبسط">
-          <AppText variant="cardTitle">{term.example.title}</AppText>
-          <AppText tone="secondary" variant="body">
+          <AppText style={styles.rtlText} variant="cardTitle">{term.example.title}</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="body">
             {directionSafeText(term.example.description)}
           </AppText>
           {term.example.result ? (
@@ -178,7 +178,7 @@ function TermDetailsContent({ term }: { term: FinancialTerm }) {
 
       {term.commonMistake ? (
         <DetailCard icon="warning-outline" title="خطأ شائع" warning>
-          <AppText variant="body">{directionSafeText(term.commonMistake)}</AppText>
+          <AppText style={styles.rtlText} variant="body">{directionSafeText(term.commonMistake)}</AppText>
         </DetailCard>
       ) : null}
 
@@ -193,7 +193,7 @@ function TermDetailsContent({ term }: { term: FinancialTerm }) {
                 onPress={() => openRelatedTerm(related.id)}
                 style={({ pressed }) => [styles.relatedChip, pressed && styles.pressed]}
               >
-                <AppText variant="caption">{related.titleAr}</AppText>
+                <AppText style={styles.relatedTitle} variant="caption">{related.titleAr}</AppText>
                 {related.acronym ? <LtrBadge small value={related.acronym} /> : null}
               </Pressable>
             ))}
@@ -227,9 +227,9 @@ function DetailCard({ title, icon, warning, children }: React.PropsWithChildren<
         <View style={[styles.detailIcon, warning && styles.warningIcon]}>
           <Ionicons color={warning ? colors.semantic.warning : colors.brand.calmGreen} name={icon} size={18} />
         </View>
-        <AppText variant="cardTitle">{title}</AppText>
+        <AppText style={styles.detailTitle} variant="cardTitle">{title}</AppText>
       </View>
-      {children}
+      <View style={styles.detailBody}>{children}</View>
     </SolidCard>
   );
 }
@@ -273,7 +273,8 @@ const styles = StyleSheet.create({
   },
   heroTop: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   heroIcon: {
@@ -285,12 +286,16 @@ const styles = StyleSheet.create({
     width: 48,
   },
   heroCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   metaRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -316,13 +321,21 @@ const styles = StyleSheet.create({
   detailCard: {
     gap: spacing.md,
   },
+  detailBody: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    gap: spacing.md,
+    width: '100%',
+  },
   warningCard: {
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
   },
   detailHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   detailIcon: {
@@ -336,6 +349,12 @@ const styles = StyleSheet.create({
   warningIcon: {
     backgroundColor: 'rgba(232,163,61,0.16)',
   },
+  detailTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   simplerCard: {
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.28)',
@@ -346,25 +365,36 @@ const styles = StyleSheet.create({
   },
   simplerHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   simplerBody: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     gap: spacing.xs,
+    width: '100%',
   },
   formulaBox: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     backgroundColor: 'rgba(0,0,0,0.22)',
     borderColor: colors.surface.separator,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     padding: spacing.md,
+    width: '100%',
   },
   formulaText: {
-    textAlign: 'left',
-    writingDirection: 'ltr',
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   resultBadge: {
-    alignSelf: 'flex-start',
+    alignSelf: 'flex-end',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.28)',
     borderRadius: radii.pill,
@@ -374,10 +404,13 @@ const styles = StyleSheet.create({
   },
   resultText: {
     color: colors.brand.calmGreen,
-    writingDirection: 'ltr',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   bulletRow: {
     alignItems: 'flex-start',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
@@ -389,9 +422,15 @@ const styles = StyleSheet.create({
     width: 6,
   },
   bulletText: {
+    alignSelf: 'stretch',
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   relatedList: {
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -402,10 +441,21 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.pill,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.xs,
     minHeight: 36,
     paddingHorizontal: spacing.md,
+  },
+  relatedTitle: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   invalidCard: {
     alignItems: 'center',

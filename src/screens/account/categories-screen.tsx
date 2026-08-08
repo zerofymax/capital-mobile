@@ -40,8 +40,8 @@ type CategorySheetMode =
   | { type: 'edit'; category: FinancialCategory };
 
 const typeTabs: { id: CategoryType; label: string }[] = [
-  { id: 'expense', label: 'المصروفات' },
   { id: 'income', label: 'الإيرادات' },
+  { id: 'expense', label: 'المصروفات' },
 ];
 
 const iconOptions: (keyof typeof Ionicons.glyphMap)[] = [
@@ -256,17 +256,16 @@ function ModalHeader({ title, subtitle, onBack }: { title: string; subtitle: str
           pressed && styles.pressed,
         ]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={21} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={21} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText style={styles.headerText} variant="screenTitle">
           {title}
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText style={styles.headerText} tone="secondary" variant="supporting">
           {subtitle}
         </AppText>
       </View>
-      <View style={styles.headerSpacer} />
     </View>
   );
 }
@@ -286,12 +285,17 @@ function CategoryCard({
 
   return (
     <SolidCard style={styles.categoryCard}>
-      <View style={[styles.categoryIcon, { backgroundColor: tone.tint, borderColor: tone.border }]}>
-        <Ionicons color={tone.color} name={category.icon} size={20} />
+      <View style={styles.cardActions}>
+        <Pressable accessibilityLabel="تعديل التصنيف" accessibilityRole="button" onPress={onEdit} style={styles.iconButton}>
+          <Ionicons color={colors.text.tertiary} name="create-outline" size={18} />
+        </Pressable>
+        <Pressable accessibilityLabel="حذف التصنيف" accessibilityRole="button" onPress={onDelete} style={styles.iconButton}>
+          <Ionicons color={category.isDefault ? colors.text.disabled : colors.semantic.danger} name="trash-outline" size={17} />
+        </Pressable>
       </View>
       <View style={styles.categoryCopy}>
         <View style={styles.categoryTitleRow}>
-          <AppText numberOfLines={1} variant="cardTitle">
+          <AppText numberOfLines={1} style={styles.categoryName} variant="cardTitle">
             {directionSafeText(category.name)}
           </AppText>
           <View style={[styles.statusBadge, { backgroundColor: category.isDefault ? colors.semantic.successTint : colors.surface.muted }]}>
@@ -300,22 +304,19 @@ function CategoryCard({
             </AppText>
           </View>
         </View>
-        <AppText tone="secondary" variant="caption">
-          {category.type === 'income' ? 'إيراد' : 'مصروف'} · {transactions} عمليات
+        <AppText style={styles.categoryMeta} tone="secondary" variant="caption">
+          {directionSafeText(
+            `${category.type === 'income' ? 'إيراد' : 'مصروف'} · ${transactions.toLocaleString('en-US')} عمليات`,
+          )}
         </AppText>
         {category.description ? (
-          <AppText numberOfLines={2} tone="secondary" variant="caption">
+          <AppText numberOfLines={2} style={styles.categoryDescription} tone="secondary" variant="caption">
             {directionSafeText(category.description)}
           </AppText>
         ) : null}
       </View>
-      <View style={styles.cardActions}>
-        <Pressable accessibilityLabel="تعديل التصنيف" accessibilityRole="button" onPress={onEdit} style={styles.iconButton}>
-          <Ionicons color={colors.text.tertiary} name="create-outline" size={18} />
-        </Pressable>
-        <Pressable accessibilityLabel="حذف التصنيف" accessibilityRole="button" onPress={onDelete} style={styles.iconButton}>
-          <Ionicons color={category.isDefault ? colors.text.disabled : colors.semantic.danger} name="trash-outline" size={17} />
-        </Pressable>
+      <View style={[styles.categoryIcon, { backgroundColor: tone.tint, borderColor: tone.border }]}>
+        <Ionicons color={tone.color} name={category.icon} size={20} />
       </View>
     </SolidCard>
   );
@@ -406,9 +407,11 @@ function CategoryFormSheetContent({
         <Pressable accessibilityLabel="إغلاق" onPress={onClose} style={styles.sheetBackdrop} />
         <View style={[styles.sheet, { backgroundColor: colors.surface.card, borderColor: colors.surface.border }]}>
           <View style={[styles.sheetGrabber, { backgroundColor: colors.text.tertiary }]} />
-          <AppText align="center" variant="sectionTitle">
-            {mode.type === 'edit' ? 'تعديل التصنيف' : 'إضافة تصنيف'}
-          </AppText>
+          <View style={styles.sheetTitleWrap}>
+            <AppText style={styles.sheetTitle} variant="sectionTitle">
+              {mode.type === 'edit' ? 'تعديل التصنيف' : 'إضافة تصنيف'}
+            </AppText>
+          </View>
 
           <TextField
             error={error}
@@ -419,7 +422,7 @@ function CategoryFormSheetContent({
           />
 
           <View style={styles.sheetSection}>
-            <AppText variant="cardTitle">النوع</AppText>
+            <AppText style={styles.sheetSectionTitle} variant="cardTitle">النوع</AppText>
             <View style={styles.choiceRow}>
               {typeTabs.map((tab) => (
                 <ChoiceChip
@@ -434,7 +437,7 @@ function CategoryFormSheetContent({
           </View>
 
           <View style={styles.sheetSection}>
-            <AppText variant="cardTitle">الأيقونة</AppText>
+            <AppText style={styles.sheetSectionTitle} variant="cardTitle">الأيقونة</AppText>
             <View style={styles.iconGrid}>
               {iconOptions.map((icon) => (
                 <Pressable
@@ -457,7 +460,7 @@ function CategoryFormSheetContent({
           </View>
 
           <View style={styles.sheetSection}>
-            <AppText variant="cardTitle">اللون</AppText>
+            <AppText style={styles.sheetSectionTitle} variant="cardTitle">اللون</AppText>
             <View style={styles.choiceRow}>
               {toneOptions.map((tone) => (
                 <ChoiceChip
@@ -509,7 +512,7 @@ function TextField({
 
   return (
     <View style={styles.field}>
-      <AppText variant="cardTitle">{label}</AppText>
+      <AppText style={styles.fieldLabel} variant="cardTitle">{label}</AppText>
       <TextInput
         multiline={multiline}
         onChangeText={onChangeText}
@@ -527,7 +530,7 @@ function TextField({
         value={value}
       />
       {error ? (
-        <AppText tone="danger" variant="caption">
+        <AppText style={styles.fieldError} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -612,7 +615,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
   },
@@ -625,13 +629,20 @@ const styles = StyleSheet.create({
     width: 42,
   },
   headerCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
-  headerSpacer: {
-    width: 42,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   tabs: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
@@ -650,7 +661,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 50,
     paddingHorizontal: spacing.md,
@@ -668,7 +680,8 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   categoryIcon: {
@@ -680,19 +693,40 @@ const styles = StyleSheet.create({
     width: 42,
   },
   categoryCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   categoryTitleRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+    width: '100%',
+  },
+  categoryName: {
+    flexShrink: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   statusBadge: {
     borderRadius: radii.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
+  },
+  categoryMeta: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  categoryDescription: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   cardActions: {
     gap: spacing.sm,
@@ -735,8 +769,34 @@ const styles = StyleSheet.create({
     opacity: 0.45,
     width: 36,
   },
+  sheetTitleWrap: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sheetTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   field: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
+  },
+  fieldLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  fieldError: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   input: {
     borderRadius: radii.input,
@@ -754,9 +814,18 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   sheetSection: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
   },
+  sheetSectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   choiceRow: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -769,6 +838,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   iconGrid: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Sharing from 'expo-sharing';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, SolidCard } from '@/components/ui';
@@ -158,19 +158,25 @@ export function PrepareInvoiceExportScreen() {
 
 function PreparationStatusCard({ fileFormat }: { fileFormat: ExportFileFormat | null }) {
   const isPdf = fileFormat === 'pdf';
+  const statusTitle = (
+    <AppText style={Platform.OS === 'android' ? styles.statusTitleAndroid : undefined} variant="sectionTitle">
+      ملف التصدير جاهز للمراجعة
+    </AppText>
+  );
+  const previewBadge = <Badge label="معاينة" />;
 
   return (
     <SolidCard style={styles.statusCard}>
-      <View style={styles.statusHeader}>
+      <View style={[styles.statusHeader, Platform.OS === 'android' && styles.statusHeaderAndroid]}>
         <View style={styles.statusIcon}>
           <Ionicons color="#9DD5FF" name={isPdf ? 'document-text-outline' : 'download-outline'} size={22} />
         </View>
-        <View style={styles.statusCopy}>
-          <View style={styles.titleRow}>
-            <AppText variant="sectionTitle">ملف التصدير جاهز للمراجعة</AppText>
-            <Badge label="معاينة" />
+        <View style={[styles.statusCopy, Platform.OS === 'android' && styles.statusCopyAndroid]}>
+          <View style={[styles.titleRow, Platform.OS === 'android' && styles.titleRowAndroid]}>
+            {Platform.OS === 'android' ? previewBadge : statusTitle}
+            {Platform.OS === 'android' ? statusTitle : previewBadge}
           </View>
-          <AppText tone="secondary" variant="body">
+          <AppText style={Platform.OS === 'android' ? styles.statusDescriptionAndroid : undefined} tone="secondary" variant="body">
             {isPdf ? 'سيتم تجهيز ملف PDF منسق يتضمن بيانات الفواتير المحددة.' : 'سيتم تجهيز ملف CSV يتضمن بيانات الفواتير المحددة.'}
           </AppText>
         </View>
@@ -209,7 +215,7 @@ function FileSummaryCard({
 }) {
   return (
     <SolidCard style={styles.sectionCard}>
-      <AppText variant="sectionTitle">ملخص الملف</AppText>
+      <AppText style={Platform.OS === 'android' ? styles.sectionTitleAndroid : undefined} variant="sectionTitle">ملخص الملف</AppText>
       <View style={styles.rows}>
         <TextRow label="صيغة الملف" ltrValue value={fileFormat ? fileFormat.toUpperCase() : 'غير صالحة'} />
         <TextRow label="عدد الفواتير" value={`${invoiceCount}`} />
@@ -239,7 +245,7 @@ function FinancialSummaryCard({
 }) {
   return (
     <SolidCard style={styles.sectionCard}>
-      <AppText variant="sectionTitle">ملخص الفواتير المحددة</AppText>
+      <AppText style={Platform.OS === 'android' ? styles.sectionTitleAndroid : undefined} variant="sectionTitle">ملخص الفواتير المحددة</AppText>
       <View style={styles.rows}>
         <AmountRow label="إجمالي قيمة الفواتير" value={summary.totalValue} />
         <AmountRow label="المبلغ المحصل" tone="success" value={summary.collected} />
@@ -257,7 +263,7 @@ function IncludedFieldsCard({ fields }: { fields: { id: ExportFieldId; label: st
   return (
     <SolidCard style={styles.sectionCard}>
       <View style={styles.sectionHeader}>
-        <AppText variant="sectionTitle">الحقول المضمنة</AppText>
+        <AppText style={Platform.OS === 'android' ? styles.sectionHeaderTitleAndroid : undefined} variant="sectionTitle">الحقول المضمنة</AppText>
         <Pressable accessibilityLabel="تعديل الاختيارات" accessibilityRole="button" hitSlop={8} onPress={() => router.back()} style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}>
           <AppText style={styles.linkText} variant="caption">
             تعديل الاختيارات
@@ -286,7 +292,7 @@ function FilePreviewCard({ invoices, fields, fileFormat }: { invoices: InvoiceSu
 
   return (
     <SolidCard style={styles.sectionCard}>
-      <AppText variant="sectionTitle">معاينة الملف</AppText>
+      <AppText style={Platform.OS === 'android' ? styles.sectionTitleAndroid : undefined} variant="sectionTitle">معاينة الملف</AppText>
       <FormatNote fileFormat={fileFormat} fields={fields} />
       {invoices.length === 0 ? (
         <View style={styles.emptyPreview}>
@@ -346,7 +352,7 @@ function CsvPreviewTable({ fields, invoice }: { fields: { id: ExportFieldId; lab
           </View>
         </View>
       </ScrollView>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={Platform.OS === 'android' ? styles.previewDescriptionAndroid : undefined} tone="secondary" variant="caption">
         اسحب أفقيًا لمشاهدة بقية الأعمدة.
       </AppText>
     </View>
@@ -359,7 +365,7 @@ function FormatNote({ fileFormat, fields }: { fileFormat: ExportFileFormat | nul
       <View style={styles.pdfPreview}>
         <View style={styles.pdfLineWide} />
         <View style={styles.pdfLine} />
-        <AppText tone="secondary" variant="supporting">
+        <AppText style={Platform.OS === 'android' ? styles.previewDescriptionAndroid : undefined} tone="secondary" variant="supporting">
           سيتم تنسيق الفواتير في مستند مناسب للحفظ والطباعة.
         </AppText>
       </View>
@@ -368,7 +374,7 @@ function FormatNote({ fileFormat, fields }: { fileFormat: ExportFileFormat | nul
 
   return (
     <View style={styles.csvNote}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={Platform.OS === 'android' ? styles.previewDescriptionAndroid : undefined} tone="secondary" variant="supporting">
         سيتم ترتيب كل فاتورة في صف مستقل، مع تضمين الحقول المختارة كأعمدة.
       </AppText>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -387,16 +393,29 @@ function FormatNote({ fileFormat, fields }: { fileFormat: ExportFileFormat | nul
 }
 
 function InvoicePreviewRow({ invoice }: { invoice: InvoiceSummary }) {
+  const statusBadge = <InvoiceStatusBadge status={invoice.displayStatus} />;
+  const identity = (
+    <View style={[styles.previewIdentity, Platform.OS === 'android' && styles.previewIdentityAndroid]}>
+      <AppText style={Platform.OS === 'android' ? styles.previewIdentityTextAndroid : undefined} variant="cardTitle">
+        {invoice.clientName}
+      </AppText>
+      <AppText
+        align={Platform.OS === 'android' ? 'right' : 'left'}
+        numberOfLines={Platform.OS === 'android' ? 1 : undefined}
+        style={[styles.ltrText, Platform.OS === 'android' && styles.previewIdentityTextAndroid]}
+        tone="secondary"
+        variant="caption"
+      >
+        {directionSafeText(invoice.invoiceNumber)}
+      </AppText>
+    </View>
+  );
+
   return (
     <View style={styles.invoicePreviewRow}>
-      <View style={styles.previewTop}>
-        <View style={styles.previewIdentity}>
-          <AppText variant="cardTitle">{invoice.clientName}</AppText>
-          <AppText align="left" style={styles.ltrText} tone="secondary" variant="caption">
-            {directionSafeText(invoice.invoiceNumber)}
-          </AppText>
-        </View>
-        <InvoiceStatusBadge status={invoice.displayStatus} />
+      <View style={[styles.previewTop, Platform.OS === 'android' && styles.previewTopAndroid]}>
+        {Platform.OS === 'android' ? statusBadge : identity}
+        {Platform.OS === 'android' ? identity : statusBadge}
       </View>
       <View style={styles.rows}>
         <AmountRow label="الإجمالي" value={invoice.total} />
@@ -408,6 +427,26 @@ function InvoicePreviewRow({ invoice }: { invoice: InvoiceSummary }) {
 }
 
 function AmountRow({ label, value, tone }: { label: string; value: number; tone?: 'success' }) {
+  const labelText = (
+    <AppText style={Platform.OS === 'android' ? styles.summaryLabelTextAndroid : undefined} tone="secondary" variant="supporting">
+      {label}
+    </AppText>
+  );
+  const valueText = (
+    <AppText align="left" style={[styles.amountText, tone === 'success' && styles.successText]} variant="cardTitle">
+      {formatSar(value)}
+    </AppText>
+  );
+
+  if (Platform.OS === 'android') {
+    return (
+      <View style={[styles.textRow, styles.textRowAndroid]}>
+        <View style={styles.summaryValueSlotAndroid}>{valueText}</View>
+        <View style={styles.summaryLabelSlotAndroid}>{labelText}</View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.textRow}>
       <AppText tone="secondary" variant="supporting">
@@ -421,29 +460,66 @@ function AmountRow({ label, value, tone }: { label: string; value: number; tone?
 }
 
 function TextRow({ label, value, ltrValue }: { label: string; value: string; ltrValue?: boolean }) {
+  const usesLtrValue = ltrValue || (Platform.OS === 'android' && /^\d[\d.,]*$/.test(value));
+  const labelText = (
+    <AppText style={Platform.OS === 'android' ? styles.summaryLabelTextAndroid : undefined} tone="secondary" variant="supporting">
+      {label}
+    </AppText>
+  );
+  const valueText = (
+    <AppText
+      align={Platform.OS === 'android' || ltrValue ? 'left' : 'right'}
+      style={[styles.textRowValue, usesLtrValue && styles.ltrText, Platform.OS === 'android' && !usesLtrValue && styles.summaryRtlValueAndroid]}
+      variant="cardTitle"
+    >
+      {value}
+    </AppText>
+  );
+
+  if (Platform.OS === 'android') {
+    return (
+      <View style={[styles.textRow, styles.textRowAndroid]}>
+        <View style={styles.summaryValueSlotAndroid}>{valueText}</View>
+        <View style={styles.summaryLabelSlotAndroid}>{labelText}</View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.textRow}>
-      <AppText tone="secondary" variant="supporting">
-        {label}
-      </AppText>
-      <AppText align={ltrValue ? 'left' : 'right'} style={[styles.textRowValue, ltrValue && styles.ltrText]} variant="cardTitle">
-        {value}
-      </AppText>
+      {labelText}
+      {valueText}
     </View>
   );
 }
 
 function FileNameRow({ value }: { value: string }) {
+  const labelText = (
+    <AppText style={Platform.OS === 'android' ? styles.summaryLabelTextAndroid : undefined} tone="secondary" variant="supporting">
+      اسم ملف مقترح
+    </AppText>
+  );
+  const valueText = (
+    <View style={[styles.fileNameValueWrap, Platform.OS === 'android' && styles.fileNameValueWrapAndroid]}>
+      <AppText align="left" ellipsizeMode="middle" numberOfLines={1} style={styles.fileNameValue} variant="cardTitle">
+        {value}
+      </AppText>
+    </View>
+  );
+
+  if (Platform.OS === 'android') {
+    return (
+      <View style={[styles.textRow, styles.textRowAndroid]}>
+        <View style={styles.summaryValueSlotAndroid}>{valueText}</View>
+        <View style={styles.summaryLabelSlotAndroid}>{labelText}</View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.textRow}>
-      <AppText tone="secondary" variant="supporting">
-        اسم ملف مقترح
-      </AppText>
-      <View style={styles.fileNameValueWrap}>
-        <AppText align="left" ellipsizeMode="middle" numberOfLines={1} style={styles.fileNameValue} variant="cardTitle">
-          {value}
-        </AppText>
-      </View>
+      {labelText}
+      {valueText}
     </View>
   );
 }
@@ -573,6 +649,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
+  statusHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
   statusIcon: {
     alignItems: 'center',
     backgroundColor: 'rgba(46,168,255,0.14)',
@@ -588,11 +669,30 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minWidth: 0,
   },
+  statusCopyAndroid: {
+    alignItems: 'flex-end',
+  },
   titleRow: {
     alignItems: 'center',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     justifyContent: 'space-between',
+  },
+  titleRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    width: '100%',
+  },
+  statusTitleAndroid: {
+    flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  statusDescriptionAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   warningCard: {
     alignItems: 'center',
@@ -610,13 +710,27 @@ const styles = StyleSheet.create({
   sectionCard: {
     gap: spacing.md,
   },
+  sectionTitleAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   sectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  sectionHeaderTitleAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   rows: {
     gap: spacing.sm,
+    ...Platform.select({ android: { width: '100%' } }),
   },
   textRow: {
     alignItems: 'flex-start',
@@ -627,6 +741,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: spacing.sm,
   },
+  textRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  summaryValueSlotAndroid: {
+    alignItems: 'flex-start',
+    flex: 1,
+    minWidth: 0,
+  },
+  summaryLabelSlotAndroid: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
+  summaryLabelTextAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  summaryRtlValueAndroid: {
+    textAlign: 'left',
+    writingDirection: 'rtl',
+  },
   textRowValue: {
     flexShrink: 1,
     minWidth: 0,
@@ -634,6 +772,10 @@ const styles = StyleSheet.create({
   fileNameValueWrap: {
     flex: 1,
     minWidth: 0,
+  },
+  fileNameValueWrapAndroid: {
+    flex: 0,
+    width: '100%',
   },
   fileNameValue: {
     flexShrink: 1,
@@ -696,6 +838,11 @@ const styles = StyleSheet.create({
   },
   csvPreviewWrap: {
     gap: spacing.sm,
+  },
+  previewDescriptionAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   csvScrollerContent: {
     paddingHorizontal: 1,
@@ -782,10 +929,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
+  previewTopAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
   previewIdentity: {
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  previewIdentityAndroid: {
+    alignItems: 'flex-end',
+  },
+  previewIdentityTextAndroid: {
+    textAlign: 'right',
+    width: '100%',
   },
   emptyPreview: {
     alignItems: 'center',

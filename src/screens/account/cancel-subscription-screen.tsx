@@ -293,7 +293,7 @@ export function CancelSubscriptionScreen() {
           onSecondaryAction={() => router.push(routes.contactSupport)}
           primaryActionLabel="العودة إلى الاشتراك الحالي"
           secondaryActionLabel="التواصل مع الدعم"
-          title="تم إيقاف التجديد التلقائي"
+          title="تم تسجيل طلب الإلغاء محليًا."
         />
       </View>
     );
@@ -345,14 +345,20 @@ export function CancelSubscriptionScreen() {
           onPress={toggleConfirmation}
         />
         <View style={styles.actions}>
+          <AppButton
+            {...{ accessibilityState: { disabled: !valid || isSubmitting } }}
+            disabled={!valid || isSubmitting}
+            loading={isSubmitting}
+            onPress={handleCancelPress}
+            variant="danger"
+          >
+            {isSubmitting ? 'جاري إلغاء الاشتراك' : 'إلغاء الاشتراك'}
+          </AppButton>
           {!valid ? (
-            <AppText align="center" tone="warning" variant="caption">
+            <AppText style={styles.validationHint} tone="warning" variant="caption">
               اختر سبب الإلغاء وأكد فهمك للمتابعة
             </AppText>
           ) : null}
-          <AppButton disabled={!valid || isSubmitting} loading={isSubmitting} onPress={handleCancelPress} variant="danger">
-            {isSubmitting ? 'جاري إلغاء الاشتراك' : 'إلغاء الاشتراك'}
-          </AppButton>
           <AppButton disabled={isSubmitting} onPress={goBackToSubscription} variant="secondary">
             الاحتفاظ باشتراكي
           </AppButton>
@@ -360,16 +366,17 @@ export function CancelSubscriptionScreen() {
       </ScrollView>
 
       <ConfirmationDialog
-        cancelLabel="العودة"
+        cancelLabel="تراجع"
         confirmLabel={isSubmitting ? 'جاري إلغاء الاشتراك' : 'تأكيد الإلغاء'}
-        description={`سيتم إيقاف التجديد التلقائي محليًا فقط، وسيبقى اشتراك ${subscription.planName} ظاهرًا حتى ${subscription.accessUntilDate}.`}
+        description={`سيتم إيقاف التجديد التلقائي مع استمرار المزايا حتى ${subscription.accessUntilDate}.`}
+        forceRtlContent
         onCancel={() => {
           if (!isSubmitting) {
             setConfirmDialogVisible(false);
           }
         }}
         onConfirm={handleConfirmCancellation}
-        title="تأكيد إلغاء الاشتراك؟"
+        title="تأكيد إلغاء الاشتراك"
         tone="danger"
         visible={confirmDialogVisible}
       />
@@ -378,6 +385,7 @@ export function CancelSubscriptionScreen() {
         cancelLabel="تجاهل التغييرات"
         confirmLabel="متابعة التعديل"
         description="إذا غادرت الآن، سيتم تجاهل إعدادات إلغاء الاشتراك."
+        forceRtlContent
         onCancel={handleDiscardChanges}
         onConfirm={() => setUnsavedDialogVisible(false)}
         title="لديك تغييرات غير محفوظة"
@@ -398,12 +406,11 @@ function CancelHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         إلغاء الاشتراك
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -432,10 +439,10 @@ function WarningCard() {
           </AppText>
           <StatusBadge label="نشط" tone="success" />
         </View>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           سيؤدي الإلغاء إلى إيقاف التجديد التلقائي. ستستمر في استخدام مزايا الخطة حتى نهاية دورة الفوترة الحالية.
         </AppText>
-        <AppText align="left" style={styles.ltrText} tone="tertiary" variant="caption">
+        <AppText align="right" style={styles.planNameText} tone="tertiary" variant="caption">
           Capital Pro
         </AppText>
       </View>
@@ -446,7 +453,7 @@ function WarningCard() {
 function SubscriptionSummary({ subscription }: { subscription: SubscriptionState }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">ملخص الاشتراك الحالي</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">ملخص الاشتراك الحالي</AppText>
       <SolidCard style={styles.rowsCard}>
         <InfoRow label="الخطة الحالية" ltr value={subscription.planName} />
         <Divider />
@@ -467,7 +474,7 @@ function SubscriptionSummary({ subscription }: { subscription: SubscriptionState
 function ConsequencesCard({ accessUntilDate }: { accessUntilDate: string }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">ماذا يحدث بعد الإلغاء؟</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">ماذا يحدث بعد الإلغاء؟</AppText>
       <SolidCard style={styles.consequencesCard}>
         {consequenceItems.map((item, index) => {
           const displayItem = item === 'يستمر اشتراكك حتى 14 أغسطس 2026' ? `يستمر اشتراكك حتى ${accessUntilDate}` : item;
@@ -506,7 +513,7 @@ function RetentionSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">ربما يناسبك خيار آخر</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">ربما يناسبك خيار آخر</AppText>
       <SolidCard style={styles.rowsCard}>
         {retentionOptions.map((option, index) => (
           <View key={option.id}>
@@ -520,8 +527,8 @@ function RetentionSection({
           <Ionicons color={colors.semantic.warning} name="pause-circle-outline" size={21} />
         </View>
         <View style={styles.copy}>
-          <AppText variant="cardTitle">إيقاف الاشتراك مؤقتًا</AppText>
-          <AppText style={styles.description} tone="secondary" variant="supporting">
+          <AppText style={styles.fullWidthRtlText} variant="cardTitle">إيقاف الاشتراك مؤقتًا</AppText>
+          <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
             احتفظ بالخطة وارجع إليها لاحقًا دون إلغاء كامل.
           </AppText>
           <AppButton onPress={onPausePress} style={styles.inlineButton} variant="secondary">
@@ -541,16 +548,16 @@ function RetentionRow({ option, onPress }: { option: RetentionOption; onPress: (
       onPress={onPress}
       style={({ pressed }) => [styles.retentionRow, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
       <View style={styles.retentionIcon}>
         <Ionicons color={colors.brand.calmGreen} name={option.icon} size={18} />
       </View>
       <View style={styles.copy}>
-        <AppText variant="body">{option.title}</AppText>
-        <AppText style={styles.rowDescription} tone="secondary" variant="caption">
+        <AppText style={styles.fullWidthRtlText} variant="body">{option.title}</AppText>
+        <AppText style={[styles.rowDescription, styles.fullWidthRtlText]} tone="secondary" variant="caption">
           {option.description}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
     </Pressable>
   );
 }
@@ -570,7 +577,7 @@ function ReasonSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">سبب الإلغاء</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">سبب الإلغاء</AppText>
       <SolidCard style={styles.reasonsCard}>
         {cancellationReasons.map((option, index) => (
           <View key={option.id}>
@@ -580,13 +587,13 @@ function ReasonSection({
         ))}
       </SolidCard>
       {error ? (
-        <AppText accessibilityLiveRegion="polite" tone="danger" variant="caption">
+        <AppText accessibilityLiveRegion="polite" style={styles.errorText} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
       {selectedReason === 'other' ? (
         <View style={styles.otherInputWrap}>
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.fullWidthRtlText} tone="secondary" variant="supporting">
             أخبرنا بالمزيد
           </AppText>
           <TextInput
@@ -641,13 +648,13 @@ function NoRefundNotice() {
     <SolidCard style={styles.noticeCard}>
       <Ionicons color={colors.semantic.warning} name="information-circle-outline" size={20} />
       <View style={styles.copy}>
-        <AppText tone="warning" variant="cardTitle">
+        <AppText style={styles.fullWidthRtlText} tone="warning" variant="cardTitle">
           المدفوعات السابقة
         </AppText>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           لن يتم تنفيذ أي استرداد تلقائي عند الإلغاء. سيبقى الاشتراك فعالًا حتى نهاية الدورة الحالية.
         </AppText>
-        <AppText tone="tertiary" variant="caption">
+        <AppText style={styles.fullWidthRtlText} tone="tertiary" variant="caption">
           سياسة الاسترداد النهائية تعتمد على مزود الدفع في النسخة الإنتاجية.
         </AppText>
       </View>
@@ -662,9 +669,9 @@ function CancellationDateCard({ subscription }: { subscription: SubscriptionStat
         <Ionicons color={colors.brand.calmGreen} name="calendar-clear-outline" size={21} />
       </View>
       <View style={styles.copy}>
-        <AppText variant="cardTitle">موعد توقف التجديد</AppText>
-        <AppText variant="screenTitle">{subscription.nextRenewalDate}</AppText>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={styles.fullWidthRtlText} variant="cardTitle">موعد توقف التجديد</AppText>
+        <AppText numberOfLines={1} style={styles.dateValue} variant="screenTitle">{subscription.nextRenewalDate}</AppText>
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           آخر يوم للوصول إلى مزايا {subscription.planName} هو {subscription.accessUntilDate}.
         </AppText>
       </View>
@@ -698,7 +705,7 @@ function ConfirmationCheckbox({
         </View>
       </Pressable>
       {error ? (
-        <AppText accessibilityLiveRegion="polite" tone="danger" variant="caption">
+        <AppText accessibilityLiveRegion="polite" style={styles.errorText} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -709,10 +716,10 @@ function ConfirmationCheckbox({
 function InfoRow({ label, value, ltr = false }: { label: string; value: string; ltr?: boolean }) {
   return (
     <View style={styles.infoRow}>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.infoLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align={ltr ? 'left' : 'right'} style={[styles.infoValue, ltr && styles.ltrText]} variant="supporting">
+      <AppText align="left" style={[styles.infoValue, ltr ? styles.ltrText : styles.rtlValue]} variant="supporting">
         {value}
       </AppText>
     </View>
@@ -751,9 +758,12 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 48,
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -767,16 +777,17 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    minWidth: 0,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   warningHero: {
     alignItems: 'flex-start',
     backgroundColor: colors.semantic.dangerTint,
     borderColor: 'rgba(229,103,90,0.30)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   dangerIconLarge: {
@@ -790,18 +801,25 @@ const styles = StyleSheet.create({
     width: 48,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   warningTitleRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
+    width: '100%',
   },
   warningTitle: {
-    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   statusBadge: {
     backgroundColor: colors.semantic.successTint,
@@ -813,31 +831,58 @@ const styles = StyleSheet.create({
   },
   description: {
     lineHeight: 23,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  planNameText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
   },
   section: {
+    alignItems: 'stretch',
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   rowsCard: {
     padding: 0,
   },
   infoRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
-    justifyContent: 'space-between',
     minHeight: 58,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+    width: '100%',
+  },
+  infoLabel: {
+    flexBasis: '42%',
+    flexShrink: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoValue: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'left',
   },
   consequencesCard: {
     padding: 0,
   },
   consequenceRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 48,
     paddingHorizontal: spacing.lg,
@@ -855,21 +900,29 @@ const styles = StyleSheet.create({
   },
   consequenceText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   localHelper: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.035)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     padding: spacing.lg,
   },
   helperText: {
     flex: 1,
     lineHeight: 19,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   retentionRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 76,
     paddingHorizontal: spacing.lg,
@@ -887,12 +940,15 @@ const styles = StyleSheet.create({
   },
   rowDescription: {
     lineHeight: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pauseCard: {
     alignItems: 'flex-start',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   pauseIcon: {
@@ -915,17 +971,23 @@ const styles = StyleSheet.create({
   },
   reasonRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 54,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
   reasonRowSelected: {
-    backgroundColor: colors.semantic.dangerTint,
+    backgroundColor: colors.semantic.successTint,
+    borderColor: 'rgba(79,138,91,0.34)',
+    borderWidth: 1,
   },
   reasonLabel: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   radioOuter: {
     alignItems: 'center',
@@ -937,16 +999,18 @@ const styles = StyleSheet.create({
     width: 22,
   },
   radioOuterSelected: {
-    borderColor: colors.semantic.danger,
+    borderColor: colors.brand.calmGreen,
   },
   radioInner: {
-    backgroundColor: colors.semantic.danger,
+    backgroundColor: colors.brand.calmGreen,
     borderRadius: radii.pill,
     height: 10,
     width: 10,
   },
   otherInputWrap: {
+    alignItems: 'stretch',
     gap: spacing.sm,
+    width: '100%',
   },
   textArea: {
     backgroundColor: colors.surface.card,
@@ -965,14 +1029,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   dateCard: {
     alignItems: 'flex-start',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   dateIcon: {
@@ -985,13 +1051,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 42,
   },
+  dateValue: {
+    alignSelf: 'stretch',
+    flexShrink: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   checkboxRow: {
     alignItems: 'center',
     backgroundColor: colors.surface.card,
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 66,
     padding: spacing.lg,
@@ -1003,6 +1077,9 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     flex: 1,
     lineHeight: 23,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   checkbox: {
     alignItems: 'center',
@@ -1021,26 +1098,55 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   feedbackText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   prototypeNotice: {
     alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.58)',
     borderColor: 'rgba(167,200,161,0.22)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   actions: {
     gap: spacing.md,
+    width: '100%',
+  },
+  validationHint: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  errorText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  fullWidthRtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   ltrText: {
+    textAlign: 'left',
     writingDirection: 'ltr',
+  },
+  rtlValue: {
+    textAlign: 'left',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

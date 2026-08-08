@@ -16,23 +16,23 @@ type InsightExpandedContentProps = {
 export function InsightExpandedContent({ insight, accentColor, onCtaPress }: InsightExpandedContentProps) {
   return (
     <View style={styles.root}>
-      <AppText style={styles.explanation} tone="muted" variant="supporting">
+      <AppText align="right" style={styles.explanation} tone="muted" variant="supporting">
         {directionSafeText(insight.explanation)}
       </AppText>
       <View style={styles.detailGrid}>
         <View style={styles.detailItem}>
-          <AppText tone="secondary" variant="caption">
+          <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
             الأثر المتوقع
           </AppText>
-          <AppText style={[styles.impactValue, { color: accentColor }]} variant="supporting">
+          <AppText align="right" style={[styles.impactValue, { color: accentColor }]} variant="supporting">
             {directionSafeText(insight.estimatedImpact)}
           </AppText>
         </View>
         <View style={styles.detailItem}>
-          <AppText tone="secondary" variant="caption">
+          <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
             الإجراء التالي
           </AppText>
-          <AppText numberOfLines={3} variant="supporting">
+          <AppText align="right" numberOfLines={3} style={styles.rtlText} variant="supporting">
             {directionSafeText(insight.recommendedAction)}
           </AppText>
         </View>
@@ -62,30 +62,52 @@ export function InsightExpandedContent({ insight, accentColor, onCtaPress }: Ins
 
 const styles = StyleSheet.create({
   root: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     borderTopColor: 'rgba(255,255,255,0.06)',
     borderTopWidth: 1,
     gap: spacing.md,
     marginTop: spacing.md,
     paddingTop: spacing.md,
+    width: '100%',
   },
   explanation: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   detailGrid: {
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
   },
   detailItem: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     backgroundColor: 'rgba(255,255,255,0.035)',
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
     gap: spacing.xs,
     padding: spacing.md,
+    width: '100%',
   },
   impactValue: {
+    alignSelf: 'stretch',
     fontSize: 15,
     fontWeight: '700',
     lineHeight: 22,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   cta: {
     alignItems: 'center',

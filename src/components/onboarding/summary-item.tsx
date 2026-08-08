@@ -12,12 +12,12 @@ type SummaryItemProps = {
 export function SummaryItem({ label }: SummaryItemProps) {
   return (
     <View style={styles.root}>
-      <View style={styles.iconWrap}>
-        <Ionicons color={colors.brand.green} name="checkmark" size={18} />
-      </View>
       <AppText style={styles.label} variant="cardTitle">
         {label}
       </AppText>
+      <View style={styles.iconWrap}>
+        <Ionicons color={colors.brand.green} name="checkmark" size={18} />
+      </View>
     </View>
   );
 }
@@ -25,7 +25,7 @@ export function SummaryItem({ label }: SummaryItemProps) {
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   iconWrap: {
@@ -38,5 +38,8 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
 });

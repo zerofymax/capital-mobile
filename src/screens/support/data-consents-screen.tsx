@@ -283,17 +283,16 @@ function DataConsentsHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={2} variant="screenTitle">
+        <AppText align="right" numberOfLines={2} style={styles.headerText} variant="screenTitle">
           إدارة البيانات والموافقات
         </AppText>
-        <AppText align="center" numberOfLines={2} tone="secondary" variant="supporting">
+        <AppText align="right" numberOfLines={2} style={styles.headerText} tone="secondary" variant="supporting">
           تحكم في كيفية استخدام بياناتك داخل Capital
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -501,8 +500,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 54,
   },
   backButton: {
@@ -516,18 +516,21 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   introCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.30)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -542,14 +545,19 @@ const styles = StyleSheet.create({
     width: 42,
   },
   introCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   introText: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
   rowsCard: {
@@ -557,6 +565,7 @@ const styles = StyleSheet.create({
   },
   requiredRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 74,
@@ -564,6 +573,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   requiredCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -579,6 +589,7 @@ const styles = StyleSheet.create({
   },
   switchRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 82,
@@ -586,33 +597,44 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   switchCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   switchDescription: {
+    alignSelf: 'stretch',
     lineHeight: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   warningNote: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.26)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
   noteCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   noteText: {
+    alignSelf: 'stretch',
     lineHeight: 21,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryCard: {
     padding: 0,
   },
   summaryRow: {
+    width: '100%',
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     minHeight: 56,
@@ -625,6 +647,7 @@ const styles = StyleSheet.create({
   },
   retentionRow: {
     alignItems: 'flex-start',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
@@ -634,6 +657,8 @@ const styles = StyleSheet.create({
   },
   retentionLabel: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   retentionValue: {
     flex: 1,
@@ -646,17 +671,23 @@ const styles = StyleSheet.create({
   },
   retentionNoteText: {
     lineHeight: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   feedbackCard: {
     alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.30)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   feedbackText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.md,

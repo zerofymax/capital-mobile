@@ -48,10 +48,10 @@ export function ReportExportSheet({ visible, subtitle, onClose }: ReportExportSh
             </View>
 
             <View style={styles.headerCopy}>
-              <AppText align="center" variant="sectionTitle">
+              <AppText align="right" variant="sectionTitle">
                 تم تجهيز التقرير
               </AppText>
-              <AppText align="center" style={styles.subtitle} tone="secondary" variant="supporting">
+              <AppText align="right" style={styles.subtitle} tone="secondary" variant="supporting">
                 {subtitle}
               </AppText>
             </View>
@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
   },
   headerCopy: {
     gap: spacing.xs,
+    minWidth: 0,
   },
   subtitle: {
     writingDirection: 'ltr',

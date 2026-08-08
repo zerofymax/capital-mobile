@@ -14,7 +14,7 @@ export function TransactionMetaRow({ label, value, ltr = false, isLast = false }
   return (
     <View style={styles.wrap}>
       <View style={styles.row}>
-        <AppText tone="secondary" variant="supporting">
+        <AppText style={styles.label} tone="secondary" variant="supporting">
           {label}
         </AppText>
         <AppText align={ltr ? 'left' : 'right'} style={ltr ? styles.ltrValue : styles.value} variant="body">
@@ -32,16 +32,25 @@ const styles = StyleSheet.create({
   },
   row: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.lg,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  label: {
+    flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   value: {
     flex: 1,
+    textAlign: 'left',
+    writingDirection: 'rtl',
   },
   ltrValue: {
     flex: 1,
     fontVariant: ['tabular-nums'],
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
 });

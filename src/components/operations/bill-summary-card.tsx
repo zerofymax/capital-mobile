@@ -19,7 +19,7 @@ export function BillSummaryCard({ rows }: BillSummaryCardProps) {
       {rows.map((row, index) => (
         <View key={row.label} style={styles.rowBlock}>
           <View style={styles.row}>
-            <AppText tone="secondary" variant="supporting">
+            <AppText style={styles.label} tone="secondary" variant="supporting">
               {row.label}
             </AppText>
             <AppText align={row.ltr ? 'left' : 'right'} style={row.ltr ? styles.ltrValue : styles.value} variant="body">
@@ -42,16 +42,25 @@ const styles = StyleSheet.create({
   },
   row: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.lg,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  label: {
+    flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   value: {
     flex: 1,
+    textAlign: 'left',
+    writingDirection: 'rtl',
   },
   ltrValue: {
     flex: 1,
     fontVariant: ['tabular-nums'],
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
 });

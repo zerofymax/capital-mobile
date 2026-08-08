@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radii.button,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,

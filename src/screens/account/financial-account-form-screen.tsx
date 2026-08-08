@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -12,11 +12,11 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
+  type TextInputProps,
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { FormField } from '@/components/forms';
 import { ConfirmationDialog } from '@/components/system';
 import { AppButton, AppText, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
@@ -46,6 +46,14 @@ type FinancialAccountErrors = Partial<Record<keyof FinancialAccountFormState, st
 
 const addSuccessMessage = 'تمت إضافة الحساب في النسخة التجريبية.';
 const updateSuccessMessage = 'تم تحديث الحساب في النسخة التجريبية.';
+const androidPhysicalLtrRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
+  : {};
+const androidPhysicalRtlRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
+  : {};
+const androidLtrDirection = Platform.OS === 'android' ? { direction: 'ltr' as const } : {};
+const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
 
 export function FinancialAccountFormScreen() {
   const insets = useSafeAreaInsets();
@@ -232,7 +240,7 @@ export function FinancialAccountFormScreen() {
           </SolidCard>
 
           <View style={styles.formList}>
-            <FormField
+            <AccountFormField
               accessibilityLabel="اسم الحساب"
               error={errors.name}
               label="اسم الحساب"
@@ -251,7 +259,7 @@ export function FinancialAccountFormScreen() {
               valueLabel={financialAccountTypes.find((option) => option.id === formState.type)?.label ?? 'اختر نوع الحساب'}
             />
 
-            <FormField
+            <AccountFormField
               accessibilityLabel="البنك أو الجهة"
               label="البنك أو الجهة (اختياري)"
               onChangeText={(institution) => updateFormState({ institution })}
@@ -269,7 +277,7 @@ export function FinancialAccountFormScreen() {
               valueLabel={formState.currency || 'اختر العملة'}
             />
 
-            <FormField
+            <AccountFormField
               accessibilityLabel="آخر أربعة أرقام"
               error={errors.lastFour}
               keyboardType="number-pad"
@@ -308,7 +316,7 @@ export function FinancialAccountFormScreen() {
               onPress={() => updateFormState({ isDefault: !formState.isDefault })}
             />
             <View style={styles.statusSection}>
-              <AppText tone="secondary" variant="supporting">
+              <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
                 حالة الحساب
               </AppText>
               <View style={styles.segmented}>
@@ -376,17 +384,41 @@ function Header({ isEditing, onBackPress }: { isEditing: boolean; onBackPress: (
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        {Platform.OS === 'android' ? (
+          <Feather color={colors.text.muted} name="chevron-left" size={22} />
+        ) : (
+          <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        )}
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText style={styles.headerText} variant="screenTitle">
           {isEditing ? 'تعديل الحساب' : 'إضافة حساب'}
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText style={styles.headerText} tone="secondary" variant="supporting">
           {isEditing ? 'حدّث بيانات الحساب التجريبية.' : 'أضف حسابًا محليًا لإدارة الأرصدة التجريبية.'}
         </AppText>
       </View>
       <View style={styles.headerSlot} />
+    </View>
+  );
+}
+
+function AccountFormField({ label, error, style, ...props }: TextInputProps & { label: string; error?: string }) {
+  return (
+    <View style={styles.accountField}>
+      <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
+        {label}
+      </AppText>
+      <TextInput
+        {...props}
+        placeholderTextColor={colors.text.tertiary}
+        style={[styles.accountInput, error && styles.inputError, style]}
+      />
+      {error ? (
+        <AppText accessibilityLiveRegion="polite" tone="danger" variant="caption">
+          {error}
+        </AppText>
+      ) : null}
     </View>
   );
 }
@@ -404,7 +436,7 @@ function MoneyField({
 }) {
   return (
     <View style={styles.moneyFieldWrap}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <View style={[styles.moneyField, error && styles.inputError]}>
@@ -464,7 +496,7 @@ function FinancialSelectField({
 
   return (
     <View style={styles.selectWrap}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.fieldLabel} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <Pressable
@@ -567,8 +599,8 @@ function ToggleRow({
         <View style={[styles.toggleThumb, active && styles.toggleThumbActive]} />
       </View>
       <View style={styles.toggleCopy}>
-        <AppText variant="body">{label}</AppText>
-        <AppText tone="secondary" variant="caption">
+        <AppText style={styles.toggleText} variant="body">{label}</AppText>
+        <AppText style={styles.toggleText} tone="secondary" variant="caption">
           {description}
         </AppText>
       </View>
@@ -601,11 +633,12 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.screenX,
     paddingTop: spacing.md,
+    ...androidPhysicalLtrRow,
   },
   backButton: {
     alignItems: 'center',
@@ -618,12 +651,21 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   headerSlot: {
     height: 40,
     width: 40,
+    ...androidHeaderSlot,
   },
   content: {
     gap: spacing.lg,
@@ -636,6 +678,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingVertical: spacing.md,
+    ...androidPhysicalLtrRow,
   },
   noticeCard: {
     alignItems: 'center',
@@ -644,20 +687,49 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingVertical: spacing.md,
+    ...androidPhysicalLtrRow,
   },
   infoText: {
     flex: 1,
     lineHeight: 21,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   formList: {
     gap: spacing.lg,
   },
+  accountField: {
+    alignItems: 'stretch',
+    gap: spacing.sm,
+    width: '100%',
+    ...androidLtrDirection,
+  },
+  fieldLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  accountInput: {
+    backgroundColor: colors.surface.card,
+    borderColor: colors.surface.inputBorder,
+    borderRadius: radii.input,
+    borderWidth: 1,
+    color: colors.text.primary,
+    fontFamily: typography.fontFamily.regular,
+    fontSize: 14,
+    minHeight: 52,
+    paddingHorizontal: spacing.lg,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   ltrInput: {
-    textAlign: 'left',
+    textAlign: 'right',
     writingDirection: 'ltr',
   },
   moneyFieldWrap: {
     gap: spacing.sm,
+    ...androidLtrDirection,
   },
   moneyField: {
     alignItems: 'center',
@@ -669,6 +741,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minHeight: 52,
     paddingHorizontal: spacing.lg,
+    ...androidPhysicalLtrRow,
   },
   moneyInput: {
     color: colors.text.primary,
@@ -678,7 +751,7 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     minWidth: 0,
     paddingVertical: 0,
-    textAlign: 'left',
+    textAlign: 'right',
     writingDirection: 'ltr',
   },
   currencyLabel: {
@@ -689,6 +762,7 @@ const styles = StyleSheet.create({
   },
   selectWrap: {
     gap: spacing.sm,
+    ...androidLtrDirection,
   },
   selectField: {
     alignItems: 'center',
@@ -700,9 +774,13 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minHeight: 52,
     paddingHorizontal: spacing.lg,
+    ...androidPhysicalLtrRow,
   },
   selectValue: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   settingsCard: {
     gap: spacing.lg,
@@ -711,11 +789,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.md,
+    ...androidPhysicalLtrRow,
   },
   toggleCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  toggleText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   toggleTrack: {
     backgroundColor: 'rgba(255,255,255,0.10)',
@@ -742,10 +827,12 @@ const styles = StyleSheet.create({
   },
   statusSection: {
     gap: spacing.sm,
+    ...androidLtrDirection,
   },
   segmented: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+    ...androidPhysicalRtlRow,
   },
   segmentButton: {
     alignItems: 'center',

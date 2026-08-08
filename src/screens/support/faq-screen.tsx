@@ -83,6 +83,7 @@ export function FaqScreen() {
             contentContainerStyle={styles.chips}
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={styles.chipsScroll}
           >
             {faqCategories.map((category) => (
               <CategoryChip
@@ -119,12 +120,11 @@ function FaqHeader() {
         onPress={() => router.back()}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         الأسئلة الشائعة
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -194,8 +194,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -210,10 +211,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   searchCard: {
     alignItems: 'center',
@@ -221,7 +221,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
@@ -236,8 +237,12 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     writingDirection: 'rtl',
   },
+  chipsScroll: {
+    direction: 'rtl',
+  },
   chips: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingLeft: spacing.lg,
   },

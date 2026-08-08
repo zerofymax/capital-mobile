@@ -8,11 +8,13 @@ import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
-import { directionSafeText } from '@/utils/rtl';
+import { directionSafeText, formatCurrency } from '@/utils/rtl';
 import { AmountField, GoalHeader, GoalProgressBar, NoticeBanner, PickerSheet, PreviewGoalCard, SelectField, TextField } from './components';
 import { addContribution, useGoalsStore } from './goals-store';
 import { formatAmountInput, getContributionPreviewStatus, getGoalSummary, getLocalTodayContributionLabel, parseAmount } from './goal-utils';
 import { contributionDateOptions, contributionSourceOptions, initialGoals, type FinancialGoal, type GoalContribution } from './goals-data';
+
+const useAndroidRtlLayout = Platform.OS === 'android';
 
 type PickerType = 'source' | 'date' | null;
 
@@ -114,9 +116,10 @@ export function AddContributionScreen() {
         >
           <GoalHeader onBack={() => router.back()} subtitle={`حدث تقدم هدف ${summary.name}`} title="إضافة مساهمة" />
 
-          <PreviewGoalCard goal={goal} showAmountRows />
+          <PreviewGoalCard androidRtlHeader goal={goal} showAmountRows />
 
           <AmountField
+            androidRtlLayout
             error={submitted || amount !== '4200' ? errors.amount : undefined}
             helper="أدخل المبلغ الذي تريد إضافته إلى تقدم الهدف"
             label="مبلغ المساهمة"
@@ -124,14 +127,22 @@ export function AddContributionScreen() {
             value={amount}
             warning={warning}
           />
-          <SelectField error={submitted ? errors.source : undefined} iconName="trending-up-outline" label="مصدر المساهمة" onPress={() => setPicker('source')} value={source} />
-          <SelectField error={submitted ? errors.date : undefined} iconName="calendar-outline" label="تاريخ المساهمة" onPress={openDatePicker} value={date} />
-          <TextField label="ملاحظة" onChangeText={setNote} placeholder="اختياري" value={note} />
+          <SelectField androidRtlLayout error={submitted ? errors.source : undefined} iconName="trending-up-outline" label="مصدر المساهمة" onPress={() => setPicker('source')} value={source} />
+          <SelectField androidRtlLayout error={submitted ? errors.date : undefined} iconName="calendar-outline" label="تاريخ المساهمة" onPress={openDatePicker} value={date} />
+          <TextField androidRtlLayout label="ملاحظة" onChangeText={setNote} placeholder="اختياري" value={note} />
 
           {previewSummary.completed ? <NoticeBanner message={`مبروك، تم تحقيق هدف ${summary.name}`} /> : null}
 
           <View style={styles.section}>
-            <AppText variant="cardTitle">معاينة التقدم</AppText>
+            {useAndroidRtlLayout ? (
+              <View style={styles.sectionTitleWrapperAndroid}>
+                <AppText style={styles.sectionTitleAndroid} variant="cardTitle">
+                  معاينة التقدم
+                </AppText>
+              </View>
+            ) : (
+              <AppText variant="cardTitle">معاينة التقدم</AppText>
+            )}
             <ProgressPreview before={summary.currentAmount} contribution={appliedAmount} goal={previewGoal} previousProgress={summary.progress} />
           </View>
 
@@ -145,6 +156,7 @@ export function AddContributionScreen() {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setSource(value);
@@ -156,6 +168,7 @@ export function AddContributionScreen() {
         visible={picker === 'source'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setDate(value);
@@ -186,42 +199,74 @@ function ProgressPreview({
 
   return (
     <SolidCard style={[styles.previewCard, preview.progress >= 100 && styles.completedPreviewCard]}>
-      <View style={styles.previewNumbers}>
-        <View style={styles.previewMetric}>
-          <AppText align="left" tone="secondary" variant="caption">
-            قبل
-          </AppText>
-          <AppText align="left" style={styles.previewValue} variant="caption">
-            {directionSafeText(`${before.toLocaleString('en-US')} ر.س · ${previousProgress}%`)}
-          </AppText>
+      {useAndroidRtlLayout ? (
+        <View style={[styles.previewNumbers, styles.previewNumbersAndroid]}>
+          <View style={[styles.previewMetric, styles.previewMetricAndroid, styles.previewMetricAfterAndroid]}>
+            <AppText align="left" style={styles.previewMetricTextAndroid} tone="secondary" variant="caption">
+              بعد
+            </AppText>
+            <AppText align="left" style={[styles.previewMetricTextAndroid, styles.previewGreenTextAndroid]} variant="caption">
+              {directionSafeText(`المحقق ${formatCurrency(preview.currentAmount)}`)}
+            </AppText>
+            <AppText align="left" style={[styles.previewMetricTextAndroid, styles.previewGreenTextAndroid]} variant="caption">
+              {directionSafeText(`النسبة ${preview.progress}%`)}
+            </AppText>
+          </View>
+          <View style={[styles.previewMetric, styles.previewMetricAndroid, styles.previewMetricContributionAndroid]}>
+            <AppText align="center" style={styles.greenText} variant="caption">
+              {directionSafeText(`+${formatCurrency(contribution)}`)}
+            </AppText>
+          </View>
+          <View style={[styles.previewMetric, styles.previewMetricAndroid, styles.previewMetricBeforeAndroid]}>
+            <AppText align="right" style={styles.previewMetricTextAndroid} tone="secondary" variant="caption">
+              قبل
+            </AppText>
+            <AppText align="right" style={[styles.previewMetricTextAndroid, styles.previewPrimaryTextAndroid]} variant="caption">
+              {directionSafeText(`المحقق ${formatCurrency(before)}`)}
+            </AppText>
+            <AppText align="right" style={[styles.previewMetricTextAndroid, styles.previewPrimaryTextAndroid]} variant="caption">
+              {directionSafeText(`النسبة ${previousProgress}%`)}
+            </AppText>
+          </View>
         </View>
-        <View style={styles.previewMetric}>
-          <AppText align="center" style={styles.greenText} variant="caption">
-            {directionSafeText(`+${contribution.toLocaleString('en-US')} ر.س`)}
-          </AppText>
+      ) : (
+        <View style={styles.previewNumbers}>
+          <View style={styles.previewMetric}>
+            <AppText align="left" tone="secondary" variant="caption">
+              قبل
+            </AppText>
+            <AppText align="left" style={styles.previewValue} variant="caption">
+              {directionSafeText(`${before.toLocaleString('en-US')} ر.س · ${previousProgress}%`)}
+            </AppText>
+          </View>
+          <View style={styles.previewMetric}>
+            <AppText align="center" style={styles.greenText} variant="caption">
+              {directionSafeText(`+${contribution.toLocaleString('en-US')} ر.س`)}
+            </AppText>
+          </View>
+          <View style={styles.previewMetric}>
+            <AppText tone="secondary" variant="caption">
+              بعد
+            </AppText>
+            <AppText style={styles.greenText} variant="caption">
+              {directionSafeText(`${preview.currentAmount.toLocaleString('en-US')} ر.س · ${preview.progress}%`)}
+            </AppText>
+          </View>
         </View>
-        <View style={styles.previewMetric}>
-          <AppText tone="secondary" variant="caption">
-            بعد
-          </AppText>
-          <AppText style={styles.greenText} variant="caption">
-            {directionSafeText(`${preview.currentAmount.toLocaleString('en-US')} ر.س · ${preview.progress}%`)}
-          </AppText>
-        </View>
-      </View>
+      )}
       <GoalProgressBar progress={preview.progress} tone={status.tone} />
       <View style={styles.previewFooter}>
         <AppText style={styles.previewValue} variant="caption">
-          {directionSafeText(`${preview.remaining.toLocaleString('en-US')} ر.س`)}
+          {directionSafeText(formatCurrency(preview.remaining))}
         </AppText>
         <AppText style={styles.statusText} variant="caption">
           {status.label}
         </AppText>
       </View>
-      <AppText align="center" variant="supporting">
+      <AppText align={useAndroidRtlLayout ? 'right' : 'center'} style={useAndroidRtlLayout ? styles.previewDescriptionAndroid : undefined} variant="supporting">
         {preview.progress >= 100
           ? 'اكتمل الهدف بالمبلغ المستهدف بالكامل.'
-          : `بعد إضافة هذه المساهمة سيتبقى ${preview.remaining.toLocaleString('en-US')} ر.س لتحقيق الهدف.`}
+          : directionSafeText(`بعد إضافة هذه المساهمة سيتبقى ${formatCurrency(preview.remaining)} لتحقيق الهدف.`)}
       </AppText>
     </SolidCard>
   );
@@ -263,6 +308,18 @@ const styles = StyleSheet.create({
   section: {
     gap: spacing.md,
   },
+  sectionTitleWrapperAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitleAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   previewCard: {
     gap: spacing.md,
   },
@@ -275,9 +332,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  previewNumbersAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.sm,
+    width: '100%',
+  },
   previewMetric: {
     gap: spacing.xs,
     minWidth: 86,
+  },
+  previewMetricAndroid: {
+    flex: 1,
+    minWidth: 0,
+  },
+  previewMetricAfterAndroid: {
+    alignItems: 'flex-start',
+  },
+  previewMetricContributionAndroid: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewMetricBeforeAndroid: {
+    alignItems: 'flex-end',
+  },
+  previewMetricTextAndroid: {
+    alignSelf: 'stretch',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  previewPrimaryTextAndroid: {
+    color: colors.text.primary,
+    fontWeight: '700',
+  },
+  previewGreenTextAndroid: {
+    color: '#35D39A',
+    fontWeight: '700',
   },
   previewValue: {
     color: colors.text.primary,
@@ -300,5 +390,11 @@ const styles = StyleSheet.create({
     color: '#35D39A',
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
+  },
+  previewDescriptionAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

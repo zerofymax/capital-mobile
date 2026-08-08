@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, SolidCard } from '@/components/ui';
@@ -144,7 +144,7 @@ export function ExportInvoicesScreen() {
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
       >
-        <InvoiceHeader onBack={() => router.back()} subtitle="اختر الفواتير والبيانات التي تريد تجهيزها للتصدير." title="تصدير الفواتير" />
+        <InvoiceHeader rtl onBack={() => router.back()} subtitle="اختر الفواتير والبيانات التي تريد تجهيزها للتصدير." title="تصدير الفواتير" />
 
         {summaries.length === 0 ? (
           <EmptyInvoicesCard />
@@ -217,13 +217,15 @@ function ExportSummaryCard({
 }) {
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={styles.summaryHeader}>
+      <View style={[styles.summaryHeader, Platform.OS === 'android' && styles.summaryHeaderAndroid]}>
         <View style={styles.summaryIcon}>
           <Ionicons color="#9DD5FF" name="download-outline" size={20} />
         </View>
         <View style={styles.summaryCopy}>
-          <AppText variant="sectionTitle">ملخص التصدير</AppText>
-          <AppText tone="secondary" variant="supporting">
+          <AppText align="right" style={[styles.rtlText, styles.summaryText]} variant="sectionTitle">
+            ملخص التصدير
+          </AppText>
+          <AppText align="right" style={[styles.rtlText, styles.summaryText]} tone="secondary" variant="supporting">
             البيانات محسوبة من الفواتير الحالية داخل النموذج المحلي.
           </AppText>
         </View>
@@ -248,7 +250,9 @@ function ExportSummaryCard({
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <SolidCard style={styles.sectionCard}>
-      <AppText variant="sectionTitle">{title}</AppText>
+      <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+        {title}
+      </AppText>
       <View style={styles.optionList}>{children}</View>
     </SolidCard>
   );
@@ -269,6 +273,18 @@ function ChoiceRow({
   ltrLabel?: boolean;
   onPress: () => void;
 }) {
+  const radio = (
+    <View style={[styles.radio, selected && styles.radioSelected]}>
+      {selected ? <View style={styles.radioDot} /> : null}
+    </View>
+  );
+  const optionLabel = (
+    <AppText align="right" style={[styles.optionLabel, Platform.OS === 'android' && styles.optionLabelAndroid, ltrLabel ? styles.ltrText : styles.rtlText]} variant="body">
+      {label}
+    </AppText>
+  );
+  const optionBadge = badge ? <Badge label={badge} /> : null;
+
   return (
     <Pressable
       accessibilityLabel={label}
@@ -276,39 +292,71 @@ function ChoiceRow({
       accessibilityState={{ disabled, selected }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.optionRow, selected && styles.optionRowSelected, disabled && styles.optionRowDisabled, pressed && !disabled && styles.pressed]}
+      style={({ pressed }) => [
+        styles.optionRow,
+        Platform.OS === 'android' && styles.optionRowAndroid,
+        selected && styles.optionRowSelected,
+        disabled && styles.optionRowDisabled,
+        pressed && !disabled && styles.pressed,
+      ]}
     >
-      <View style={styles.optionLeading}>
-        <View style={[styles.radio, selected && styles.radioSelected]}>
-          {selected ? <View style={styles.radioDot} /> : null}
-        </View>
-        <AppText align={ltrLabel ? 'left' : 'right'} style={[styles.optionLabel, ltrLabel && styles.ltrText]} variant="body">
-          {label}
-        </AppText>
-      </View>
-      {badge ? <Badge label={badge} /> : null}
+      {Platform.OS === 'android' ? (
+        <>
+          {radio}
+          <View style={styles.optionSpacerAndroid} />
+          {optionBadge}
+          <View style={styles.optionLabelSlotAndroid}>{optionLabel}</View>
+        </>
+      ) : (
+        <>
+          <View style={styles.optionLeading}>
+            {radio}
+            {optionLabel}
+          </View>
+          {optionBadge}
+        </>
+      )}
     </Pressable>
   );
 }
 
 function FieldRow({ label, helper, checked, onPress }: { label: string; helper?: string; checked: boolean; onPress: () => void }) {
+  const checkbox = (
+    <View style={[styles.checkbox, checked && styles.checkboxSelected]}>
+      {checked ? <Ionicons color={colors.text.primary} name="checkmark-outline" size={15} /> : null}
+    </View>
+  );
+  const fieldLabel = (
+    <AppText align="right" style={[styles.optionLabel, Platform.OS === 'android' && styles.optionLabelAndroid, styles.rtlText]} variant="body">
+      {label}
+    </AppText>
+  );
+  const helperBadge = helper ? <Badge label={helper} /> : null;
+
   return (
     <Pressable
       accessibilityLabel={label}
       accessibilityRole="checkbox"
       accessibilityState={{ checked }}
       onPress={onPress}
-      style={({ pressed }) => [styles.optionRow, checked && styles.optionRowSelected, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.optionRow, Platform.OS === 'android' && styles.optionRowAndroid, checked && styles.optionRowSelected, pressed && styles.pressed]}
     >
-      <View style={styles.optionLeading}>
-        <View style={[styles.checkbox, checked && styles.checkboxSelected]}>
-          {checked ? <Ionicons color={colors.text.primary} name="checkmark-outline" size={15} /> : null}
-        </View>
-        <AppText style={styles.optionLabel} variant="body">
-          {label}
-        </AppText>
-      </View>
-      {helper ? <Badge label={helper} /> : null}
+      {Platform.OS === 'android' ? (
+        <>
+          {checkbox}
+          <View style={styles.optionSpacerAndroid} />
+          {helperBadge}
+          <View style={styles.optionLabelSlotAndroid}>{fieldLabel}</View>
+        </>
+      ) : (
+        <>
+          <View style={styles.optionLeading}>
+            {checkbox}
+            {fieldLabel}
+          </View>
+          {helperBadge}
+        </>
+      )}
     </Pressable>
   );
 }
@@ -316,17 +364,21 @@ function FieldRow({ label, helper, checked, onPress }: { label: string; helper?:
 function SelectionSummaryCard({ invoices, period, fileFormat, fieldCount }: { invoices: InvoiceSummary[]; period: InvoicePeriod; fileFormat: ExportFileFormat; fieldCount: number }) {
   return (
     <SolidCard style={styles.sectionCard}>
-      <AppText variant="sectionTitle">ملخص الاختيار</AppText>
+      <View style={styles.sectionTitleWrapper}>
+        <AppText align="right" style={styles.sectionTitleText} variant="sectionTitle">
+          ملخص الاختيار
+        </AppText>
+      </View>
       {invoices.length === 0 ? (
         <AppText tone="warning" variant="body">
           لا توجد فواتير مطابقة للخيارات الحالية.
         </AppText>
       ) : (
         <View style={styles.amountRows}>
-          <TextRow label="عدد الفواتير المشمولة" value={`${invoices.length}`} />
+          <TextRow label="عدد الفواتير المشمولة" ltrValue value={`${invoices.length}`} />
           <TextRow label="الفترة المختارة" value={getPeriodLabel(period)} />
           <TextRow label="صيغة الملف" ltrValue value={fileFormat.toUpperCase()} />
-          <TextRow label="عدد الحقول المضمنة" value={`${fieldCount}`} />
+          <TextRow label="عدد الحقول المضمنة" ltrValue value={`${fieldCount}`} />
         </View>
       )}
     </SolidCard>
@@ -340,25 +392,31 @@ function PreviewCard({ invoices }: { invoices: InvoiceSummary[] }) {
 
   return (
     <SolidCard style={styles.sectionCard}>
-      <View style={styles.previewHeader}>
-        <AppText variant="sectionTitle">معاينة البيانات</AppText>
-        <Badge label={`${Math.min(invoices.length, 5)} من ${invoices.length}`} />
+      <View style={[styles.previewHeader, Platform.OS === 'android' && styles.previewHeaderAndroid]}>
+        {Platform.OS === 'android' ? <Badge label={`${Math.min(invoices.length, 5)} من ${invoices.length}`} /> : null}
+        <AppText align="right" style={styles.previewTitle} variant="sectionTitle">
+          معاينة البيانات
+        </AppText>
+        {Platform.OS === 'android' ? null : <Badge label={`${Math.min(invoices.length, 5)} من ${invoices.length}`} />}
       </View>
       <View style={styles.previewList}>
         {invoices.slice(0, 5).map((invoice) => (
           <View key={invoice.id} style={styles.previewRow}>
-            <View style={styles.previewIdentity}>
-              <AppText variant="cardTitle">{invoice.clientName}</AppText>
-              <AppText align="left" style={styles.ltrText} tone="secondary" variant="caption">
-                {directionSafeText(invoice.invoiceNumber)}
-              </AppText>
-            </View>
-            <View style={styles.previewMeta}>
-              <InvoiceStatusBadge status={invoice.displayStatus} />
-              <View style={styles.previewAmounts}>
-                <PreviewAmount label="الإجمالي" value={invoice.total} />
-                <PreviewAmount label="المتبقي" value={invoice.remaining} />
+            <View style={[styles.previewTopRow, Platform.OS === 'android' && styles.previewTopRowAndroid]}>
+              {Platform.OS === 'android' ? <InvoiceStatusBadge status={invoice.displayStatus} /> : null}
+              <View style={[styles.previewIdentity, Platform.OS === 'android' && styles.previewIdentityAndroid]}>
+                <AppText align="right" style={[styles.rtlText, Platform.OS === 'android' && styles.previewIdentityTextAndroid]} variant="cardTitle">
+                  {invoice.clientName}
+                </AppText>
+                <AppText align="right" numberOfLines={Platform.OS === 'android' ? 1 : undefined} style={[styles.ltrText, Platform.OS === 'android' && styles.previewIdentityTextAndroid]} tone="secondary" variant="caption">
+                  {directionSafeText(invoice.invoiceNumber)}
+                </AppText>
               </View>
+              {Platform.OS === 'android' ? null : <InvoiceStatusBadge status={invoice.displayStatus} />}
+            </View>
+            <View style={styles.previewAmounts}>
+              <PreviewAmount label="الإجمالي" value={invoice.total} />
+              <PreviewAmount label="المتبقي" value={invoice.remaining} />
             </View>
           </View>
         ))}
@@ -368,14 +426,21 @@ function PreviewCard({ invoices }: { invoices: InvoiceSummary[] }) {
 }
 
 function PreviewAmount({ label, value }: { label: string; value: number }) {
+  const labelText = (
+    <AppText align="right" style={styles.textRowLabel} tone="secondary" variant="caption">
+      {label}
+    </AppText>
+  );
+  const valueText = (
+    <AppText align="left" style={styles.amountText} variant="caption">
+      {formatSar(value)}
+    </AppText>
+  );
+
   return (
-    <View style={styles.previewAmountRow}>
-      <AppText tone="secondary" variant="caption">
-        {label}
-      </AppText>
-      <AppText align="left" style={styles.amountText} variant="caption">
-        {formatSar(value)}
-      </AppText>
+    <View style={[styles.previewAmountRow, Platform.OS === 'android' && styles.previewAmountRowAndroid]}>
+      {Platform.OS === 'android' ? valueText : labelText}
+      {Platform.OS === 'android' ? labelText : valueText}
     </View>
   );
 }
@@ -414,26 +479,34 @@ function MetricBox({ label, value, tone }: { label: string; value: string; tone?
 
 function AmountRow({ label, value, tone }: { label: string; value: number; tone?: 'success' }) {
   return (
-    <View style={styles.textRow}>
-      <AppText tone="secondary" variant="supporting">
-        {label}
-      </AppText>
-      <AppText align="left" style={[styles.amountText, tone === 'success' && styles.successText]} variant="cardTitle">
-        {formatSar(value)}
-      </AppText>
+    <View style={styles.fixedSummaryRow}>
+      <View style={styles.fixedValueSlot}>
+        <AppText align="left" style={[styles.fixedValueText, tone === 'success' && styles.successText]} variant="cardTitle">
+          {formatSar(value)}
+        </AppText>
+      </View>
+      <View style={styles.fixedLabelSlot}>
+        <AppText align="right" style={styles.fixedLabelText} tone="secondary" variant="supporting">
+          {label}
+        </AppText>
+      </View>
     </View>
   );
 }
 
 function TextRow({ label, value, ltrValue }: { label: string; value: string; ltrValue?: boolean }) {
   return (
-    <View style={styles.textRow}>
-      <AppText tone="secondary" variant="supporting">
-        {label}
-      </AppText>
-      <AppText align={ltrValue ? 'left' : 'right'} style={[styles.textRowValue, ltrValue && styles.ltrText]} variant="cardTitle">
-        {value}
-      </AppText>
+    <View style={styles.fixedSummaryRow}>
+      <View style={styles.fixedValueSlot}>
+        <AppText align="left" style={[styles.fixedValueText, !ltrValue && styles.fixedRtlValueText]} variant="cardTitle">
+          {value}
+        </AppText>
+      </View>
+      <View style={styles.fixedLabelSlot}>
+        <AppText align="right" style={styles.fixedLabelText} tone="secondary" variant="supporting">
+          {label}
+        </AppText>
+      </View>
     </View>
   );
 }
@@ -562,9 +635,14 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   summaryHeader: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     flexDirection: 'row-reverse',
     gap: spacing.md,
+  },
+  summaryHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   summaryIcon: {
     alignItems: 'center',
@@ -577,12 +655,16 @@ const styles = StyleSheet.create({
     width: 42,
   },
   summaryCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  summaryText: {
+    width: '100%',
+  },
   metricGrid: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
@@ -605,23 +687,53 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   amountRows: {
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
   },
-  textRow: {
-    alignItems: 'flex-start',
+  fixedSummaryRow: {
+    alignItems: 'center',
+    alignSelf: 'stretch',
     borderTopColor: colors.surface.separator,
     borderTopWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row-reverse',
-    gap: spacing.md,
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
     paddingTop: spacing.sm,
+    width: '100%',
   },
-  amountText: {
+  fixedValueSlot: {
+    alignItems: 'flex-start',
+    flex: 1,
+    minWidth: 0,
+  },
+  fixedLabelSlot: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
+  fixedLabelText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  fixedValueText: {
+    textAlign: 'left',
+    width: '100%',
     writingDirection: 'ltr',
   },
-  textRowValue: {
-    flexShrink: 1,
+  fixedRtlValueText: {
+    writingDirection: 'rtl',
+  },
+  amountText: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'ltr',
+  },
+  textRowLabel: {
+    flex: 1,
     minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   successText: {
     color: '#35D39A',
@@ -632,6 +744,22 @@ const styles = StyleSheet.create({
   sectionCard: {
     gap: spacing.md,
   },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    width: '100%',
+  },
+  sectionTitleText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   optionList: {
     gap: spacing.sm,
   },
@@ -641,7 +769,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.control,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'space-between',
     minHeight: 48,
@@ -652,19 +780,38 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(79,138,91,0.16)',
     borderColor: 'rgba(79,138,91,0.38)',
   },
+  optionRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  optionSpacerAndroid: {
+    flex: 1,
+    minWidth: spacing.sm,
+  },
+  optionLabelSlotAndroid: {
+    alignItems: 'flex-end',
+    flexShrink: 1,
+    minWidth: 0,
+  },
   optionRowDisabled: {
     opacity: 0.68,
   },
   optionLeading: {
     alignItems: 'center',
     flex: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     minWidth: 0,
   },
   optionLabel: {
     flex: 1,
     minWidth: 0,
+    textAlign: 'right',
+  },
+  optionLabelAndroid: {
+    flex: 0,
+    flexShrink: 1,
   },
   radio: {
     alignItems: 'center',
@@ -714,42 +861,77 @@ const styles = StyleSheet.create({
   ltrText: {
     writingDirection: 'ltr',
   },
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   previewHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+  },
+  previewHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  previewTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   previewList: {
     gap: spacing.sm,
   },
   previewRow: {
-    alignItems: 'center',
+    width: '100%',
     backgroundColor: 'rgba(255,255,255,0.035)',
     borderColor: colors.surface.border,
     borderRadius: radii.control,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
     gap: spacing.sm,
     padding: spacing.md,
   },
+  previewTopRow: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'space-between',
+  },
+  previewTopRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
   previewIdentity: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  previewMeta: {
-    alignItems: 'flex-start',
-    gap: spacing.xs,
+  previewIdentityAndroid: {
+    alignItems: 'flex-end',
+  },
+  previewIdentityTextAndroid: {
+    textAlign: 'right',
+    width: '100%',
   },
   previewAmounts: {
     gap: spacing.xs,
-    minWidth: 112,
+    width: '100%',
   },
   previewAmountRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'space-between',
+  },
+  previewAmountRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   emptyCard: {
     alignItems: 'center',

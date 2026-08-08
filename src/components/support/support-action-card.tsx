@@ -23,13 +23,13 @@ export function SupportActionCard({ action, onPress }: SupportActionCardProps) {
       }}
       style={({ pressed }) => [styles.root, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
       <View style={styles.iconWrap}>
         <Ionicons color={colors.text.muted} name={action.icon} size={19} />
       </View>
       <AppText style={styles.label} variant="body">
         {action.label}
       </AppText>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
     </Pressable>
   );
 }
@@ -37,7 +37,8 @@ export function SupportActionCard({ action, onPress }: SupportActionCardProps) {
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 56,
   },
@@ -50,7 +51,11 @@ const styles = StyleSheet.create({
     width: 38,
   },
   label: {
+    alignSelf: 'stretch',
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

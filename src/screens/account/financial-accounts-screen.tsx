@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -9,6 +9,7 @@ import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 
 import {
   formatAccountAmount,
@@ -20,6 +21,12 @@ import {
   useFinancialAccounts,
   type FinancialAccount,
 } from './financial-accounts-data';
+
+const androidPhysicalLtrRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
+  : {};
+const androidLtrDirection = Platform.OS === 'android' ? { direction: 'ltr' as const } : {};
+const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
 
 export function FinancialAccountsScreen() {
   const insets = useSafeAreaInsets();
@@ -73,11 +80,11 @@ export function FinancialAccountsScreen() {
           <View style={styles.balanceList}>
             {balancesByCurrency.map((summary) => (
               <View key={summary.currency} style={styles.balanceRow}>
+                <AppText style={styles.balanceLabel} tone="secondary" variant="caption">
+                  إجمالي الأرصدة المتاحة
+                </AppText>
                 <AppText style={styles.ltrText} variant="numericValue">
                   {summary.code} {formatAccountAmount(summary.balance)}
-                </AppText>
-                <AppText tone="secondary" variant="caption">
-                  إجمالي الأرصدة المتاحة
                 </AppText>
               </View>
             ))}
@@ -105,7 +112,9 @@ export function FinancialAccountsScreen() {
         />
 
         <View style={styles.section}>
-          <AppText variant="sectionTitle">الحسابات والمحافظ</AppText>
+          <View style={styles.sectionTitleWrapper}>
+            <AppText style={styles.sectionTitle} variant="sectionTitle">الحسابات والمحافظ</AppText>
+          </View>
           <View style={styles.accountList}>
             {accounts.map((account) => (
               <AccountCard account={account} key={account.id} onPress={() => openAccount(account.id)} />
@@ -131,13 +140,17 @@ function Header() {
         onPress={() => (router.canGoBack() ? router.back() : router.replace(routes.account))}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        {Platform.OS === 'android' ? (
+          <Feather color={colors.text.muted} name="chevron-left" size={22} />
+        ) : (
+          <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        )}
       </Pressable>
       <View style={styles.titleWrap}>
-        <AppText align="center" variant="screenTitle">
+        <AppText style={styles.titleText} variant="screenTitle">
           الحسابات المالية
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText style={styles.titleText} tone="secondary" variant="supporting">
           أدر النقد والحسابات والمحافظ التي تستخدمها شركتك.
         </AppText>
       </View>
@@ -198,15 +211,17 @@ function AccountCard({ account, onPress }: { account: FinancialAccount; onPress:
         </View>
         <View style={styles.accountCopy}>
           <View style={styles.accountTitleRow}>
-            {account.isDefault ? <Badge label="افتراضي" /> : null}
             <AppText style={styles.accountName} variant="cardTitle">
               {account.name}
             </AppText>
+            {account.isDefault ? <Badge label="افتراضي" /> : null}
           </View>
-          <AppText tone="secondary" variant="caption">
-            {getFinancialAccountTypeLabel(account.type)}
-            {account.institution ? ` · ${account.institution}` : ''}
-            {account.lastFour ? ` · ${account.lastFour}` : ''}
+          <AppText style={styles.accountDescription} tone="secondary" variant="caption">
+            {directionSafeText(
+              `${getFinancialAccountTypeLabel(account.type)}${account.institution ? ` · ${account.institution}` : ''}${
+                account.lastFour ? ` · ${account.lastFour}` : ''
+              }`,
+            )}
           </AppText>
         </View>
         <Ionicons color={colors.text.tertiary} name="chevron-back" size={18} />
@@ -214,7 +229,7 @@ function AccountCard({ account, onPress }: { account: FinancialAccount; onPress:
 
       <View style={styles.accountMeta}>
         <View style={styles.metaItem}>
-          <AppText tone={balanceTone} variant="body">
+          <AppText style={styles.ltrText} tone={balanceTone} variant="body">
             {formatAccountAmount(account.balance)}
           </AppText>
           <AppText tone="secondary" variant="caption">
@@ -241,11 +256,11 @@ function AccountCard({ account, onPress }: { account: FinancialAccount; onPress:
 
       {isCredit && account.creditLimit !== null ? (
         <View style={styles.creditLine}>
-          <AppText style={styles.ltrText} tone="secondary" variant="caption">
-            {currencyCode} {formatAccountAmount(account.creditLimit)}
-          </AppText>
           <AppText tone="secondary" variant="caption">
             الحد الائتماني
+          </AppText>
+          <AppText style={styles.ltrText} tone="secondary" variant="caption">
+            {currencyCode} {formatAccountAmount(account.creditLimit)}
           </AppText>
         </View>
       ) : null}
@@ -270,11 +285,12 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.screenX,
     paddingTop: spacing.md,
+    ...androidPhysicalLtrRow,
   },
   backButton: {
     alignItems: 'center',
@@ -287,12 +303,20 @@ const styles = StyleSheet.create({
     width: 40,
   },
   titleWrap: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   headerSlot: {
     height: 40,
     width: 40,
+    ...androidHeaderSlot,
+  },
+  titleText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   content: {
     gap: spacing.lg,
@@ -317,6 +341,7 @@ const styles = StyleSheet.create({
     width: 42,
   },
   headerText: {
+    alignItems: 'flex-start',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -329,14 +354,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  balanceLabel: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   summaryStatsSection: {
     gap: spacing.sm,
   },
   statsGrid: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   stat: {
+    alignItems: 'flex-start',
     backgroundColor: 'rgba(255,255,255,0.035)',
     borderColor: colors.surface.border,
     borderRadius: radii.control,
@@ -362,6 +392,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingVertical: spacing.md,
+    ...androidPhysicalLtrRow,
   },
   greenNotice: {
     backgroundColor: colors.semantic.successTint,
@@ -370,9 +401,22 @@ const styles = StyleSheet.create({
   noticeText: {
     flex: 1,
     lineHeight: 21,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
     gap: spacing.md,
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    width: '100%',
+    ...androidLtrDirection,
+  },
+  sectionTitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   accountList: {
     gap: spacing.md,
@@ -387,7 +431,7 @@ const styles = StyleSheet.create({
   },
   accountTop: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   accountIcon: {
@@ -401,6 +445,7 @@ const styles = StyleSheet.create({
     width: 42,
   },
   accountCopy: {
+    alignItems: 'flex-start',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -409,10 +454,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.sm,
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
   },
   accountName: {
     flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  accountDescription: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   badge: {
     backgroundColor: colors.semantic.successTint,
@@ -423,10 +475,11 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   accountMeta: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   metaItem: {
+    alignItems: 'flex-start',
     flex: 1,
     gap: spacing.xs,
   },

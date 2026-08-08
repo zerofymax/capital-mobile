@@ -90,8 +90,8 @@ export function FinancialSetupBusinessProfileScreen() {
         />
 
         <View style={styles.titleBlock}>
-          <AppText variant="screenTitle">كيف تصف نشاطك؟</AppText>
-          <AppText tone="secondary" variant="body">
+          <AppText style={styles.rtlText} variant="screenTitle">كيف تصف نشاطك؟</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="body">
             اختر الوصف الأقرب لطبيعة عملك
           </AppText>
         </View>
@@ -121,10 +121,10 @@ export function FinancialSetupBusinessProfileScreen() {
                   />
                 </View>
                 <View style={styles.optionCopy}>
-                  <AppText tone={selected ? 'primary' : 'secondary'} variant="cardTitle">
+                  <AppText style={styles.rtlText} tone={selected ? 'primary' : 'secondary'} variant="cardTitle">
                     {option.title}
                   </AppText>
-                  <AppText tone="tertiary" variant="supporting">
+                  <AppText style={styles.rtlText} tone="tertiary" variant="supporting">
                     {option.description}
                   </AppText>
                 </View>
@@ -153,11 +153,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   optionGrid: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.md,
@@ -198,8 +201,16 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(167,200,161,0.48)',
   },
   optionCopy: {
+    alignItems: 'flex-end',
     gap: spacing.xs,
+    minWidth: 0,
     width: '100%',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   spacer: {
     flexGrow: 1,

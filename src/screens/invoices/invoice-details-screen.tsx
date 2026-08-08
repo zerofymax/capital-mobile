@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -49,27 +49,49 @@ export function InvoiceDetailsScreen() {
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
       >
-        <InvoiceHeader onBack={() => router.back()} title="تفاصيل الفاتورة" />
+        <InvoiceHeader rtl onBack={() => router.back()} title="تفاصيل الفاتورة" />
 
         {notice ? <NoticeBanner message={notice} /> : null}
 
-        <SolidCard style={[styles.identityCard, summary.displayStatus.tone === 'danger' && styles.dangerCard]}>
-          <View style={[styles.invoiceIcon, { backgroundColor: tone.tint }]}>
-            <Ionicons color={tone.accent} name={summary.displayStatus.icon} size={22} />
-          </View>
-          <View style={styles.identityCopy}>
-            <AppText variant="sectionTitle">{summary.clientName}</AppText>
-            <AppText align="left" tone="secondary" variant="caption">
-              {directionSafeText(summary.invoiceNumber)}
-            </AppText>
-          </View>
-          <InvoiceStatusBadge status={summary.displayStatus} />
+        <SolidCard style={[styles.identityCard, Platform.OS === 'android' && styles.identityCardAndroid, summary.displayStatus.tone === 'danger' && styles.dangerCard]}>
+          {Platform.OS === 'android' ? (
+            <>
+              <View style={[styles.invoiceIcon, { backgroundColor: tone.tint }]}>
+                <Ionicons color={tone.accent} name={summary.displayStatus.icon} size={22} />
+              </View>
+              <View style={styles.identitySpacer} />
+              <InvoiceStatusBadge status={summary.displayStatus} />
+              <View style={[styles.identityCopy, styles.identityCopyAndroid]}>
+                <AppText adjustsFontSizeToFit align="right" minimumFontScale={0.9} numberOfLines={1} style={styles.identityNameAndroid} variant="sectionTitle">
+                  {summary.clientName}
+                </AppText>
+                <AppText adjustsFontSizeToFit align="right" minimumFontScale={0.9} numberOfLines={1} style={[styles.invoiceNumber, styles.invoiceNumberAndroid]} tone="secondary" variant="caption">
+                  {directionSafeText(summary.invoiceNumber)}
+                </AppText>
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={[styles.invoiceIcon, { backgroundColor: tone.tint }]}>
+                <Ionicons color={tone.accent} name={summary.displayStatus.icon} size={22} />
+              </View>
+              <View style={styles.identityCopy}>
+                <AppText variant="sectionTitle">{summary.clientName}</AppText>
+                <AppText align="left" style={styles.invoiceNumber} tone="secondary" variant="caption">
+                  {directionSafeText(summary.invoiceNumber)}
+                </AppText>
+              </View>
+              <InvoiceStatusBadge status={summary.displayStatus} />
+            </>
+          )}
         </SolidCard>
 
         {summary.status === 'overdue' ? <NoticeBanner message="تجاوزت هذه الفاتورة تاريخ الاستحقاق" tone="danger" /> : null}
 
         <SolidCard style={styles.summaryCard}>
-          <AppText variant="cardTitle">ملخص التحصيل</AppText>
+          <AppText style={styles.sectionTitle} variant="cardTitle">
+            ملخص التحصيل
+          </AppText>
           <View style={styles.summaryMetrics}>
             <InvoiceMetric label="إجمالي الفاتورة" value={summary.total} />
             <InvoiceMetric label="المبلغ المدفوع" tone="green" value={summary.paid} />
@@ -136,23 +158,25 @@ export function InvoiceDetailsScreen() {
 }
 
 function InfoCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary> }) {
-  const rows: [string, string][] = [
-    ['اسم العميل', summary.clientName],
-    ['رقم الفاتورة', summary.invoiceNumber],
-    ['تاريخ الإصدار', summary.issueDate],
-    ['تاريخ الاستحقاق', summary.dueDate],
-    ['مدة السداد', summary.status === 'overdue' ? 'متأخرة 8 أيام' : '27 يومًا'],
-    ['حالة الدفع', summary.displayStatus.label],
-    ['تاريخ الإنشاء', summary.createdAt],
+  const rows: { label: string; value: string; ltr?: boolean }[] = [
+    { label: 'اسم العميل', value: summary.clientName },
+    { label: 'رقم الفاتورة', ltr: true, value: summary.invoiceNumber },
+    { label: 'تاريخ الإصدار', ltr: true, value: summary.issueDate },
+    { label: 'تاريخ الاستحقاق', ltr: true, value: summary.dueDate },
+    { label: 'مدة السداد', value: summary.status === 'overdue' ? 'متأخرة 8 أيام' : '27 يومًا' },
+    { label: 'حالة الدفع', value: summary.displayStatus.label },
+    { label: 'تاريخ الإنشاء', ltr: true, value: summary.createdAt },
   ];
 
   return (
     <View style={styles.section}>
-      <AppText variant="cardTitle">معلومات الفاتورة</AppText>
+      <AppText style={styles.sectionTitle} variant="cardTitle">
+        معلومات الفاتورة
+      </AppText>
       <SolidCard style={styles.infoCard}>
-        {rows.map(([label, value], index) => (
-          <View key={label}>
-            <InfoRow label={label} value={value} />
+        {rows.map((row, index) => (
+          <View key={row.label}>
+            <InfoRow label={row.label} ltr={row.ltr} value={row.value} />
             {index < rows.length - 1 ? <Divider /> : null}
           </View>
         ))}
@@ -164,30 +188,41 @@ function InfoCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary> }
 function ItemsCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary> }) {
   return (
     <View style={styles.section}>
-      <AppText variant="cardTitle">بنود الفاتورة</AppText>
+      <AppText style={styles.sectionTitle} variant="cardTitle">
+        بنود الفاتورة
+      </AppText>
       <SolidCard style={styles.infoCard}>
         {summary.items.map((item, index) => (
           <View key={item.id}>
-            <View style={styles.itemRow}>
-              <View style={styles.itemCopy}>
-                <AppText variant="cardTitle">{item.description}</AppText>
-                <AppText tone="secondary" variant="caption">
+            <View style={[styles.itemRow, Platform.OS === 'android' && styles.itemRowAndroid]}>
+              {Platform.OS === 'android' ? (
+                <AppText align="left" style={[styles.infoValue, styles.ltrValue]} variant="caption">
+                  {formatSar(item.quantity * item.unitPrice)}
+                </AppText>
+              ) : null}
+              <View style={[styles.itemCopy, Platform.OS === 'android' && styles.itemCopyAndroid]}>
+                <AppText style={Platform.OS === 'android' ? styles.itemTextAndroid : undefined} variant="cardTitle">
+                  {item.description}
+                </AppText>
+                <AppText style={Platform.OS === 'android' ? styles.itemTextAndroid : undefined} tone="secondary" variant="caption">
                   {directionSafeText(`الكمية: ${item.quantity} · السعر: ${item.unitPrice.toLocaleString('en-US')} ر.س`)}
                 </AppText>
               </View>
-              <AppText align="left" style={styles.infoValue} variant="caption">
-                {formatSar(item.quantity * item.unitPrice)}
-              </AppText>
+              {Platform.OS === 'android' ? null : (
+                <AppText align="left" style={[styles.infoValue, styles.ltrValue]} variant="caption">
+                  {formatSar(item.quantity * item.unitPrice)}
+                </AppText>
+              )}
             </View>
             {index < summary.items.length - 1 ? <Divider /> : null}
           </View>
         ))}
         <Divider />
-        <InfoRow label="المجموع الفرعي" value={`${summary.subtotal.toLocaleString('en-US')} ر.س`} />
-        <InfoRow label="الخصم" value={`${summary.discount.toLocaleString('en-US')} ر.س`} />
-        <InfoRow label="الضريبة" value={`${summary.tax.toLocaleString('en-US')} ر.س`} />
+        <InfoRow label="المجموع الفرعي" ltr value={`${summary.subtotal.toLocaleString('en-US')} ر.س`} />
+        <InfoRow label="الخصم" ltr value={`${summary.discount.toLocaleString('en-US')} ر.س`} />
+        <InfoRow label="الضريبة" ltr value={`${summary.tax.toLocaleString('en-US')} ر.س`} />
         <Divider />
-        <InfoRow label="الإجمالي" tone="green" value={`${summary.total.toLocaleString('en-US')} ر.س`} />
+        <InfoRow label="الإجمالي" ltr tone="green" value={`${summary.total.toLocaleString('en-US')} ر.س`} />
       </SolidCard>
     </View>
   );
@@ -196,7 +231,9 @@ function ItemsCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary> 
 function PaymentHistory({ summary }: { summary: ReturnType<typeof getInvoiceSummary> }) {
   return (
     <View style={styles.section}>
-      <AppText variant="cardTitle">سجل الدفعات</AppText>
+      <AppText style={styles.sectionTitle} variant="cardTitle">
+        سجل الدفعات
+      </AppText>
       {summary.payments.length ? (
         <SolidCard style={styles.infoCard}>
           {summary.payments.map((payment, index) => {
@@ -209,7 +246,7 @@ function PaymentHistory({ summary }: { summary: ReturnType<typeof getInvoiceSumm
                     <Ionicons color="#35D39A" name="add-outline" size={17} />
                   </View>
                   <View style={styles.itemCopy}>
-                    <AppText style={styles.greenText} variant="cardTitle">
+                    <AppText style={[styles.greenText, styles.ltrValue]} variant="cardTitle">
                       {formatSar(payment.amount)}
                     </AppText>
                     <AppText tone="secondary" variant="caption">
@@ -219,7 +256,7 @@ function PaymentHistory({ summary }: { summary: ReturnType<typeof getInvoiceSumm
                       {directionSafeText(payment.reference)}
                     </AppText>
                   </View>
-                  <AppText align="left" style={styles.infoValue} variant="caption">
+                  <AppText align="left" style={[styles.infoValue, styles.ltrValue]} variant="caption">
                     {directionSafeText(`المتبقي بعد هذه الدفعة: ${remainingAfter.toLocaleString('en-US')} ر.س`)}
                   </AppText>
                 </View>
@@ -251,13 +288,13 @@ function InsightCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary
 
   return (
     <SolidCard style={[styles.insightCard, isOverdue && styles.warningInsight]}>
-      <View style={styles.insightHeader}>
+      <View style={[styles.insightHeader, Platform.OS === 'android' && styles.insightHeaderAndroid]}>
         <Ionicons color={isOverdue ? colors.semantic.danger : '#F3B744'} name="sparkles-outline" size={17} />
-        <AppText style={isOverdue ? styles.dangerText : styles.amberText} variant="cardTitle">
+        <AppText style={[isOverdue ? styles.dangerText : styles.amberText, Platform.OS === 'android' && styles.insightTitleAndroid]} variant="cardTitle">
           {isOverdue ? 'فاتورة متأخرة' : 'موعد الاستحقاق قريب'}
         </AppText>
       </View>
-      <AppText variant="body">
+      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} variant="body">
         {summary.paidInFull
           ? 'تم تحصيل هذه الفاتورة بالكامل ولا توجد مبالغ متبقية.'
           : isOverdue
@@ -266,22 +303,29 @@ function InsightCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary
               ? `تم تسجيل دفعة جزئية، ولا يزال موعد الفاتورة ${summary.dueText}.`
               : `لم يتم تسجيل أي دفعة لهذه الفاتورة حتى الآن، والموعد ${summary.dueText}.`}
       </AppText>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} tone="secondary" variant="caption">
         تقدير تجريبي
       </AppText>
     </SolidCard>
   );
 }
 
-function InfoRow({ label, value, tone }: { label: string; value: string; tone?: 'green' }) {
+function InfoRow({ label, value, tone, ltr = false }: { label: string; value: string; tone?: 'green'; ltr?: boolean }) {
+  const labelText = (
+    <AppText style={Platform.OS === 'android' ? styles.infoLabelAndroid : undefined} tone="secondary" variant="caption">
+      {label}
+    </AppText>
+  );
+  const valueText = (
+    <AppText align="left" style={[styles.infoValue, ltr && styles.ltrValue, Platform.OS === 'android' && styles.infoValueAndroid, tone === 'green' && styles.greenText]} variant="caption">
+      {directionSafeText(value)}
+    </AppText>
+  );
+
   return (
-    <View style={styles.infoRow}>
-      <AppText tone="secondary" variant="caption">
-        {label}
-      </AppText>
-      <AppText align="left" style={[styles.infoValue, tone === 'green' && styles.greenText]} variant="caption">
-        {directionSafeText(value)}
-      </AppText>
+    <View style={[styles.infoRow, Platform.OS === 'android' && styles.infoRowAndroid]}>
+      {Platform.OS === 'android' ? valueText : labelText}
+      {Platform.OS === 'android' ? labelText : valueText}
     </View>
   );
 }
@@ -297,8 +341,17 @@ const styles = StyleSheet.create({
   },
   identityCard: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
+  },
+  identityCardAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  identitySpacer: {
+    flexShrink: 0,
+    width: spacing.sm,
   },
   dangerCard: {
     backgroundColor: 'rgba(42,10,10,0.50)',
@@ -316,46 +369,101 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     minWidth: 0,
   },
+  identityCopyAndroid: {
+    alignItems: 'flex-end',
+  },
+  identityNameAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  invoiceNumber: {
+    writingDirection: 'ltr',
+  },
+  invoiceNumberAndroid: {
+    flexShrink: 0,
+    textAlign: 'right',
+    width: '100%',
+  },
   summaryCard: {
     gap: spacing.md,
   },
   summaryMetrics: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
   },
   progressRow: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   section: {
     gap: spacing.md,
   },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   infoCard: {
     gap: spacing.sm,
   },
   infoRow: {
+    width: '100%',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
     minHeight: 34,
   },
+  infoRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
+  infoLabelAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   infoValue: {
     color: colors.text.primary,
+    flexShrink: 1,
     fontWeight: '700',
+    textAlign: 'left',
+  },
+  infoValueAndroid: {
+    flexShrink: 0,
+    textAlign: 'left',
+  },
+  ltrValue: {
     writingDirection: 'ltr',
   },
   itemRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
+  },
+  itemRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   itemCopy: {
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  itemCopyAndroid: {
+    alignItems: 'flex-end',
+  },
+  itemTextAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   paymentRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 62,
   },
@@ -391,8 +499,24 @@ const styles = StyleSheet.create({
   },
   insightHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+  },
+  insightHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  insightTitleAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  insightTextAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   greenText: {
     color: '#35D39A',

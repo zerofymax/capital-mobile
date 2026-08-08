@@ -295,12 +295,11 @@ function SecurityLogHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         سجل الأمان
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -433,6 +432,7 @@ function EventCard({
     >
       <SolidCard style={[styles.eventCard, event.tone === 'warning' && styles.warningEventCard]}>
         <View style={styles.eventHeader}>
+          <Ionicons color={colors.text.tertiary} name={expanded ? 'chevron-up-outline' : 'chevron-down-outline'} size={17} />
           <View style={[styles.eventIcon, toneStyles.icon]}>
             <Ionicons color={toneStyles.color} name={event.icon} size={20} />
           </View>
@@ -456,7 +456,6 @@ function EventCard({
               </AppText>
             </View>
           </View>
-          <Ionicons color={colors.text.tertiary} name={expanded ? 'chevron-up-outline' : 'chevron-down-outline'} size={17} />
         </View>
 
         {event.deviceName || event.location ? (
@@ -618,8 +617,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -633,16 +633,17 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerTitle: {
+    alignSelf: 'stretch',
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   introCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -657,19 +658,25 @@ const styles = StyleSheet.create({
     width: 42,
   },
   introCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryCard: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
   summaryCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
@@ -678,7 +685,9 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   summaryLine: {
+    width: '100%',
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     justifyContent: 'space-between',
@@ -721,6 +730,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
   eventsStack: {
@@ -733,8 +743,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(232,163,61,0.22)',
   },
   eventHeader: {
-    alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   eventIcon: {
@@ -762,19 +773,24 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
   },
   eventCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   eventTitleRow: {
     alignItems: 'flex-start',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     justifyContent: 'space-between',
   },
   eventTitle: {
+    alignSelf: 'stretch',
     flex: 1,
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   eventMetaRow: {
     alignItems: 'center',
@@ -799,7 +815,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   detailRow: {
+    width: '100%',
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
@@ -844,13 +862,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   actionCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
   actionCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,

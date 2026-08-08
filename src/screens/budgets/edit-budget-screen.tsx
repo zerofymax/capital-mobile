@@ -65,6 +65,7 @@ export function EditBudgetScreen() {
     parsedAmount > 0 && parsedAmount < original.spent
       ? `المبلغ الجديد أقل من المصروف الحالي بمقدار ${(original.spent - parsedAmount).toLocaleString('en-US')} ر.س، وستظهر الميزانية كمتجاوزة.`
       : undefined;
+  const selectedCategoryIcon = budgetCategories.find((category) => category.id === categoryId)?.icon;
 
   function handleBack() {
     if (dirty) {
@@ -100,6 +101,21 @@ export function EditBudgetScreen() {
     alertThreshold: threshold,
     alertEnabled,
   };
+  const currentSpendTitle = (
+    <AppText style={Platform.OS === 'android' ? styles.currentSpendTextAndroid : undefined} tone="secondary" variant="caption">
+      المصروف الحالي
+    </AppText>
+  );
+  const currentSpendAmount = (
+    <AppText align="left" style={styles.currentSpendAmount} variant="cardTitle">
+      {directionSafeText(`${original.spent.toLocaleString('en-US')} ر.س`)}
+    </AppText>
+  );
+  const currentSpendDescription = (
+    <AppText style={Platform.OS === 'android' ? styles.currentSpendTextAndroid : undefined} tone="secondary" variant="supporting">
+      تعديل الميزانية لن يغيّر المصروفات المسجلة مسبقًا.
+    </AppText>
+  );
 
   return (
     <View style={styles.root}>
@@ -120,23 +136,32 @@ export function EditBudgetScreen() {
 
           {dirty ? <NoticeBanner message="لديك تغييرات غير محفوظة" tone="warning" /> : null}
 
-          <SolidCard style={styles.currentSpendCard}>
-            <View style={styles.currentSpendIcon} />
-            <View style={styles.currentSpendCopy}>
-              <AppText tone="secondary" variant="caption">
-                المصروف الحالي
-              </AppText>
-              <AppText align="left" style={styles.currentSpendAmount} variant="cardTitle">
-                {directionSafeText(`${original.spent.toLocaleString('en-US')} ر.س`)}
-              </AppText>
-              <AppText tone="secondary" variant="supporting">
-                تعديل الميزانية لن يغيّر المصروفات المسجلة مسبقًا.
-              </AppText>
-            </View>
+          <SolidCard style={[styles.currentSpendCard, Platform.OS === 'android' && styles.currentSpendCardAndroid]}>
+            {Platform.OS === 'android' ? (
+              <>
+                <View style={styles.currentSpendIcon} />
+                <View style={styles.currentSpendAmountSlotAndroid}>{currentSpendAmount}</View>
+                <View style={[styles.currentSpendCopy, styles.currentSpendCopyAndroid]}>
+                  {currentSpendTitle}
+                  {currentSpendDescription}
+                </View>
+              </>
+            ) : (
+              <>
+                <View style={styles.currentSpendIcon} />
+                <View style={styles.currentSpendCopy}>
+                  {currentSpendTitle}
+                  {currentSpendAmount}
+                  {currentSpendDescription}
+                </View>
+              </>
+            )}
           </SolidCard>
 
           <SelectField
+            androidRtlLayout
             error={submitted ? errors.categoryId : undefined}
+            iconName={selectedCategoryIcon}
             label="الفئة"
             onPress={() => setPicker('category')}
             value={categoryIdToName(categoryId)}
@@ -148,24 +173,28 @@ export function EditBudgetScreen() {
             value={amount}
             warning={warning}
           />
-          <AppText tone="secondary" variant="caption">
+          <AppText style={Platform.OS === 'android' ? styles.supportingTextAndroid : undefined} tone="secondary" variant="caption">
             {directionSafeText(`المصروف الحالي لهذه الفئة هو ${original.spent.toLocaleString('en-US')} ر.س`)}
           </AppText>
 
-          <SelectField iconName="calendar-outline" label="الشهر" onPress={() => setPicker('month')} value={month} />
+          <SelectField androidRtlLayout iconName="calendar-outline" label="الشهر" onPress={() => setPicker('month')} value={month} />
 
           <View style={styles.section}>
-            <AppText variant="cardTitle">تنبيه الاقتراب من الحد</AppText>
-            <AppText tone="secondary" variant="supporting">
+            <AppText style={Platform.OS === 'android' ? styles.sectionTextAndroid : undefined} variant="cardTitle">
+              تنبيه الاقتراب من الحد
+            </AppText>
+            <AppText style={Platform.OS === 'android' ? styles.sectionTextAndroid : undefined} tone="secondary" variant="supporting">
               ينبّه عند وصول الإنفاق إلى نسبة محددة من الميزانية.
             </AppText>
-            <ThresholdSelector onChange={setThreshold} value={threshold} />
+            <ThresholdSelector androidFirstOptionOnLeft androidRtlLayout onChange={setThreshold} value={threshold} />
           </View>
 
-          <ToggleRow enabled={alertEnabled} onValueChange={setAlertEnabled} />
+          <ToggleRow androidRtlLayout enabled={alertEnabled} onValueChange={setAlertEnabled} />
 
           <View style={styles.section}>
-            <AppText variant="cardTitle">معاينة التعديلات</AppText>
+            <AppText style={Platform.OS === 'android' ? styles.sectionTextAndroid : undefined} variant="cardTitle">
+              معاينة التعديلات
+            </AppText>
             <EditPreviewCard budget={previewBudget} />
           </View>
 
@@ -179,6 +208,7 @@ export function EditBudgetScreen() {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setCategoryId(categoryNameToId(value));
@@ -190,6 +220,7 @@ export function EditBudgetScreen() {
         visible={picker === 'category'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setMonth(value);
@@ -222,28 +253,52 @@ function EditPreviewCard({ budget }: { budget: Budget }) {
   const usage = budget.budget > 0 ? Math.round((budget.spent / budget.budget) * 100) : 0;
   const status = getEditBudgetStatus(usage, budget.alertThreshold);
   const remaining = budget.budget - budget.spent;
+  const previewName = (
+    <AppText style={Platform.OS === 'android' ? styles.previewNameAndroid : undefined} variant="cardTitle">
+      {categoryIdToName(budget.categoryId)}
+    </AppText>
+  );
+  const statusBadge = <BudgetStatusBadge label={status.label} tone={status.tone} />;
+  const previewAmount = (
+    <View style={styles.previewAmount}>
+      <AppText align="left" style={styles.previewAmountText} variant="caption">
+        {directionSafeText(`${remaining.toLocaleString('en-US')} ر.س`)}
+      </AppText>
+      <AppText align="left" tone="secondary" variant="caption">
+        المتبقي
+      </AppText>
+    </View>
+  );
 
   return (
     <SolidCard style={[styles.previewCard, status.tone === 'danger' && styles.dangerPreviewCard]}>
-      <View style={styles.previewHeader}>
-        <View style={styles.previewCopy}>
-          <AppText variant="cardTitle">{categoryIdToName(budget.categoryId)}</AppText>
-          <BudgetStatusBadge label={status.label} tone={status.tone} />
-        </View>
-        <View style={styles.previewAmount}>
-          <AppText align="left" style={styles.previewAmountText} variant="caption">
-            {directionSafeText(`${remaining.toLocaleString('en-US')} ر.س`)}
-          </AppText>
-          <AppText align="left" tone="secondary" variant="caption">
-            المتبقي
-          </AppText>
-        </View>
+      <View style={[styles.previewHeader, Platform.OS === 'android' && styles.previewHeaderAndroid]}>
+        {Platform.OS === 'android' ? (
+          <>
+            {previewAmount}
+            <View style={styles.previewSpacerAndroid} />
+            {statusBadge}
+            <View style={[styles.previewCopy, styles.previewCopyAndroid]}>{previewName}</View>
+          </>
+        ) : (
+          <>
+            <View style={styles.previewCopy}>
+              {previewName}
+              {statusBadge}
+            </View>
+            {previewAmount}
+          </>
+        )}
       </View>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={Platform.OS === 'android' ? styles.previewSupportingTextAndroid : undefined} tone="secondary" variant="caption">
         {directionSafeText(`من ${budget.budget.toLocaleString('en-US')} ر.س، ${budget.spent.toLocaleString('en-US')} ر.س`)}
       </AppText>
       <BudgetProgressBar tone={status.tone} usage={usage} />
-      <AppText align="left" style={{ color: toneColors[status.tone].text }} variant="caption">
+      <AppText
+        align={Platform.OS === 'android' ? 'right' : 'left'}
+        style={[{ color: toneColors[status.tone].text }, Platform.OS === 'android' && styles.previewSupportingTextAndroid]}
+        variant="caption"
+      >
         {directionSafeText(`تنبيه عند ${budget.alertThreshold}% — نسبة الاستخدام ${usage}%`)}
       </AppText>
     </SolidCard>
@@ -299,6 +354,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
+  currentSpendCardAndroid: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
   currentSpendIcon: {
     backgroundColor: 'rgba(44,159,224,0.16)',
     borderRadius: radii.pill,
@@ -308,6 +369,20 @@ const styles = StyleSheet.create({
   currentSpendCopy: {
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  currentSpendCopyAndroid: {
+    alignItems: 'flex-end',
+  },
+  currentSpendAmountSlotAndroid: {
+    alignItems: 'flex-start',
+    flexShrink: 0,
+  },
+  currentSpendTextAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   currentSpendAmount: {
     color: colors.text.primary,
@@ -315,6 +390,18 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: spacing.md,
+  },
+  sectionTextAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  supportingTextAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   previewCard: {
     gap: spacing.md,
@@ -328,17 +415,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
+  previewHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
   previewCopy: {
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  previewCopyAndroid: {
+    alignItems: 'flex-end',
+  },
+  previewNameAndroid: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   previewAmount: {
     alignItems: 'flex-start',
+  },
+  previewSpacerAndroid: {
+    flex: 1,
+    minWidth: spacing.sm,
   },
   previewAmountText: {
     color: colors.text.primary,
     fontWeight: '700',
     writingDirection: 'ltr',
+  },
+  previewSupportingTextAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

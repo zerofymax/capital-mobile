@@ -148,7 +148,7 @@ function ExpenseAnalysisReport({ report }: { report: ResolvedFinancialReportData
         ]}
       />
       <SolidCard style={styles.cardGap}>
-        <AppText variant="sectionTitle">المصروفات حسب التصنيف</AppText>
+        <AppText style={styles.sectionTitle} variant="sectionTitle">المصروفات حسب التصنيف</AppText>
         {report.expenseReport.categories.length === 0 ? (
           <EmptyState />
         ) : (
@@ -219,7 +219,7 @@ function ReportPeriodPill({ label }: { label: string }) {
   return (
     <View style={styles.periodPill}>
       <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={16} />
-      <AppText variant="caption">{label}</AppText>
+      <AppText style={styles.periodLabel} variant="caption">{label}</AppText>
     </View>
   );
 }
@@ -239,15 +239,15 @@ function LineSection({
 }) {
   return (
     <SolidCard style={styles.cardGap}>
-      <AppText variant="sectionTitle">{title}</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
       {lines.length === 0 ? (
         <EmptyState message={emptyMessage} />
       ) : (
         lines.map((line) => (
           <View key={line.id} style={styles.lineRow}>
             <View style={styles.lineCopy}>
-              <AppText variant="cardTitle">{line.label}</AppText>
-              <AppText tone="secondary" variant="caption">
+              <AppText style={styles.rtlText} variant="cardTitle">{line.label}</AppText>
+              <AppText style={styles.rtlText} tone="secondary" variant="caption">
                 {`${line.transactionCount.toLocaleString('en-US')} عملية · ${formatComparison(line.comparison)}`}
               </AppText>
             </View>
@@ -258,7 +258,7 @@ function LineSection({
         ))
       )}
       <View style={styles.totalRow}>
-        <AppText variant="cardTitle">{totalLabel}</AppText>
+        <AppText style={styles.rowLabel} variant="cardTitle">{totalLabel}</AppText>
         <AppText style={styles.totalValue} variant="sectionTitle">
           {formatSar(totalValue)}
         </AppText>
@@ -270,15 +270,15 @@ function LineSection({
 function CashFlowLineSection({ title, lines, danger }: { title: string; lines: CashFlowLine[]; danger?: boolean }) {
   return (
     <SolidCard style={styles.cardGap}>
-      <AppText variant="sectionTitle">{title}</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
       {lines.length === 0 ? (
         <EmptyState message={danger ? 'لا توجد مصروفات مسجلة خلال هذه الفترة.' : 'لا توجد إيرادات مسجلة خلال هذه الفترة.'} />
       ) : (
         lines.map((line) => (
           <View key={line.id} style={styles.lineRow}>
             <View style={styles.lineCopy}>
-              <AppText variant="cardTitle">{line.label}</AppText>
-              <AppText tone="secondary" variant="caption">
+              <AppText style={styles.rtlText} variant="cardTitle">{line.label}</AppText>
+              <AppText style={styles.rtlText} tone="secondary" variant="caption">
                 {`${line.transactionCount.toLocaleString('en-US')} عملية · ${formatComparison(line.comparison)}`}
               </AppText>
             </View>
@@ -297,7 +297,7 @@ function ResultCard({ items, highlight }: { items: readonly { label: string; val
     <SolidCard style={[styles.resultCard, highlight && styles.highlightCard]}>
       {items.map((item) => (
         <View key={item.label} style={styles.resultRow}>
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.rowLabel} tone="secondary" variant="supporting">
             {item.label}
           </AppText>
           <AppText style={styles.resultValue} variant="cardTitle">
@@ -316,8 +316,8 @@ function ExpenseCategoryRow({ category }: { category: ExpenseCategorySummary }) 
     <View style={styles.categoryRow}>
       <View style={styles.lineRow}>
         <View style={styles.lineCopy}>
-          <AppText variant="cardTitle">{category.category}</AppText>
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.rtlText} variant="cardTitle">{category.category}</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="caption">
             {`${category.transactionCount.toLocaleString('en-US')} عملية`}
           </AppText>
         </View>
@@ -325,7 +325,7 @@ function ExpenseCategoryRow({ category }: { category: ExpenseCategorySummary }) 
           <AppText style={styles.lineValue} variant="cardTitle">
             {formatSar(category.amount)}
           </AppText>
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.numericText} tone="secondary" variant="caption">
             {formatPercent(category.percentage)}
           </AppText>
         </View>
@@ -342,8 +342,8 @@ function ExplanationCard({ title, text }: { title: string; text: string }) {
     <View style={styles.explanationCard}>
       <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={18} />
       <View style={styles.explanationCopy}>
-        <AppText variant="cardTitle">{title}</AppText>
-        <AppText tone="secondary" variant="body">
+        <AppText style={styles.rtlText} variant="cardTitle">{title}</AppText>
+        <AppText style={styles.rtlText} tone="secondary" variant="body">
           {directionSafeText(text)}
         </AppText>
       </View>
@@ -369,7 +369,7 @@ function Legend({ color, label }: { color: string; label: string }) {
   return (
     <View style={styles.legendItem}>
       <View style={[styles.legendDot, { backgroundColor: color }]} />
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.legendText} tone="secondary" variant="caption">
         {label}
       </AppText>
     </View>
@@ -435,27 +435,42 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(79,138,91,0.28)',
     borderRadius: radii.pill,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
+  periodLabel: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   cardGap: {
     gap: spacing.md,
   },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   lineRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
   },
   lineCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   lineValue: {
     color: colors.brand.lightNeutral,
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   warningValue: {
@@ -465,7 +480,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopColor: colors.surface.separator,
     borderTopWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
+    gap: spacing.md,
     justifyContent: 'space-between',
     paddingTop: spacing.md,
   },
@@ -482,12 +499,29 @@ const styles = StyleSheet.create({
   },
   resultRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
   },
   resultValue: {
     color: colors.text.primary,
+    textAlign: 'left',
+    writingDirection: 'ltr',
+  },
+  rowLabel: {
+    flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  numericText: {
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   categoryRow: {
@@ -509,12 +543,14 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   trendLegend: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.md,
   },
   legendItem: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.xs,
   },
@@ -522,6 +558,10 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     height: 8,
     width: 8,
+  },
+  legendText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   trendChart: {
     alignItems: 'flex-end',
@@ -548,16 +588,18 @@ const styles = StyleSheet.create({
     width: 7,
   },
   explanationCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: 'rgba(6,43,72,0.32)',
     borderColor: 'rgba(46,142,217,0.22)',
     borderRadius: radii.card,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     padding: spacing.lg,
   },
   explanationCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
   },

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CapitalGlassIconButton } from '@/components/navigation/capital-glass-icon-button';
@@ -30,11 +30,11 @@ type InvoiceFilter = 'all' | 'awaiting-payment' | 'due-soon' | 'overdue' | 'part
 
 const filters: { id: InvoiceFilter; label: string }[] = [
   { id: 'all', label: 'الكل' },
-  { id: 'awaiting-payment', label: 'بانتظار الدفع' },
-  { id: 'due-soon', label: 'مستحقة قريبًا' },
-  { id: 'overdue', label: 'متأخرة' },
-  { id: 'partially-paid', label: 'مدفوعة جزئيًا' },
   { id: 'paid', label: 'مدفوعة' },
+  { id: 'partially-paid', label: 'مدفوعة جزئيًا' },
+  { id: 'overdue', label: 'متأخرة' },
+  { id: 'due-soon', label: 'مستحقة قريبًا' },
+  { id: 'awaiting-payment', label: 'بانتظار الدفع' },
 ];
 
 export function InvoicesScreen() {
@@ -135,10 +135,10 @@ export function InvoicesScreen() {
 
         {visibleOpen.length ? (
           <View style={styles.section}>
-            <AppText variant="sectionTitle">الفواتير المفتوحة</AppText>
+            <AppText style={styles.sectionTitle} variant="sectionTitle">الفواتير المفتوحة</AppText>
             <View style={styles.invoiceList}>
               {visibleOpen.map((invoice) => (
-                <InvoiceCard invoice={invoice} key={invoice.id} onPress={openDetails} />
+                <InvoiceCard invoice={invoice} key={invoice.id} layoutVariant="invoicesListRtl" onPress={openDetails} />
               ))}
             </View>
           </View>
@@ -146,10 +146,10 @@ export function InvoicesScreen() {
 
         {visiblePaid.length ? (
           <View style={styles.section}>
-            <AppText variant="sectionTitle">الفواتير المدفوعة</AppText>
+            <AppText style={styles.sectionTitle} variant="sectionTitle">الفواتير المدفوعة</AppText>
             <View style={styles.invoiceList}>
               {visiblePaid.map((invoice) => (
-                <InvoiceCard invoice={invoice} key={invoice.id} onPress={openDetails} />
+                <InvoiceCard invoice={invoice} key={invoice.id} layoutVariant="invoicesListRtl" onPress={openDetails} />
               ))}
             </View>
           </View>
@@ -167,38 +167,60 @@ export function InvoicesScreen() {
 }
 
 function InvoicesHeader({ onBack, onExport }: { onBack: () => void; onExport: () => void }) {
+  const backAction = (
+    <CapitalGlassIconButton
+      accessibilityLabel="رجوع"
+      hitSlop={8}
+      iconColor={colors.text.muted}
+      iconName={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+      iconSize={21}
+      onPress={onBack}
+      pressedStyle={styles.pressed}
+      radius={radii.control}
+      style={styles.headerAction}
+    />
+  );
+  const headerCopy = (
+    <View style={[styles.headerCopy, Platform.OS === 'android' && styles.androidHeaderCopy]}>
+      <AppText align="right" style={styles.headerTitle} variant="screenTitle">
+        الفواتير المستحقة
+      </AppText>
+      <AppText align="right" style={styles.headerSubtitle} tone="secondary" variant="supporting">
+        تابع الفواتير ومواعيد التحصيل
+      </AppText>
+    </View>
+  );
+  const exportAction = (
+    <CapitalGlassIconButton
+      accessibilityLabel="تصدير الفواتير"
+      hitSlop={8}
+      iconColor={colors.text.muted}
+      iconName="share-outline"
+      iconSize={20}
+      onPress={onExport}
+      pressedStyle={styles.pressed}
+      radius={radii.control}
+      style={styles.headerAction}
+    />
+  );
+
+  if (Platform.OS === 'android') {
+    return (
+      <View style={[styles.header, styles.androidHeader]}>
+        <View style={styles.androidHeaderActions}>
+          {backAction}
+          {exportAction}
+        </View>
+        {headerCopy}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.header}>
-      <CapitalGlassIconButton
-        accessibilityLabel="رجوع"
-        hitSlop={8}
-        iconColor={colors.text.muted}
-        iconName="chevron-forward-outline"
-        iconSize={21}
-        onPress={onBack}
-        pressedStyle={styles.pressed}
-        radius={radii.control}
-        style={styles.headerAction}
-      />
-      <View style={styles.headerCopy}>
-        <AppText align="center" style={styles.headerTitle} variant="screenTitle">
-          الفواتير المستحقة
-        </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
-          تابع الفواتير ومواعيد التحصيل
-        </AppText>
-      </View>
-      <CapitalGlassIconButton
-        accessibilityLabel="تصدير الفواتير"
-        hitSlop={8}
-        iconColor={colors.text.muted}
-        iconName="share-outline"
-        iconSize={20}
-        onPress={onExport}
-        pressedStyle={styles.pressed}
-        radius={radii.control}
-        style={styles.headerAction}
-      />
+      {backAction}
+      {headerCopy}
+      {exportAction}
     </View>
   );
 }
@@ -220,15 +242,34 @@ function SummaryCard({
   dueSoonCount: number;
   progress: number;
 }) {
+  const summaryTitle = (
+    <AppText style={Platform.OS === 'android' ? styles.summaryTitle : undefined} variant="sectionTitle">
+      ملخص الفواتير
+    </AppText>
+  );
+  const alertBadge = (
+    <View style={styles.alertBadge}>
+      <AppText style={styles.alertBadgeText} variant="caption">
+        {overdueCount} متأخرة
+      </AppText>
+    </View>
+  );
+  const progressLabel = (
+    <AppText style={Platform.OS === 'android' ? styles.progressLabel : undefined} tone="secondary" variant="caption">
+      نسبة التحصيل
+    </AppText>
+  );
+  const progressValue = (
+    <AppText style={[styles.progressValue, Platform.OS === 'android' && styles.progressValueAndroid]} variant="caption">
+      {progress}%
+    </AppText>
+  );
+
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={styles.summaryHeader}>
-        <AppText variant="sectionTitle">ملخص الفواتير</AppText>
-        <View style={styles.alertBadge}>
-          <AppText style={styles.alertBadgeText} variant="caption">
-            {overdueCount} متأخرة
-          </AppText>
-        </View>
+      <View style={[styles.summaryHeader, Platform.OS === 'android' && styles.summaryHeaderAndroid]}>
+        {Platform.OS === 'android' ? alertBadge : summaryTitle}
+        {Platform.OS === 'android' ? summaryTitle : alertBadge}
       </View>
       <View style={styles.summaryMain}>
         <InvoiceMetric label="إجمالي المستحق" value={total} />
@@ -240,15 +281,11 @@ function SummaryCard({
         <CountMetric label="متأخرة" tone="danger" value={overdueCount} />
         <CountMetric label="مستحقة قريبًا" tone="amber" value={dueSoonCount} />
       </View>
-      <View style={styles.progressRow}>
-        <AppText tone="secondary" variant="caption">
-          نسبة التحصيل
-        </AppText>
-        <AppText style={styles.progressValue} variant="caption">
-          {progress}%
-        </AppText>
+      <View style={[styles.progressRow, Platform.OS === 'android' && styles.progressRowAndroid]}>
+        {Platform.OS === 'android' ? progressValue : progressLabel}
+        {Platform.OS === 'android' ? progressLabel : progressValue}
       </View>
-      <InvoiceProgressBar progress={progress} tone="green" />
+      <InvoiceProgressBar progress={progress} startFromLeftOnAndroid tone="green" />
       <AppText align="center" variant="supporting">
         {directionSafeText(`تم تحصيل ${progress}% من قيمة الفواتير الحالية`)}
       </AppText>
@@ -270,18 +307,24 @@ function CountMetric({ label, value, tone }: { label: string; value: number; ton
 }
 
 function InsightCard() {
+  const experimentalCaption = (
+    <AppText style={styles.insightCaption} tone="secondary" variant="caption">
+      تقدير تجريبي
+    </AppText>
+  );
+
   return (
     <SolidCard style={styles.insightCard}>
       <View style={styles.insightHeader}>
         <Ionicons color="#9DD5FF" name="sparkles-outline" size={17} />
-        <AppText style={styles.linkText} variant="cardTitle">
+        <AppText style={[styles.linkText, Platform.OS === 'android' && styles.linkTextAndroid]} variant="cardTitle">
           تحصيل الفواتير
         </AppText>
       </View>
-      <AppText variant="body">لديك فاتورة متأخرة بقيمة 6,500 ر.س وفاتورتان مستحقتان خلال الأسبوع القادم.</AppText>
-      <AppText tone="secondary" variant="caption">
-        تقدير تجريبي
+      <AppText style={styles.insightText} variant="body">
+        لديك فاتورة متأخرة بقيمة 6,500 ر.س وفاتورتان مستحقتان خلال الأسبوع القادم.
       </AppText>
+      {Platform.OS === 'android' ? <View style={styles.insightCaptionRow}>{experimentalCaption}</View> : experimentalCaption}
     </SolidCard>
   );
 }
@@ -321,6 +364,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.md,
   },
+  androidHeader: {
+    direction: 'ltr',
+    width: '100%',
+  },
+  androidHeaderActions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: spacing.sm,
+  },
   headerAction: {
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
@@ -336,16 +389,37 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     minWidth: 0,
   },
+  androidHeaderCopy: {
+    alignItems: 'flex-end',
+  },
   headerTitle: {
     fontSize: 25,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  headerSubtitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   summaryCard: {
     gap: spacing.md,
   },
   summaryHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  summaryHeaderAndroid: {
+    direction: 'ltr',
+    width: '100%',
+  },
+  summaryTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   alertBadge: {
     backgroundColor: colors.semantic.dangerTint,
@@ -390,8 +464,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
   },
+  progressRowAndroid: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  progressLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   progressValue: {
     color: '#35D39A',
+  },
+  progressValueAndroid: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'ltr',
   },
   searchBox: {
     alignItems: 'center',
@@ -399,7 +490,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 48,
     paddingHorizontal: spacing.md,
@@ -414,9 +505,9 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   filterRow: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
-    paddingHorizontal: 1,
+    paddingHorizontal: spacing.xs,
   },
   filterChip: {
     alignItems: 'center',
@@ -437,22 +528,53 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: spacing.md,
+    ...Platform.select({ android: { alignItems: 'flex-end', alignSelf: 'stretch', width: '100%' } }),
+  },
+  sectionTitle: {
+    ...Platform.select({ android: { alignSelf: 'stretch' } }),
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   invoiceList: {
     gap: spacing.md,
+    ...Platform.select({ android: { alignSelf: 'stretch', width: '100%' } }),
   },
   insightCard: {
+    ...Platform.select({ android: { alignItems: 'flex-end' } }),
     backgroundColor: 'rgba(2,25,42,0.92)',
     borderColor: 'rgba(46,168,255,0.22)',
     gap: spacing.sm,
   },
   insightHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+    ...Platform.select({ android: { direction: 'ltr', width: '100%' } }),
+  },
+  insightCaption: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  insightCaptionRow: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    width: '100%',
   },
   linkText: {
     color: '#9DD5FF',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  linkTextAndroid: {
+    flex: 1,
+    minWidth: 0,
+  },
+  insightText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.76,

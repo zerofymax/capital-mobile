@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -52,6 +52,9 @@ import { directionSafeText } from '@/utils/rtl';
 import { homeQuickActions, type QuickActionItem, type TransactionItem } from './home-data';
 
 const quickActionRtlOrder = ['accounts', 'invoices', 'expense', 'income', 'ask', 'goals', 'recurring', 'report'] as const;
+const androidPhysicalRtlRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
+  : {};
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -75,6 +78,10 @@ export function HomeScreen() {
     () => buildRecentTransactions(transactions, categories, currencySymbol),
     [categories, currencySymbol, transactions],
   );
+  const hasHistoricalTransactions = useMemo(
+    () => transactions.some((transaction) => transaction.transactionDate.slice(0, 7) < currentMonthKey),
+    [currentMonthKey, transactions],
+  );
   const accountsSummary = useMemo(() => summarizeAccounts(accounts), [accounts]);
   const invoiceSummary = useMemo(() => getInvoiceCollectionSummary(invoices), [invoices]);
   const recurringSummary = useMemo(() => summarizeRecurringExpenses(recurringExpenses), [recurringExpenses]);
@@ -86,12 +93,19 @@ export function HomeScreen() {
     }
     return actions;
   }, []);
-  const health = getHealthSummary(monthSummary, invoiceSummary.overdueCount, recurringSummary.activeCount, activeGoal?.progress ?? 0);
+  const health = getHealthSummary(
+    monthSummary,
+    invoiceSummary.overdueCount,
+    recurringSummary.activeCount,
+    activeGoal?.progress ?? 0,
+    hasHistoricalTransactions,
+  );
   const insight = getInsightSummary(
     monthSummary,
     invoiceSummary.incompleteCount,
     invoiceSummary.overdueCount,
     recurringSummary.activeCount,
+    hasHistoricalTransactions,
   );
 
   useFocusEffect(
@@ -168,7 +182,7 @@ export function HomeScreen() {
             styles.content,
             {
               paddingTop: Math.max(spacing.safeTop - insets.top, 0),
-              paddingBottom: getTabScreenContentBottomPadding(insets.bottom),
+              paddingBottom: getTabScreenContentBottomPadding(insets.bottom) + spacing.xxl,
             },
           ]}
           contentInsetAdjustmentBehavior={tabScreenContentInsetAdjustmentBehavior}
@@ -322,8 +336,10 @@ function HomeHeader({
           </AppText>
         </View>
         <View style={styles.headerCopy}>
-          <AppText variant="sectionTitle">مرحبًا {displayName}</AppText>
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.headerCopyText} variant="sectionTitle">
+            مرحبًا {displayName}
+          </AppText>
+          <AppText style={styles.headerCopyText} tone="secondary" variant="supporting">
             {businessName ? `${businessName} · إليك ملخص نشاطك اليوم` : 'إليك ملخص نشاطك اليوم'}
           </AppText>
         </View>
@@ -374,9 +390,11 @@ function RecentTransactionsSection({
   return (
     <View style={styles.transactionsSection}>
       <View style={styles.sectionHeader}>
-        <AppText variant="sectionTitle">أحدث العمليات</AppText>
+        <AppText style={styles.sectionHeaderTitle} variant="sectionTitle">
+          أحدث العمليات
+        </AppText>
         <Pressable accessibilityRole="button" hitSlop={8} onPress={onOpenAll} style={styles.linkButton}>
-          <AppText tone="link" variant="supporting">
+          <AppText align="left" style={styles.sectionHeaderAction} tone="link" variant="supporting">
             عرض الكل
           </AppText>
         </Pressable>
@@ -421,18 +439,20 @@ function InfoNotice({
 }) {
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.noticeCard, pressed && styles.pressed]}>
-      <View style={styles.noticeIcon}>
-        <Ionicons color={colors.brand.calmGreen} name={iconName} size={18} />
-      </View>
       <View style={styles.noticeCopy}>
-        <AppText numberOfLines={1} variant="cardTitle">
+        <AppText numberOfLines={1} style={styles.noticeCopyText} variant="cardTitle">
           {title}
         </AppText>
-        <AppText tone="secondary" variant="caption">
+        <AppText style={styles.noticeCopyText} tone="secondary" variant="caption">
           {text}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+      <View style={styles.noticeActions}>
+        <View style={styles.noticeIcon}>
+          <Ionicons color={colors.brand.calmGreen} name={iconName} size={18} />
+        </View>
+        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+      </View>
     </Pressable>
   );
 }
@@ -452,19 +472,23 @@ function HomeLinkCard({
 }) {
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.linkCard, pressed && styles.pressed]}>
-      <View style={styles.linkIcon}>
-        <Ionicons color={colors.brand.calmGreen} name={iconName} size={18} />
-      </View>
       <View style={styles.linkCopy}>
-        <AppText variant="cardTitle">{title}</AppText>
-        <AppText style={styles.ltrValue} variant="body">
+        <AppText style={styles.linkCopyText} variant="cardTitle">
+          {title}
+        </AppText>
+        <AppText style={styles.linkCopyText} variant="body">
           {directionSafeText(value)}
         </AppText>
-        <AppText tone="secondary" variant="caption">
-          {meta}
+        <AppText style={styles.linkCopyText} tone="secondary" variant="caption">
+          {directionSafeText(meta)}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+      <View style={styles.linkActions}>
+        <View style={styles.linkIcon}>
+          <Ionicons color={colors.brand.calmGreen} name={iconName} size={18} />
+        </View>
+        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+      </View>
     </Pressable>
   );
 }
@@ -493,26 +517,47 @@ function InvoiceCollectionCard({
     >
       <View style={styles.invoiceCollectionHeader}>
         <View style={styles.invoiceCollectionTitle}>
+          <AppText style={styles.invoiceCollectionTitleText} variant="cardTitle">
+            الفواتير والتحصيل
+          </AppText>
+        </View>
+        <View style={styles.invoiceCollectionActions}>
           <View style={styles.linkIcon}>
             <Ionicons color={colors.brand.calmGreen} name="receipt-outline" size={18} />
           </View>
-          <AppText variant="cardTitle">الفواتير والتحصيل</AppText>
+          <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
         </View>
-        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
       </View>
 
       {hasInvoices ? (
         <>
           <View style={styles.invoiceCollectionMain}>
-            <AppText tone="secondary" variant="caption">
-              المتبقي للتحصيل
-            </AppText>
-            <AppText style={styles.invoiceCollectionValue} variant="sectionTitle">
-              {directionSafeText(formatHomeMoney(summary.remainingAmount, currencySymbol))}
-            </AppText>
-            <AppText tone="secondary" variant="caption">
-              {`المحصّل: ${formatHomeMoney(summary.collectedAmount, currencySymbol)}`}
-            </AppText>
+            <View style={styles.invoiceCollectionAmountRow}>
+              <AppText style={styles.invoiceCollectionAmountLabel} tone="secondary" variant="caption">
+                المتبقي للتحصيل
+              </AppText>
+              <AppText
+                align="left"
+                numberOfLines={1}
+                style={styles.invoiceCollectionValue}
+                variant="sectionTitle"
+              >
+                {directionSafeText(formatHomeMoney(summary.remainingAmount, currencySymbol))}
+              </AppText>
+            </View>
+            <View style={styles.invoiceCollectionAmountRow}>
+              <AppText style={styles.invoiceCollectionAmountLabel} tone="secondary" variant="caption">
+                المحصّل
+              </AppText>
+              <AppText
+                align="left"
+                numberOfLines={1}
+                style={styles.invoiceCollectionSecondaryValue}
+                variant="body"
+              >
+                {directionSafeText(formatHomeMoney(summary.collectedAmount, currencySymbol))}
+              </AppText>
+            </View>
           </View>
 
           <View style={styles.invoiceCollectionStats}>
@@ -531,17 +576,17 @@ function InvoiceCollectionCard({
 
           {summary.overdueCount > 0 ? (
             <View style={styles.invoiceOverdueAlert}>
+              <View style={styles.invoiceOverdueCopy}>
+                <AppText style={styles.invoiceOverdueText} variant="caption">
+                  {formatHomeOverdueAlert(summary.overdueCount)}
+                </AppText>
+              </View>
               <Ionicons
                 color={colors.semantic.danger}
                 name="warning-outline"
                 size={17}
                 style={styles.invoiceOverdueIcon}
               />
-              <View style={styles.invoiceOverdueCopy}>
-                <AppText style={styles.invoiceOverdueText} variant="caption">
-                  {formatHomeOverdueAlert(summary.overdueCount)}
-                </AppText>
-              </View>
             </View>
           ) : null}
         </>
@@ -692,14 +737,20 @@ function summarizeActiveGoal(goals: ReturnType<typeof useGoalsStore>['goals']) {
   };
 }
 
-function getHealthSummary(summary: TransactionSummary, overdueInvoicesCount: number, activeRecurringCount: number, goalProgress: number) {
+function getHealthSummary(
+  summary: TransactionSummary,
+  overdueInvoicesCount: number,
+  activeRecurringCount: number,
+  goalProgress: number,
+  hasHistoricalTransactions: boolean,
+) {
   const score = calculateLocalActivityScore(summary, overdueInvoicesCount, activeRecurringCount, goalProgress);
   const experimentalPrefix = 'تحليل محلي تجريبي مبني على البيانات المسجلة.';
 
   if (summary.count === 0) {
     return {
       score,
-      status: 'بانتظار أول عملية',
+      status: hasHistoricalTransactions ? 'بانتظار أول عملية هذا الشهر' : 'بانتظار أول عملية',
       description: `${experimentalPrefix} سيظهر التقييم بعد تسجيل الدخل والمصروفات.`,
     };
   }
@@ -719,12 +770,18 @@ function getHealthSummary(summary: TransactionSummary, overdueInvoicesCount: num
   };
 }
 
-function getInsightSummary(summary: TransactionSummary, openInvoicesCount: number, overdueInvoicesCount: number, activeRecurringCount: number) {
+function getInsightSummary(
+  summary: TransactionSummary,
+  openInvoicesCount: number,
+  overdueInvoicesCount: number,
+  activeRecurringCount: number,
+  hasHistoricalTransactions: boolean,
+) {
   const experimentalPrefix = 'تحليل محلي تجريبي مبني على البيانات المسجلة.';
 
   if (summary.count === 0) {
     return {
-      title: 'ابدأ بتسجيل عملياتك',
+      title: hasHistoricalTransactions ? 'سجّل أول عملية لهذا الشهر' : 'ابدأ بتسجيل عملياتك',
       description: `${experimentalPrefix} كل عملية محلية تضيفها ستنعكس مباشرة على الملخص وأحدث العمليات.`,
     };
   }
@@ -843,15 +900,17 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    ...androidPhysicalRtlRow,
   },
   identity: {
     alignItems: 'center',
     flex: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: 10,
     minWidth: 0,
+    ...androidPhysicalRtlRow,
   },
   avatar: {
     alignItems: 'center',
@@ -867,8 +926,15 @@ const styles = StyleSheet.create({
     color: colors.brand.green,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
+    justifyContent: 'center',
     minWidth: 0,
+  },
+  headerCopyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   headerActions: {
     alignItems: 'center',
@@ -899,7 +965,8 @@ const styles = StyleSheet.create({
     marginHorizontal: -16,
   },
   metricsContent: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: 10,
     paddingHorizontal: 16,
   },
@@ -908,8 +975,18 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+    ...androidPhysicalRtlRow,
+  },
+  sectionHeaderTitle: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  sectionHeaderAction: {
+    textAlign: 'left',
+    writingDirection: 'rtl',
   },
   linkButton: {
     justifyContent: 'center',
@@ -933,9 +1010,10 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: 20,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     padding: spacing.lg,
+    ...androidPhysicalRtlRow,
   },
   noticeIcon: {
     alignItems: 'center',
@@ -946,9 +1024,23 @@ const styles = StyleSheet.create({
     width: 38,
   },
   noticeCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: 4,
+    justifyContent: 'center',
     minWidth: 0,
+  },
+  noticeCopyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  noticeActions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: spacing.sm,
+    ...androidPhysicalRtlRow,
   },
   linkCard: {
     alignItems: 'center',
@@ -956,9 +1048,10 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: 20,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     padding: spacing.lg,
+    ...androidPhysicalRtlRow,
   },
   linkIcon: {
     alignItems: 'center',
@@ -969,9 +1062,23 @@ const styles = StyleSheet.create({
     width: 42,
   },
   linkCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: 5,
+    justifyContent: 'center',
     minWidth: 0,
+  },
+  linkCopyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  linkActions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: spacing.sm,
+    ...androidPhysicalRtlRow,
   },
   invoiceCollectionCard: {
     backgroundColor: colors.surface.card,
@@ -984,22 +1091,58 @@ const styles = StyleSheet.create({
   },
   invoiceCollectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+    ...androidPhysicalRtlRow,
   },
   invoiceCollectionTitle: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
+  invoiceCollectionTitleText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  invoiceCollectionActions: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    gap: spacing.md,
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: spacing.sm,
+    ...androidPhysicalRtlRow,
   },
   invoiceCollectionMain: {
-    gap: spacing.xs,
+    gap: spacing.sm,
+    width: '100%',
+  },
+  invoiceCollectionAmountRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.md,
+    justifyContent: 'space-between',
+    width: '100%',
+    ...androidPhysicalRtlRow,
+  },
+  invoiceCollectionAmountLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   invoiceCollectionValue: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'ltr',
+  },
+  invoiceCollectionSecondaryValue: {
+    flexShrink: 0,
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   invoiceCollectionStats: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   invoiceCollectionStat: {
@@ -1025,11 +1168,12 @@ const styles = StyleSheet.create({
     color: colors.semantic.warning,
   },
   invoiceOverdueAlert: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.dangerTint,
     borderColor: 'rgba(229,103,90,0.28)',
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
@@ -1058,9 +1202,6 @@ const styles = StyleSheet.create({
   },
   invoiceEmptyAction: {
     color: colors.brand.calmGreen,
-  },
-  ltrValue: {
-    writingDirection: 'ltr',
   },
   pressed: {
     opacity: 0.75,

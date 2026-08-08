@@ -13,31 +13,41 @@ import { directionSafeText } from '@/utils/rtl';
 import { formatSar, getInvoiceSummary, invoiceToneColors, type InvoiceStatus, type InvoiceTone } from './invoice-utils';
 import { invoiceStatusOptions, type Invoice, type InvoiceItem, type InvoiceStatusId } from './invoices-data';
 
-export function InvoiceHeader({ title, subtitle, onBack }: { title: string; subtitle?: string; onBack: () => void }) {
+export function InvoiceHeader({
+  title,
+  subtitle,
+  onBack,
+  rtl = true,
+}: {
+  title: string;
+  subtitle?: string;
+  onBack: () => void;
+  rtl?: boolean;
+}) {
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, rtl && styles.headerRtl, Platform.OS === 'android' && styles.headerAndroid]}>
       <CapitalGlassIconButton
         accessibilityLabel="رجوع"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName="chevron-forward-outline"
+        iconName={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
         iconSize={21}
         onPress={onBack}
         pressedStyle={styles.pressed}
         radius={radii.control}
         style={styles.backButton}
       />
-      <View style={styles.headerCopy}>
-        <AppText align="center" style={styles.headerTitle} variant="screenTitle">
-          {title}
+      <View style={[styles.headerCopy, rtl && styles.headerCopyRtl, Platform.OS === 'android' && styles.headerCopyAndroid]}>
+        <AppText align={rtl ? 'right' : 'center'} style={[styles.headerTitle, rtl && styles.headerTextRtl]} variant="screenTitle">
+          {rtl ? directionSafeText(title) : title}
         </AppText>
         {subtitle ? (
-          <AppText align="center" tone="secondary" variant="supporting">
-            {subtitle}
+          <AppText align={rtl ? 'right' : 'center'} style={rtl && styles.headerTextRtl} tone="secondary" variant="supporting">
+            {rtl ? directionSafeText(subtitle) : subtitle}
           </AppText>
         ) : null}
       </View>
-      <View style={styles.headerSlot} />
+      <View style={[styles.headerSlot, Platform.OS === 'android' && styles.headerSlotAndroid]} />
     </View>
   );
 }
@@ -54,19 +64,37 @@ export function InvoiceStatusBadge({ status }: { status: InvoiceStatus }) {
   );
 }
 
-export function InvoiceProgressBar({ progress, tone }: { progress: number; tone: InvoiceTone }) {
+export function InvoiceProgressBar({
+  progress,
+  tone,
+  startFromLeftOnAndroid = false,
+}: {
+  progress: number;
+  tone: InvoiceTone;
+  startFromLeftOnAndroid?: boolean;
+}) {
   const clamped = Math.max(0, Math.min(progress, 100));
+  const startsFromLeft = Platform.OS === 'android' && startFromLeftOnAndroid;
 
   return (
-    <View style={styles.progressTrack}>
+    <View style={[styles.progressTrack, startsFromLeft && styles.progressTrackLeft]}>
       <View style={[styles.progressFill, { backgroundColor: invoiceToneColors[tone].accent, width: `${clamped}%` }]} />
     </View>
   );
 }
 
-export function InvoiceCard({ invoice, onPress }: { invoice: Invoice; onPress: (id: string) => void }) {
+export function InvoiceCard({
+  invoice,
+  onPress,
+  layoutVariant = 'default',
+}: {
+  invoice: Invoice;
+  onPress: (id: string) => void;
+  layoutVariant?: 'default' | 'invoicesListRtl';
+}) {
   const summary = getInvoiceSummary(invoice);
   const tone = invoiceToneColors[summary.displayStatus.tone];
+  const useInvoicesListRtl = Platform.OS === 'android' && layoutVariant === 'invoicesListRtl';
 
   return (
     <Pressable
@@ -75,21 +103,46 @@ export function InvoiceCard({ invoice, onPress }: { invoice: Invoice; onPress: (
       onPress={() => onPress(summary.id)}
       style={({ pressed }) => [styles.invoiceCard, summary.displayStatus.tone === 'danger' && styles.dangerCard, summary.paidInFull && styles.paidCard, pressed && styles.pressed]}
     >
-      <View style={styles.invoiceTop}>
-        <View style={styles.invoiceIdentity}>
+      {useInvoicesListRtl ? (
+        <View style={[styles.invoiceTop, styles.invoiceTopListRtl]}>
+          <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
           <View style={[styles.invoiceIcon, { backgroundColor: tone.tint }]}>
             <Ionicons color={tone.accent} name={summary.displayStatus.icon} size={19} />
           </View>
-          <View style={styles.invoiceCopy}>
-            <AppText variant="cardTitle">{summary.clientName}</AppText>
-            <AppText align="left" tone="secondary" variant="caption">
+          <View style={styles.invoiceTopSpacer} />
+          <InvoiceStatusBadge status={summary.displayStatus} />
+          <View style={[styles.invoiceCopy, styles.invoiceCopyListRtl]}>
+            <AppText align="right" style={styles.invoiceClientNameListRtl} variant="cardTitle">
+              {summary.clientName}
+            </AppText>
+            <AppText
+              align="right"
+              numberOfLines={1}
+              style={[styles.invoiceNumber, styles.invoiceNumberListRtl]}
+              tone="secondary"
+              variant="caption"
+            >
               {directionSafeText(summary.invoiceNumber)}
             </AppText>
           </View>
         </View>
-        <InvoiceStatusBadge status={summary.displayStatus} />
-        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
-      </View>
+      ) : (
+        <View style={styles.invoiceTop}>
+          <View style={styles.invoiceIdentity}>
+            <View style={[styles.invoiceIcon, { backgroundColor: tone.tint }]}>
+              <Ionicons color={tone.accent} name={summary.displayStatus.icon} size={19} />
+            </View>
+            <View style={styles.invoiceCopy}>
+              <AppText variant="cardTitle">{summary.clientName}</AppText>
+              <AppText align="left" style={styles.invoiceNumber} tone="secondary" variant="caption">
+                {directionSafeText(summary.invoiceNumber)}
+              </AppText>
+            </View>
+          </View>
+          <InvoiceStatusBadge status={summary.displayStatus} />
+          <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+        </View>
+      )}
 
       <View style={styles.amountGrid}>
         <InvoiceMetric label="الإجمالي" value={summary.total} />
@@ -143,7 +196,9 @@ export function TextField({
 }) {
   return (
     <View style={styles.formField}>
-      <AppText variant="supporting">{label}</AppText>
+      <AppText style={styles.formLabel} variant="supporting">
+        {label}
+      </AppText>
       <View style={[styles.textField, error && styles.fieldError]}>
         <TextInput
           accessibilityLabel={label}
@@ -164,17 +219,23 @@ export function AmountField({
   value,
   error,
   helper,
+  androidRtlLayout = false,
   onChangeText,
 }: {
   label: string;
   value: string;
   error?: string;
   helper?: string;
+  androidRtlLayout?: boolean;
   onChangeText: (value: string) => void;
 }) {
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+
   return (
     <View style={styles.formField}>
-      <AppText variant="supporting">{label}</AppText>
+      <AppText style={styles.formLabel} variant="supporting">
+        {label}
+      </AppText>
       <View style={[styles.amountField, error && styles.fieldError]}>
         <TextInput
           accessibilityLabel={label}
@@ -190,8 +251,8 @@ export function AmountField({
         </AppText>
       </View>
       {helper ? (
-        <AppText tone="secondary" variant="caption">
-          {helper}
+        <AppText style={useAndroidRtlLayout ? styles.fieldHelperAndroid : undefined} tone="secondary" variant="caption">
+          {directionSafeText(helper)}
         </AppText>
       ) : null}
       {error ? <FieldError message={error} /> : null}
@@ -204,32 +265,62 @@ export function SelectField({
   value,
   error,
   iconName,
+  ltr = false,
+  androidRtlLayout = false,
+  androidCenterValue = false,
   onPress,
 }: {
   label: string;
   value: string;
   error?: string;
   iconName?: keyof typeof Ionicons.glyphMap;
+  ltr?: boolean;
+  androidRtlLayout?: boolean;
+  androidCenterValue?: boolean;
   onPress: () => void;
 }) {
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidCenteredValue = useAndroidRtlLayout && androidCenterValue;
+  const valueText = (
+    <AppText
+      align={ltr ? 'left' : 'right'}
+      style={[styles.selectValue, ltr && styles.selectValueLtr, useAndroidRtlLayout && styles.selectValueAndroid]}
+      variant="cardTitle"
+    >
+      {ltr ? directionSafeText(value || 'اختر') : value || 'اختر'}
+    </AppText>
+  );
+  const fieldIcon = iconName ? (
+    <View style={styles.fieldIcon}>
+      <Ionicons color={colors.text.tertiary} name={iconName} size={17} />
+    </View>
+  ) : null;
+  const chevron = <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />;
+
   return (
     <View style={styles.formField}>
-      <AppText variant="supporting">{label}</AppText>
+      <AppText style={styles.formLabel} variant="supporting">
+        {label}
+      </AppText>
       <Pressable
         accessibilityLabel={label}
         accessibilityRole="button"
         onPress={onPress}
-        style={({ pressed }) => [styles.selectField, error && styles.fieldError, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.selectField, useAndroidRtlLayout && styles.selectFieldAndroid, error && styles.fieldError, pressed && styles.pressed]}
       >
-        {iconName ? (
-          <View style={styles.fieldIcon}>
-            <Ionicons color={colors.text.tertiary} name={iconName} size={17} />
-          </View>
-        ) : null}
-        <AppText style={styles.selectValue} variant="cardTitle">
-          {value || 'اختر'}
-        </AppText>
-        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+        {useAndroidRtlLayout ? (
+          <>
+            {chevron}
+            {fieldIcon}
+            <View style={[styles.selectValueSlotAndroid, useAndroidCenteredValue && styles.selectValueSlotCenteredAndroid]}>{valueText}</View>
+          </>
+        ) : (
+          <>
+            {valueText}
+            {fieldIcon}
+            {chevron}
+          </>
+        )}
       </Pressable>
       {error ? <FieldError message={error} /> : null}
     </View>
@@ -239,38 +330,69 @@ export function SelectField({
 export function InvoiceItemsEditor({
   items,
   itemError,
+  androidRtlLayout = false,
   onAddItem,
   onChangeItem,
   onRemoveItem,
 }: {
   items: InvoiceItem[];
   itemError?: string;
+  androidRtlLayout?: boolean;
   onAddItem: () => void;
   onChangeItem: (id: string, patch: Partial<InvoiceItem>) => void;
   onRemoveItem: (id: string) => void;
 }) {
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+
   return (
     <View style={styles.formField}>
-      <AppText variant="supporting">بنود الفاتورة</AppText>
+      <AppText style={styles.formLabel} variant="supporting">
+        بنود الفاتورة
+      </AppText>
       {items.map((item) => {
         const lineTotal = item.quantity * item.unitPrice;
+        const deleteButton = (
+          <Pressable accessibilityLabel="حذف البند" accessibilityRole="button" onPress={() => onRemoveItem(item.id)} style={styles.itemDelete}>
+            <Ionicons color={colors.text.tertiary} name="trash-outline" size={16} />
+          </Pressable>
+        );
+        const descriptionInput = (
+          <TextInput
+            accessibilityLabel="وصف البند"
+            onChangeText={(value) => onChangeItem(item.id, { description: value })}
+            placeholder="أدخل وصف البند"
+            placeholderTextColor={colors.text.tertiary}
+            style={[styles.itemDescription, useAndroidRtlLayout && styles.itemDescriptionAndroid]}
+            value={item.description}
+          />
+        );
+        const itemTotalLabel = (
+          <AppText style={useAndroidRtlLayout ? styles.itemLabelAndroid : undefined} tone="secondary" variant="caption">
+            الإجمالي
+          </AppText>
+        );
+        const itemTotalValue = (
+          <AppText align="left" style={styles.itemTotal} variant="caption">
+            {formatSar(lineTotal)}
+          </AppText>
+        );
 
         return (
           <SolidCard key={item.id} style={[styles.itemCard, itemError && styles.fieldError]}>
-            <Pressable accessibilityLabel="حذف البند" accessibilityRole="button" onPress={() => onRemoveItem(item.id)} style={styles.itemDelete}>
-              <Ionicons color={colors.text.tertiary} name="trash-outline" size={16} />
-            </Pressable>
-            <TextInput
-              accessibilityLabel="وصف البند"
-              onChangeText={(value) => onChangeItem(item.id, { description: value })}
-              placeholder="أدخل وصف البند"
-              placeholderTextColor={colors.text.tertiary}
-              style={styles.itemDescription}
-              value={item.description}
-            />
+            {useAndroidRtlLayout ? (
+              <View style={styles.itemHeaderAndroid}>
+                {deleteButton}
+                {descriptionInput}
+              </View>
+            ) : (
+              <>
+                {deleteButton}
+                {descriptionInput}
+              </>
+            )}
             <View style={styles.itemInputs}>
               <View style={styles.itemInputWrap}>
-                <AppText tone="secondary" variant="caption">
+                <AppText style={useAndroidRtlLayout ? styles.itemLabelAndroid : undefined} tone="secondary" variant="caption">
                   الكمية
                 </AppText>
                 <TextInput
@@ -284,7 +406,7 @@ export function InvoiceItemsEditor({
                 />
               </View>
               <View style={styles.itemInputWrap}>
-                <AppText tone="secondary" variant="caption">
+                <AppText style={useAndroidRtlLayout ? styles.itemLabelAndroid : undefined} tone="secondary" variant="caption">
                   السعر
                 </AppText>
                 <TextInput
@@ -298,13 +420,9 @@ export function InvoiceItemsEditor({
                 />
               </View>
             </View>
-            <View style={styles.itemTotalRow}>
-              <AppText tone="secondary" variant="caption">
-                الإجمالي
-              </AppText>
-              <AppText align="left" style={styles.itemTotal} variant="caption">
-                {formatSar(lineTotal)}
-              </AppText>
+            <View style={[styles.itemTotalRow, useAndroidRtlLayout && styles.itemTotalRowAndroid]}>
+              {useAndroidRtlLayout ? itemTotalValue : itemTotalLabel}
+              {useAndroidRtlLayout ? itemTotalLabel : itemTotalValue}
             </View>
           </SolidCard>
         );
@@ -320,37 +438,68 @@ export function InvoiceItemsEditor({
   );
 }
 
-export function InvoiceTotalsCard({ subtotal, discount, tax, total }: { subtotal: number; discount: number; tax: number; total: number }) {
+export function InvoiceTotalsCard({
+  subtotal,
+  discount,
+  tax,
+  total,
+  androidRtlLayout = false,
+}: {
+  subtotal: number;
+  discount: number;
+  tax: number;
+  total: number;
+  androidRtlLayout?: boolean;
+}) {
   return (
     <SolidCard style={styles.totalsCard}>
-      <TotalRow label="المجموع الفرعي" value={subtotal} />
-      <TotalRow label="الخصم" value={discount} />
-      <TotalRow label="الضريبة" value={tax} />
+      <TotalRow androidRtlLayout={androidRtlLayout} label="المجموع الفرعي" value={subtotal} />
+      <TotalRow androidRtlLayout={androidRtlLayout} label="الخصم" value={discount} />
+      <TotalRow androidRtlLayout={androidRtlLayout} label="الضريبة" value={tax} />
       <View style={styles.totalDivider} />
-      <TotalRow large label="الإجمالي" tone="green" value={total} />
+      <TotalRow androidRtlLayout={androidRtlLayout} large label="الإجمالي" tone="green" value={total} />
     </SolidCard>
   );
 }
 
 export function InvoiceMiniCard({ invoice }: { invoice: Invoice }) {
   const summary = getInvoiceSummary(invoice);
+  const useAndroidRtlLayout = Platform.OS === 'android';
 
   return (
     <SolidCard style={styles.miniCard}>
-      <View style={styles.invoiceTop}>
-        <View style={styles.invoiceIdentity}>
+      {useAndroidRtlLayout ? (
+        <View style={[styles.invoiceTop, styles.invoiceTopListRtl]}>
           <View style={[styles.invoiceIcon, { backgroundColor: invoiceToneColors[summary.displayStatus.tone].tint }]}>
             <Ionicons color={invoiceToneColors[summary.displayStatus.tone].accent} name={summary.displayStatus.icon} size={18} />
           </View>
-          <View style={styles.invoiceCopy}>
-            <AppText variant="cardTitle">{summary.clientName}</AppText>
-            <AppText align="left" tone="secondary" variant="caption">
+          <View style={styles.invoiceTopSpacer} />
+          <InvoiceStatusBadge status={summary.displayStatus} />
+          <View style={[styles.invoiceCopy, styles.invoiceCopyListRtl]}>
+            <AppText align="right" style={styles.invoiceClientNameListRtl} variant="cardTitle">
+              {summary.clientName}
+            </AppText>
+            <AppText align="right" numberOfLines={1} style={[styles.invoiceNumber, styles.invoiceNumberListRtl]} tone="secondary" variant="caption">
               {directionSafeText(summary.invoiceNumber)}
             </AppText>
           </View>
         </View>
-        <InvoiceStatusBadge status={summary.displayStatus} />
-      </View>
+      ) : (
+        <View style={styles.invoiceTop}>
+          <View style={styles.invoiceIdentity}>
+            <View style={[styles.invoiceIcon, { backgroundColor: invoiceToneColors[summary.displayStatus.tone].tint }]}>
+              <Ionicons color={invoiceToneColors[summary.displayStatus.tone].accent} name={summary.displayStatus.icon} size={18} />
+            </View>
+            <View style={styles.invoiceCopy}>
+              <AppText variant="cardTitle">{summary.clientName}</AppText>
+              <AppText align="left" style={styles.invoiceNumber} tone="secondary" variant="caption">
+                {directionSafeText(summary.invoiceNumber)}
+              </AppText>
+            </View>
+          </View>
+          <InvoiceStatusBadge status={summary.displayStatus} />
+        </View>
+      )}
       <View style={styles.amountGrid}>
         <InvoiceMetric label="الإجمالي" value={summary.total} />
         <InvoiceMetric label="المدفوع" tone="green" value={summary.paid} />
@@ -366,6 +515,8 @@ export function PickerSheet({
   visible,
   options,
   selectedValue,
+  ltr = false,
+  androidRtlLayout = false,
   onSelect,
   onClose,
 }: {
@@ -373,10 +524,18 @@ export function PickerSheet({
   visible: boolean;
   options: readonly string[];
   selectedValue: string;
+  ltr?: boolean;
+  androidRtlLayout?: boolean;
   onSelect: (value: string) => void;
   onClose: () => void;
 }) {
   const insets = useSafeAreaInsets();
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const titleText = (
+    <AppText style={styles.sheetTitle} variant="sectionTitle">
+      {title}
+    </AppText>
+  );
 
   return (
     <Modal animationType={Platform.OS === 'ios' ? 'slide' : 'fade'} onRequestClose={onClose} statusBarTranslucent transparent visible={visible}>
@@ -385,9 +544,19 @@ export function PickerSheet({
         <View style={[styles.sheetCard, { paddingBottom: insets.bottom + spacing.xl }]}>
           <CapitalBottomSheetHeaderSurface />
           <View style={styles.sheetHandle} />
-          <AppText variant="sectionTitle">{title}</AppText>
+          {useAndroidRtlLayout ? <View style={styles.sheetTitleWrapperAndroid}>{titleText}</View> : titleText}
           {options.map((option) => {
             const selected = option === selectedValue;
+            const optionText = (
+              <AppText
+                align={ltr ? 'left' : 'right'}
+                style={[styles.optionText, ltr && styles.optionTextLtr, useAndroidRtlLayout && styles.optionTextAndroid, selected && styles.optionTextSelected]}
+                variant="body"
+              >
+                {ltr ? directionSafeText(option) : option}
+              </AppText>
+            );
+            const selectedIcon = selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={18} /> : null;
 
             return (
               <Pressable
@@ -396,12 +565,20 @@ export function PickerSheet({
                 accessibilityState={{ selected }}
                 key={option}
                 onPress={() => onSelect(option)}
-                style={({ pressed }) => [styles.optionRow, selected && styles.optionRowSelected, pressed && styles.pressed]}
+                style={({ pressed }) => [styles.optionRow, useAndroidRtlLayout && styles.optionRowAndroid, selected && styles.optionRowSelected, pressed && styles.pressed]}
               >
-                <AppText style={selected && styles.optionTextSelected} variant="body">
-                  {option}
-                </AppText>
-                {selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={18} /> : null}
+                {useAndroidRtlLayout ? (
+                  <>
+                    {selectedIcon}
+                    <View style={styles.optionSpacerAndroid} />
+                    <View style={styles.optionTextSlotAndroid}>{optionText}</View>
+                  </>
+                ) : (
+                  <>
+                    {optionText}
+                    {selectedIcon}
+                  </>
+                )}
               </Pressable>
             );
           })}
@@ -445,10 +622,27 @@ export function BottomConfirmSheet({
         <View style={[styles.confirmSheet, { paddingBottom: insets.bottom + spacing.xl }]}>
           <CapitalBottomSheetHeaderSurface />
           <View style={styles.sheetHandle} />
-          <AppText variant="sectionTitle">{title}</AppText>
-          <AppText tone="secondary" variant="body">
-            {description}
-          </AppText>
+          {Platform.OS === 'android' ? (
+            <>
+              <View style={styles.confirmTextWrapperAndroid}>
+                <AppText style={styles.confirmTitleAndroid} variant="sectionTitle">
+                  {title}
+                </AppText>
+              </View>
+              <View style={styles.confirmTextWrapperAndroid}>
+                <AppText style={styles.confirmDescriptionAndroid} tone="secondary" variant="body">
+                  {directionSafeText(description)}
+                </AppText>
+              </View>
+            </>
+          ) : (
+            <>
+              <AppText variant="sectionTitle">{title}</AppText>
+              <AppText tone="secondary" variant="body">
+                {description}
+              </AppText>
+            </>
+          )}
           <View style={styles.confirmActions}>
             <AppButton onPress={onSecondaryPress} variant={resolvedSecondaryVariant}>
               {secondaryLabel}
@@ -469,9 +663,9 @@ export function NoticeBanner({ message, tone = 'success' }: { message: string; t
   const color = isDanger ? colors.semantic.danger : isWarning ? colors.semantic.warning : '#35D39A';
 
   return (
-    <View style={[styles.notice, isDanger ? styles.dangerNotice : isWarning ? styles.warningNotice : styles.successNotice]}>
+    <View style={[styles.notice, Platform.OS === 'android' && styles.noticeAndroid, isDanger ? styles.dangerNotice : isWarning ? styles.warningNotice : styles.successNotice]}>
       <Ionicons color={color} name={isDanger ? 'warning-outline' : isWarning ? 'warning-outline' : 'checkmark-circle-outline'} size={17} />
-      <AppText style={{ color }} variant="supporting">
+      <AppText style={[{ color }, Platform.OS === 'android' && styles.noticeTextAndroid]} variant="supporting">
         {message}
       </AppText>
     </View>
@@ -494,13 +688,35 @@ export function invoiceStatusIdToName(id: InvoiceStatusId) {
   return invoiceStatusOptions.find((status) => status.id === id)?.label ?? '';
 }
 
-function TotalRow({ label, value, tone, large }: { label: string; value: number; tone?: 'green'; large?: boolean }) {
+function TotalRow({
+  label,
+  value,
+  tone,
+  large,
+  androidRtlLayout = false,
+}: {
+  label: string;
+  value: number;
+  tone?: 'green';
+  large?: boolean;
+  androidRtlLayout?: boolean;
+}) {
+  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const labelText = (
+    <AppText style={useAndroidRtlLayout ? styles.totalLabelAndroid : undefined} variant={large ? 'cardTitle' : 'supporting'}>
+      {label}
+    </AppText>
+  );
+  const valueText = (
+    <AppText align="left" style={[large ? styles.totalValueLarge : styles.totalValue, tone === 'green' && styles.greenText]} variant="caption">
+      {formatSar(value)}
+    </AppText>
+  );
+
   return (
-    <View style={styles.totalRow}>
-      <AppText variant={large ? 'cardTitle' : 'supporting'}>{label}</AppText>
-      <AppText align="left" style={[large ? styles.totalValueLarge : styles.totalValue, tone === 'green' && styles.greenText]} variant="caption">
-        {formatSar(value)}
-      </AppText>
+    <View style={[styles.totalRow, useAndroidRtlLayout && styles.totalRowAndroid]}>
+      {useAndroidRtlLayout ? valueText : labelText}
+      {useAndroidRtlLayout ? labelText : valueText}
     </View>
   );
 }
@@ -508,8 +724,16 @@ function TotalRow({ label, value, tone, large }: { label: string; value: number;
 const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  headerRtl: {
+    flexDirection: 'row',
+  },
+  headerAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -522,16 +746,34 @@ const styles = StyleSheet.create({
     width: 42,
   },
   headerCopy: {
-    alignItems: 'center',
+    alignItems: 'stretch',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  headerCopyRtl: {
+    alignItems: 'flex-end',
+  },
+  headerCopyAndroid: {
+    alignItems: 'flex-end',
   },
   headerTitle: {
     lineHeight: 31,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  headerTextRtl: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   headerSlot: {
     height: 42,
     width: 42,
+  },
+  headerSlotAndroid: {
+    display: 'none',
   },
   statusBadge: {
     alignSelf: 'flex-start',
@@ -549,6 +791,10 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     height: 7,
     overflow: 'hidden',
+  },
+  progressTrackLeft: {
+    alignItems: 'flex-start',
+    direction: 'ltr',
   },
   progressFill: {
     borderRadius: radii.pill,
@@ -572,13 +818,21 @@ const styles = StyleSheet.create({
   },
   invoiceTop: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+  },
+  invoiceTopListRtl: {
+    direction: 'ltr',
+    width: '100%',
+  },
+  invoiceTopSpacer: {
+    flex: 0.25,
+    minWidth: spacing.sm,
   },
   invoiceIdentity: {
     alignItems: 'center',
     flex: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     minWidth: 0,
   },
@@ -593,6 +847,22 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  invoiceCopyListRtl: {
+    alignItems: 'flex-end',
+  },
+  invoiceClientNameListRtl: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  invoiceNumber: {
+    writingDirection: 'ltr',
+  },
+  invoiceNumberListRtl: {
+    flexShrink: 0,
+    textAlign: 'right',
+    width: '100%',
   },
   amountGrid: {
     backgroundColor: 'rgba(255,255,255,0.04)',
@@ -620,6 +890,18 @@ const styles = StyleSheet.create({
   },
   formField: {
     gap: spacing.sm,
+  },
+  formLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  fieldHelperAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   textField: {
     backgroundColor: colors.surface.card,
@@ -670,10 +952,15 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 52,
     paddingHorizontal: spacing.md,
+  },
+  selectFieldAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   fieldIcon: {
     alignItems: 'center',
@@ -685,6 +972,27 @@ const styles = StyleSheet.create({
   },
   selectValue: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  selectValueLtr: {
+    textAlign: 'left',
+    writingDirection: 'ltr',
+  },
+  selectValueAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+  },
+  selectValueSlotAndroid: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
+  selectValueSlotCenteredAndroid: {
+    alignSelf: 'stretch',
+    justifyContent: 'center',
   },
   fieldError: {
     borderColor: colors.semantic.danger,
@@ -692,12 +1000,21 @@ const styles = StyleSheet.create({
   errorText: {
     color: colors.semantic.danger,
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   itemCard: {
     gap: spacing.md,
   },
+  itemHeaderAndroid: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
+    width: '100%',
+  },
   itemDelete: {
-    alignSelf: 'flex-start',
+    alignSelf: 'flex-end',
   },
   itemDescription: {
     color: colors.text.primary,
@@ -707,6 +1024,10 @@ const styles = StyleSheet.create({
     padding: 0,
     textAlign: 'right',
     writingDirection: 'rtl',
+  },
+  itemDescriptionAndroid: {
+    flex: 1,
+    minWidth: 0,
   },
   itemInputs: {
     flexDirection: 'row-reverse',
@@ -731,9 +1052,20 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     writingDirection: 'ltr',
   },
+  itemLabelAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   itemTotalRow: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  itemTotalRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   itemTotal: {
     color: colors.text.primary,
@@ -746,7 +1078,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.input,
     borderStyle: 'dashed',
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'center',
     minHeight: 48,
@@ -758,8 +1090,19 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   totalRow: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  totalRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  totalLabelAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   totalValue: {
     color: colors.text.primary,
@@ -812,19 +1155,57 @@ const styles = StyleSheet.create({
     opacity: 0.55,
     width: 42,
   },
+  sheetTitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  sheetTitleWrapperAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    width: '100%',
+  },
   optionRow: {
     alignItems: 'center',
     borderColor: colors.surface.border,
     borderRadius: radii.control,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 46,
     paddingHorizontal: spacing.md,
   },
+  optionRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  optionSpacerAndroid: {
+    flex: 1,
+    minWidth: spacing.sm,
+  },
+  optionTextSlotAndroid: {
+    alignItems: 'flex-end',
+    flexShrink: 1,
+    minWidth: 0,
+  },
   optionRowSelected: {
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.34)',
+  },
+  optionText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  optionTextAndroid: {
+    flex: 0,
+    flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  optionTextLtr: {
+    textAlign: 'left',
+    writingDirection: 'ltr',
   },
   optionTextSelected: {
     color: colors.brand.calmGreen,
@@ -841,6 +1222,23 @@ const styles = StyleSheet.create({
   confirmActions: {
     gap: spacing.sm,
   },
+  confirmTextWrapperAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    width: '100%',
+  },
+  confirmTitleAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  confirmDescriptionAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   notice: {
     alignItems: 'center',
     borderRadius: radii.input,
@@ -848,6 +1246,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     padding: spacing.md,
+  },
+  noticeAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  noticeTextAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   successNotice: {
     backgroundColor: 'rgba(53,211,154,0.10)',

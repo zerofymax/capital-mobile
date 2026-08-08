@@ -39,16 +39,16 @@ export function OnboardingOptionCard({
         pressed && styles.pressed,
       ]}
     >
-      <View style={[styles.iconWrap, selected && styles.iconWrapSelected]}>
-        <Ionicons color={selected ? colors.brand.green : colors.text.secondary} name={iconName} size={20} />
-      </View>
       <View style={styles.copy}>
-        <AppText variant="cardTitle">{title}</AppText>
+        <AppText style={styles.copyText} variant="cardTitle">{title}</AppText>
         {description ? (
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.copyText} tone="secondary" variant="supporting">
             {description}
           </AppText>
         ) : null}
+      </View>
+      <View style={[styles.iconWrap, selected && styles.iconWrapSelected]}>
+        <Ionicons color={selected ? colors.brand.green : colors.text.secondary} name={iconName} size={20} />
       </View>
       <Ionicons
         color={selected ? colors.brand.green : colors.text.tertiary}
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 78,
     padding: spacing.lg,
@@ -98,7 +98,14 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(79,138,91,0.24)',
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

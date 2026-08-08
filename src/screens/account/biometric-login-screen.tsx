@@ -196,12 +196,11 @@ function BiometricHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         الدخول بالبصمة
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -213,10 +212,10 @@ function BiometricHeroCard() {
         <Ionicons color={colors.brand.calmGreen} name="finger-print-outline" size={42} />
       </View>
       <View style={styles.heroCopy}>
-        <AppText align="center" variant="sectionTitle">
+        <AppText align="right" style={styles.rtlText} variant="sectionTitle">
           دخول أسرع وأكثر أمانًا
         </AppText>
-        <AppText align="center" style={styles.description} tone="secondary" variant="supporting">
+        <AppText align="right" style={styles.description} tone="secondary" variant="supporting">
           استخدم بصمة الإصبع أو التعرف على الوجه لتسجيل الدخول إلى Capital بسرعة.
         </AppText>
       </View>
@@ -388,8 +387,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -403,11 +403,11 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerTitle: {
+    alignSelf: 'stretch',
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   heroCard: {
     alignItems: 'center',
@@ -426,18 +426,25 @@ const styles = StyleSheet.create({
     width: 86,
   },
   heroCopy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     gap: spacing.sm,
     maxWidth: 300,
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   statusCard: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
   statusCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -459,7 +466,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
@@ -468,7 +476,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(79,138,91,0.28)',
   },
   feedbackText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   toggleCard: {
     alignItems: 'center',
@@ -476,12 +487,14 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 86,
     padding: spacing.lg,
   },
   toggleCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -490,6 +503,7 @@ const styles = StyleSheet.create({
     opacity: 0.62,
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
   rowsCard: {
@@ -515,6 +529,7 @@ const styles = StyleSheet.create({
     width: 36,
   },
   methodCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -523,6 +538,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface.muted,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   fallbackCard: {
     alignItems: 'center',
@@ -543,6 +563,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   noticeCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,

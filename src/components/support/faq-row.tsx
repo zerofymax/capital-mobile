@@ -26,15 +26,15 @@ export function FAQRow({ item, expanded, isLast = false, onPress }: FAQRowProps)
         }}
         style={({ pressed }) => [styles.root, pressed && styles.pressed]}
       >
+        <Ionicons color={colors.text.tertiary} name={expanded ? 'chevron-up-outline' : 'chevron-down-outline'} size={18} />
         <View style={styles.copy}>
-          <AppText variant="body">{item.question}</AppText>
+          <AppText style={styles.copyText} variant="body">{item.question}</AppText>
           {expanded ? (
-            <AppText tone="secondary" variant="supporting">
+            <AppText style={styles.copyText} tone="secondary" variant="supporting">
               {item.answer}
             </AppText>
           ) : null}
         </View>
-        <Ionicons color={colors.text.tertiary} name={expanded ? 'chevron-up-outline' : 'chevron-down-outline'} size={18} />
       </Pressable>
       {isLast ? null : <Divider />}
     </View>
@@ -47,14 +47,23 @@ const styles = StyleSheet.create({
   },
   root: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 58,
   },
   copy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

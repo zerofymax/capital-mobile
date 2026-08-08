@@ -23,18 +23,18 @@ export function HelpTopicCard({ topic, onPress }: HelpTopicCardProps) {
       }}
       style={({ pressed }) => [styles.root, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
       <View style={styles.iconWrap}>
         <Ionicons color={colors.brand.green} name={topic.icon} size={20} />
       </View>
       <View style={styles.copy}>
-        <AppText numberOfLines={1} variant="cardTitle">
+        <AppText numberOfLines={1} style={styles.copyText} variant="cardTitle">
           {topic.title}
         </AppText>
-        <AppText numberOfLines={2} tone="secondary" variant="supporting">
+        <AppText numberOfLines={2} style={styles.copyText} tone="secondary" variant="supporting">
           {topic.description}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
     </Pressable>
   );
 }
@@ -46,7 +46,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 94,
     padding: spacing.lg,
@@ -62,9 +63,15 @@ const styles = StyleSheet.create({
     width: 42,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.76,

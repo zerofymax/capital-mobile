@@ -1,13 +1,15 @@
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 
-import { AuthCard, AuthHeader, AuthInput, AuthPrototypeNotice, BiometricButton } from '@/components/auth';
+import { AuthCard, AuthInput, BiometricButton } from '@/components/auth';
 import { AppButton, AppText, Divider } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
+import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { authMessages } from './auth-data';
 
@@ -38,6 +40,7 @@ export function LoginScreen() {
         style={StyleSheet.absoluteFill}
       />
       <ScrollView
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
         contentContainerStyle={[
           styles.content,
           {
@@ -45,29 +48,44 @@ export function LoginScreen() {
             paddingTop: Math.max(insets.top, spacing.safeTop),
           },
         ]}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <AuthHeader subtitle="ادخل إلى لوحة Capital المالية" title="تسجيل الدخول" />
+        <View style={styles.titleBlock}>
+          <AppText style={styles.title} variant="screenTitle">
+            تسجيل الدخول
+          </AppText>
+          <AppText style={styles.subtitle} tone="secondary" variant="supporting">
+            ادخل إلى لوحة <Text style={styles.ltrInline}>Capital</Text> المالية
+          </AppText>
+        </View>
         <AuthCard>
-          <AuthInput
-            autoCapitalize="none"
-            error={error && !identifier.trim() ? error : undefined}
-            keyboardType="email-address"
-            label="البريد الإلكتروني أو رقم الجوال"
-            ltr
-            onChangeText={setIdentifier}
-            textContentType="username"
-            value={identifier}
-          />
-          <AuthInput
-            error={error && !secret.trim() ? error : undefined}
-            label="كلمة المرور أو رمز الدخول"
-            onChangeText={setSecret}
-            secureTextEntry
-            textContentType="password"
-            value={secret}
-          />
+          <View style={styles.fieldWrapper}>
+            <AuthInput
+              autoCapitalize="none"
+              error={error && !identifier.trim() ? error : undefined}
+              keyboardType="email-address"
+              label="البريد الإلكتروني أو رقم الجوال"
+              ltr
+              onChangeText={setIdentifier}
+              rtlLayout
+              textContentType="username"
+              value={identifier}
+            />
+          </View>
+          <View style={styles.fieldWrapper}>
+            <AuthInput
+              error={error && !secret.trim() ? error : undefined}
+              label="كلمة المرور أو رمز الدخول"
+              onChangeText={setSecret}
+              rtlLayout
+              secureTextEntry
+              textContentType="password"
+              value={secret}
+            />
+          </View>
           <AppButton onPress={handleLogin}>
             تسجيل دخول
           </AppButton>
@@ -92,9 +110,24 @@ export function LoginScreen() {
             </AppText>
           </Pressable>
         </AuthCard>
-        <AuthPrototypeNotice message={notice} tone={notice === authMessages.loginMissingFields ? 'danger' : 'warning'} />
+        <LoginNotice message={notice} tone={notice === authMessages.loginMissingFields ? 'danger' : 'warning'} />
       </ScrollView>
     </KeyboardAvoidingView>
+  );
+}
+
+function LoginNotice({ message, tone }: { message: string; tone: 'warning' | 'danger' }) {
+  const color = tone === 'danger' ? colors.semantic.danger : colors.semantic.warning;
+  const backgroundColor = tone === 'danger' ? colors.semantic.dangerTint : colors.semantic.warningTint;
+  const borderColor = tone === 'danger' ? 'rgba(229,103,90,0.24)' : 'rgba(232,163,61,0.24)';
+
+  return (
+    <View accessibilityLiveRegion="polite" style={[styles.notice, { backgroundColor, borderColor }]}>
+      <Ionicons color={color} name="information-circle-outline" size={17} />
+      <AppText style={[styles.noticeText, { color }]} variant="supporting">
+        {message}
+      </AppText>
+    </View>
   );
 }
 
@@ -104,8 +137,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
+    flexGrow: 1,
     gap: spacing.lg,
     paddingHorizontal: 16,
+  },
+  titleBlock: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    gap: spacing.xs,
+    width: '100%',
+  },
+  title: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  subtitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  ltrInline: {
+    writingDirection: 'ltr',
+  },
+  fieldWrapper: {
+    alignItems: 'stretch',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
   },
   link: {
     minHeight: 38,
@@ -119,6 +181,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: 'center',
     minHeight: 50,
+  },
+  notice: {
+    alignItems: 'center',
+    borderRadius: radii.button,
+    borderWidth: 1,
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  noticeText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.75,

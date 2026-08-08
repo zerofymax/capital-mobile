@@ -33,11 +33,11 @@ export function ScreenHeader({ title, subtitle, showBack = false, rightAction }:
         <View style={styles.iconSlot} />
       )}
       <View style={styles.titleWrap}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
+        <AppText numberOfLines={1} style={styles.title} variant="screenTitle">
           {title}
         </AppText>
         {subtitle ? (
-          <AppText align="center" numberOfLines={1} tone="secondary" variant="caption">
+          <AppText numberOfLines={1} style={styles.subtitle} tone="secondary" variant="caption">
             {subtitle}
           </AppText>
         ) : null}
@@ -54,7 +54,7 @@ export function DeepScreenHeader(props: ScreenHeaderProps) {
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'space-between',
     minHeight: 40,
@@ -76,8 +76,19 @@ const styles = StyleSheet.create({
     width: 36,
   },
   titleWrap: {
+    alignItems: 'flex-end',
     flex: 1,
     minWidth: 0,
+  },
+  title: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  subtitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.76,

@@ -10,12 +10,13 @@ type AuthInputProps = TextInputProps & {
   label: string;
   error?: string;
   ltr?: boolean;
+  rtlLayout?: boolean;
 };
 
-export function AuthInput({ label, error, ltr = false, style, ...props }: AuthInputProps) {
+export function AuthInput({ label, error, ltr = false, rtlLayout = false, style, ...props }: AuthInputProps) {
   return (
-    <View style={styles.root}>
-      <AppText tone="secondary" variant="supporting">
+    <View style={[styles.root, rtlLayout && styles.rtlRoot]}>
+      <AppText style={rtlLayout ? styles.rtlText : undefined} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <TextInput
@@ -29,7 +30,7 @@ export function AuthInput({ label, error, ltr = false, style, ...props }: AuthIn
         ]}
       />
       {error ? (
-        <AppText tone="danger" variant="caption">
+        <AppText style={rtlLayout ? styles.rtlText : undefined} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -40,6 +41,17 @@ export function AuthInput({ label, error, ltr = false, style, ...props }: AuthIn
 const styles = StyleSheet.create({
   root: {
     gap: spacing.sm,
+  },
+  rtlRoot: {
+    alignItems: 'stretch',
+    alignSelf: 'stretch',
+    width: '100%',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   input: {
     backgroundColor: 'rgba(255,255,255,0.045)',

@@ -35,7 +35,7 @@ export function CardRequestSummary({ data }: CardRequestSummaryProps) {
 function SummaryLine({ label, value, ltr = false }: { label: string; value: string; ltr?: boolean }) {
   return (
     <View style={styles.line}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.label} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <AppText align={ltr ? 'left' : 'right'} style={ltr ? styles.ltrValue : styles.value} variant="body">
@@ -66,16 +66,25 @@ const styles = StyleSheet.create({
   },
   line: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.lg,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  label: {
+    flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   value: {
     flex: 1,
+    textAlign: 'left',
+    writingDirection: 'rtl',
   },
   ltrValue: {
     flex: 1,
     fontVariant: ['tabular-nums'],
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
 });

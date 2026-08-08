@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
@@ -47,6 +47,13 @@ export function AskCapitalScreen() {
   const [question, setQuestion] = useState('');
   const [questions, setQuestions] = useState<ConversationQuestion[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const contentBottomPadding =
+    Platform.OS === 'android'
+      ? Math.max(
+          insets.bottom + spacing.xxxl,
+          spacing.screenBottom + spacing.lg,
+        )
+      : insets.bottom + spacing.xxl;
 
   function submitQuestion(value: string) {
     const normalizedQuestion = value.trim();
@@ -79,7 +86,7 @@ export function AskCapitalScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.content,
-            { paddingBottom: insets.bottom + 24 },
+            { paddingBottom: contentBottomPadding },
           ]}
           contentInsetAdjustmentBehavior="never"
           keyboardShouldPersistTaps="handled"
@@ -94,24 +101,28 @@ export function AskCapitalScreen() {
             </AppText>
           </View>
 
-          <AppText tone="secondary" variant="body">
-            اسأل عن بياناتك المسجلة داخل Capital واحصل على إجابات محسوبة محليًا.
-          </AppText>
+          <View style={styles.rightAlignedBlock}>
+            <AppText style={styles.rtlText} tone="secondary" variant="body">
+              اسأل عن بياناتك المسجلة داخل <LtrText style={styles.inlineLtr}>Capital</LtrText> واحصل على إجابات محسوبة محليًا.
+            </AppText>
+          </View>
 
           <SolidCard style={styles.welcomeCard}>
             <View style={styles.capitalIcon}>
               <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={18} />
             </View>
             <View style={styles.welcomeCopy}>
-              <AppText variant="cardTitle">مرحبًا</AppText>
-              <AppText tone="secondary" variant="body">
-                يمكنني مساعدتك في قراءة بيانات Capital المسجلة محليًا.
+              <AppText style={styles.rtlText} variant="cardTitle">مرحبًا</AppText>
+              <AppText style={styles.rtlText} tone="secondary" variant="body">
+                يمكنني مساعدتك في قراءة بيانات <LtrText style={styles.inlineLtr}>Capital</LtrText> المسجلة محليًا.
               </AppText>
             </View>
           </SolidCard>
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">أسئلة مقترحة</AppText>
+            <View style={styles.rightAlignedBlock}>
+              <AppText style={styles.sectionTitle} variant="sectionTitle">أسئلة مقترحة</AppText>
+            </View>
             <View style={styles.suggestions}>
               {askCapitalSuggestedQuestions.map((suggestion) => (
                 <Pressable
@@ -137,7 +148,7 @@ export function AskCapitalScreen() {
 
           {questions.length ? (
             <View style={styles.conversation}>
-              <AppText variant="sectionTitle">السجل المحلي</AppText>
+              <AppText style={styles.sectionTitle} variant="sectionTitle">السجل المحلي</AppText>
               {questions.map((item) => {
                 const answer = answerAskCapitalQuestion(item.text, {
                   categories,
@@ -154,7 +165,9 @@ export function AskCapitalScreen() {
           ) : null}
 
           <View style={styles.inputSection}>
-            <AppText variant="sectionTitle">اكتب سؤالك</AppText>
+            <View style={styles.rightAlignedBlock}>
+              <AppText style={styles.sectionTitle} variant="sectionTitle">اكتب سؤالك</AppText>
+            </View>
             <TextInput
               accessibilityLabel="اكتب سؤالك"
               multiline
@@ -205,17 +218,16 @@ function Header() {
         onPress={() => router.back()}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Feather color={colors.text.muted} name="chevron-left" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
-          اسأل Capital
+        <AppText align="right" style={styles.headerTitle} variant="screenTitle">
+          اسأل <LtrText style={styles.inlineLtr}>Capital</LtrText>
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText align="right" style={styles.headerSubtitle} tone="secondary" variant="supporting">
           اسأل عن أرقام نشاطك المسجلة.
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -232,7 +244,7 @@ function ConversationItem({
   return (
     <View style={styles.messageGroup}>
       <View style={styles.questionBubble}>
-        <AppText variant="body">{question}</AppText>
+        <AppText style={styles.questionText} variant="body">{question}</AppText>
       </View>
       <SolidCard style={[styles.answerCard, warning && styles.warningCard]}>
         <View style={styles.answerHeader}>
@@ -272,7 +284,7 @@ function AnswerDescription({ text }: { text: string }) {
   );
 
   return (
-    <AppText tone="secondary" variant="body">
+    <AppText style={styles.answerDescription} tone="secondary" variant="body">
       {text.split(moneyPattern).map((part, index) =>
         exactMoneyPattern.test(part) ? (
           <LtrText key={`${part}-${index}`} style={styles.inlineMoney}>
@@ -300,7 +312,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 64,
     paddingHorizontal: 16,
@@ -317,13 +330,20 @@ const styles = StyleSheet.create({
     width: 42,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  headerSlot: {
-    height: 42,
-    width: 42,
+  headerTitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  headerSubtitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   content: {
     gap: spacing.lg,
@@ -347,7 +367,8 @@ const styles = StyleSheet.create({
   },
   welcomeCard: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   capitalIcon: {
@@ -359,6 +380,7 @@ const styles = StyleSheet.create({
     width: 40,
   },
   welcomeCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -366,8 +388,21 @@ const styles = StyleSheet.create({
   section: {
     gap: spacing.md,
   },
+  rightAlignedBlock: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   suggestions: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
@@ -384,12 +419,19 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     flexShrink: 1,
+    textAlign: 'center',
+    writingDirection: 'rtl',
   },
   conversation: {
+    alignItems: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   messageGroup: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
+    width: '100%',
   },
   questionBubble: {
     alignSelf: 'flex-end',
@@ -401,6 +443,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
+  questionText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   answerCard: {
     gap: spacing.sm,
   },
@@ -410,8 +456,10 @@ const styles = StyleSheet.create({
   },
   answerHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
+    width: '100%',
   },
   answerIcon: {
     alignItems: 'center',
@@ -427,17 +475,32 @@ const styles = StyleSheet.create({
   answerTitle: {
     flex: 1,
     minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   answerValue: {
+    alignSelf: 'stretch',
     color: colors.text.primary,
     fontSize: 22,
     lineHeight: 30,
-    textAlign: 'left',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
+  },
+  answerDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   sourceText: {
+    alignSelf: 'stretch',
     borderTopColor: colors.surface.border,
     borderTopWidth: 1,
     paddingTop: spacing.sm,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   inlineMoney: {
     fontVariant: ['tabular-nums'],
@@ -458,6 +521,7 @@ const styles = StyleSheet.create({
     minHeight: 96,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
+    textAlign: 'right',
     textAlignVertical: 'top',
     writingDirection: 'rtl',
   },
@@ -477,13 +541,27 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   privacyNote: {
-    alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
+    width: '100%',
   },
   privacyText: {
     flex: 1,
     minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  inlineLtr: {
+    textAlign: 'right',
+    writingDirection: 'ltr',
   },
   pressed: {
     opacity: 0.72,

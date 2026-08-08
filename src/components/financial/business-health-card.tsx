@@ -1,10 +1,20 @@
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { NumericText } from '@/utils/rtl';
+
+const androidPhysicalHealthRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
+  : {};
+const androidPhysicalRtlRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
+  : {};
+const androidPhysicalRightAlignedColumn = Platform.OS === 'android'
+  ? { direction: 'ltr' as const }
+  : {};
 
 type BusinessHealthCardProps = {
   label: string;
@@ -32,7 +42,11 @@ export function BusinessHealthCard({ label, badgeLabel, score, maxScore, status,
       </View>
       <View style={styles.copy}>
         <View style={styles.titleRow}>
-          <AppText variant="cardTitle">{label}</AppText>
+          <View style={styles.titleSlot}>
+            <AppText style={styles.title} variant="cardTitle">
+              {label}
+            </AppText>
+          </View>
           {badgeLabel ? (
             <View style={styles.badge}>
               <AppText style={styles.badgeText} variant="caption">
@@ -41,10 +55,10 @@ export function BusinessHealthCard({ label, badgeLabel, score, maxScore, status,
             </View>
           ) : null}
         </View>
-        <AppText tone="success" variant="supporting">
+        <AppText style={styles.copyText} tone="success" variant="supporting">
           {status}
         </AppText>
-        <AppText tone="secondary" variant="supporting">
+        <AppText style={styles.copyText} tone="secondary" variant="supporting">
           {description}
         </AppText>
       </View>
@@ -62,6 +76,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.lg,
     padding: 18,
+    ...androidPhysicalHealthRow,
   },
   scoreWrap: {
     alignItems: 'center',
@@ -95,13 +110,39 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   copy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     flex: 1,
     gap: 4,
+    justifyContent: 'center',
+    minWidth: 0,
+    ...androidPhysicalRightAlignedColumn,
   },
   titleRow: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+    justifyContent: 'space-between',
+    width: '100%',
+    ...androidPhysicalRtlRow,
+  },
+  titleSlot: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+    ...androidPhysicalRightAlignedColumn,
+  },
+  title: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   badge: {
     backgroundColor: colors.semantic.successTint,
@@ -115,5 +156,8 @@ const styles = StyleSheet.create({
     color: colors.brand.calmGreen,
     fontSize: 11,
     lineHeight: 15,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

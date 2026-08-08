@@ -81,7 +81,7 @@ export function FinancialSetupBusinessStageScreen() {
         />
 
         <View style={styles.titleBlock}>
-          <AppText variant="screenTitle">ما مرحلة نشاطك الحالية؟</AppText>
+          <AppText style={styles.rtlText} variant="screenTitle">ما مرحلة نشاطك الحالية؟</AppText>
         </View>
 
         <View accessibilityRole="radiogroup" style={styles.optionList}>
@@ -101,10 +101,10 @@ export function FinancialSetupBusinessStageScreen() {
                 ]}
               >
                 <View style={styles.optionBody}>
-                  <AppText tone="primary" variant="cardTitle">
+                  <AppText style={styles.rtlText} tone="primary" variant="cardTitle">
                     {option.title}
                   </AppText>
-                  <AppText tone="secondary" variant="supporting">
+                  <AppText style={styles.rtlText} tone="secondary" variant="supporting">
                     {option.description}
                   </AppText>
                 </View>
@@ -137,9 +137,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   optionList: {
     gap: spacing.md,
@@ -151,6 +153,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.glass,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 82,
@@ -162,8 +165,16 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(167,200,161,0.55)',
   },
   optionBody: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   selectionIndicator: {
     alignItems: 'center',

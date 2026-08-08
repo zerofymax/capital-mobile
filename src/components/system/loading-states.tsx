@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   },
   inlineLoader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'center',
     padding: spacing.md,
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 70,
     padding: spacing.md,

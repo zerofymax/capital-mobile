@@ -163,6 +163,7 @@ export function SupportRequestsScreen() {
             contentContainerStyle={styles.filters}
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={styles.filtersScroll}
           >
             {filterOptions.map((filter) => (
               <FilterChip
@@ -210,16 +211,8 @@ function SupportRequestsHeader({
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
-          طلبات الدعم
-        </AppText>
-        <AppText align="center" numberOfLines={2} tone="secondary" variant="supporting">
-          تابع حالة طلباتك وتحديثاتها
-        </AppText>
-      </View>
       <Pressable
         accessibilityLabel="طلب جديد"
         accessibilityRole="button"
@@ -231,6 +224,14 @@ function SupportRequestsHeader({
           طلب جديد
         </AppText>
       </Pressable>
+      <View style={styles.headerCopy}>
+        <AppText align="right" numberOfLines={1} style={styles.headerText} variant="screenTitle">
+          طلبات الدعم
+        </AppText>
+        <AppText align="right" numberOfLines={2} style={styles.headerText} tone="secondary" variant="supporting">
+          تابع حالة طلباتك وتحديثاتها
+        </AppText>
+      </View>
     </View>
   );
 }
@@ -304,20 +305,20 @@ function SupportRequestCard({
       </View>
 
       <View style={styles.cardBody}>
-        <AppText variant="cardTitle">{request.title}</AppText>
+        <AppText style={styles.rtlText} variant="cardTitle">{request.title}</AppText>
         <View style={styles.metaRow}>
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.metaText} tone="secondary" variant="caption">
             {request.category}
           </AppText>
           <View style={styles.metaDot} />
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.metaText} tone="secondary" variant="caption">
             {request.createdAt}
           </AppText>
         </View>
       </View>
 
       <View style={styles.updateBlock}>
-        <AppText tone="tertiary" variant="caption">
+        <AppText style={styles.rtlText} tone="tertiary" variant="caption">
           آخر تحديث
         </AppText>
         <AppText style={styles.lastUpdate} tone="secondary" variant="supporting">
@@ -338,7 +339,7 @@ function SupportRequestCard({
             {['تم إنشاء الطلب', 'تم استلامه من فريق الدعم', 'آخر تحديث حسب حالة الطلب'].map((item, index) => (
               <View key={item} style={styles.timelineItem}>
                 <View style={[styles.timelineDot, index < 2 && styles.timelineDotActive]} />
-                <AppText tone={index < 2 ? 'secondary' : 'tertiary'} variant="supporting">
+                <AppText style={styles.timelineText} tone={index < 2 ? 'secondary' : 'tertiary'} variant="supporting">
                   {item}
                 </AppText>
               </View>
@@ -376,10 +377,10 @@ function DetailMeta({
 }) {
   return (
     <View style={styles.detailMeta}>
-      <AppText tone="tertiary" variant="caption">
+      <AppText style={styles.detailLabel} tone="tertiary" variant="caption">
         {label}
       </AppText>
-      <AppText style={ltr && styles.ltrValue} tone={tone} variant="supporting">
+      <AppText style={[styles.detailValue, ltr && styles.ltrValue]} tone={tone} variant="supporting">
         {value}
       </AppText>
     </View>
@@ -450,7 +451,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
     minHeight: 54,
@@ -466,9 +468,16 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   searchCard: {
     alignItems: 'center',
@@ -476,7 +485,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
@@ -501,8 +511,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
   },
+  filtersScroll: {
+    direction: 'rtl',
+  },
   filters: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingLeft: spacing.lg,
   },
@@ -538,12 +552,14 @@ const styles = StyleSheet.create({
   },
   cardTop: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
   },
   statusAndReference: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -568,7 +584,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
   },
   reference: {
-    textAlign: 'left',
+    textAlign: 'right',
     writingDirection: 'ltr',
   },
   unreadBadge: {
@@ -587,10 +603,19 @@ const styles = StyleSheet.create({
     width: 7,
   },
   cardBody: {
+    alignItems: 'flex-end',
     gap: spacing.sm,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   metaRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -601,14 +626,23 @@ const styles = StyleSheet.create({
     height: 4,
     width: 4,
   },
+  metaText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   updateBlock: {
+    alignItems: 'flex-end',
     backgroundColor: colors.surface.muted,
     borderRadius: radii.control,
     gap: spacing.xs,
     padding: spacing.md,
   },
   lastUpdate: {
+    alignSelf: 'stretch',
     lineHeight: 21,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   expandedBlock: {
     borderTopColor: colors.surface.border,
@@ -617,11 +651,13 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
   },
   expandedGrid: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
   detailMeta: {
+    alignItems: 'flex-end',
     backgroundColor: colors.surface.muted,
     borderColor: colors.surface.border,
     borderRadius: radii.control,
@@ -632,8 +668,20 @@ const styles = StyleSheet.create({
     minWidth: 140,
     padding: spacing.md,
   },
+  detailLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  detailValue: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   ltrValue: {
-    textAlign: 'left',
+    textAlign: 'right',
     writingDirection: 'ltr',
   },
   timeline: {
@@ -641,6 +689,7 @@ const styles = StyleSheet.create({
   },
   timelineItem: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
@@ -652,6 +701,12 @@ const styles = StyleSheet.create({
   },
   timelineDotActive: {
     backgroundColor: colors.semantic.success,
+  },
+  timelineText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   emptyCard: {
     alignItems: 'center',

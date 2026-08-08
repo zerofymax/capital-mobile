@@ -122,8 +122,8 @@ export function FinancialSetupFinancialSnapshotScreen() {
           />
 
           <View style={styles.titleBlock}>
-            <AppText variant="screenTitle">أعطنا نظرة سريعة على وضعك المالي</AppText>
-            <AppText tone="secondary" variant="body">
+            <AppText style={styles.rtlText} variant="screenTitle">أعطنا نظرة سريعة على وضعك المالي</AppText>
+            <AppText style={styles.rtlText} tone="secondary" variant="body">
               يمكنك إدخال أرقام تقريبية
             </AppText>
           </View>
@@ -142,7 +142,7 @@ export function FinancialSetupFinancialSnapshotScreen() {
           </View>
 
           <View style={styles.debtSection}>
-            <AppText variant="cardTitle">هل لديك ديون أو التزامات حالية؟</AppText>
+            <AppText style={styles.rtlText} variant="cardTitle">هل لديك ديون أو التزامات حالية؟</AppText>
             <View accessibilityRole="radiogroup" style={styles.segmentedControl}>
               <DebtOption label="نعم" onPress={() => setHasDebt(true)} selected={hasDebt} />
               <DebtOption label="لا" onPress={() => setHasDebt(false)} selected={!hasDebt} />
@@ -171,13 +171,10 @@ type FinancialValueCardProps = {
 function FinancialValueCard({ label, value, error, accent, onChangeText }: FinancialValueCardProps) {
   return (
     <View style={[styles.valueCard, error && styles.valueCardError]}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.rtlText} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <View style={styles.valueRow}>
-        <AppText style={styles.currencySuffix} tone={accent === 'success' ? 'success' : 'primary'} variant="cardTitle">
-          ر.س
-        </AppText>
         <TextInput
           keyboardType="numeric"
           onChangeText={onChangeText}
@@ -186,9 +183,12 @@ function FinancialValueCard({ label, value, error, accent, onChangeText }: Finan
           style={[styles.valueInput, accent === 'success' && styles.successValueInput]}
           value={value}
         />
+        <AppText style={styles.currencySuffix} tone={accent === 'success' ? 'success' : 'primary'} variant="cardTitle">
+          ر.س
+        </AppText>
       </View>
       {error ? (
-        <AppText tone="danger" variant="caption">
+        <AppText style={styles.rtlText} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -234,9 +234,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   fieldList: {
     gap: spacing.md,
@@ -248,6 +250,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.glass,
     borderWidth: 1,
+    direction: 'ltr',
     gap: spacing.sm,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
@@ -282,14 +285,18 @@ const styles = StyleSheet.create({
     color: colors.semantic.success,
   },
   debtSection: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.md,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   segmentedControl: {
     backgroundColor: 'rgba(255,255,255,0.045)',
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     padding: spacing.xs,
@@ -305,6 +312,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(31,90,58,0.52)',
     borderColor: 'rgba(167,200,161,0.48)',
     borderWidth: 1,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   spacer: {
     flexGrow: 1,

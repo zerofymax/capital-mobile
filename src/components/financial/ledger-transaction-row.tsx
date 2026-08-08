@@ -31,13 +31,6 @@ export function LedgerTransactionRow({ transaction, isLast = false, onPress }: L
       onPress={() => onPress(transaction)}
       style={({ pressed }) => [styles.root, !isLast && styles.withBorder, pressed && styles.pressed]}
     >
-      <View style={[styles.icon, isIncome ? styles.incomeIcon : styles.expenseIcon]}>
-        <Ionicons
-          color={isIncome ? colors.semantic.success : colors.semantic.danger}
-          name={isIncome ? 'arrow-down-outline' : 'arrow-up-outline'}
-          size={17}
-        />
-      </View>
       <View style={styles.copy}>
         <View style={styles.titleRow}>
           <AppText numberOfLines={2} style={styles.titleText} variant="body">
@@ -55,6 +48,13 @@ export function LedgerTransactionRow({ transaction, isLast = false, onPress }: L
           </AppText>
         </View>
       </View>
+      <View style={[styles.icon, isIncome ? styles.incomeIcon : styles.expenseIcon]}>
+        <Ionicons
+          color={isIncome ? colors.semantic.success : colors.semantic.danger}
+          name={isIncome ? 'arrow-down-outline' : 'arrow-up-outline'}
+          size={17}
+        />
+      </View>
       <FinancialAmount signed size="row" tone={isIncome ? 'success' : 'danger'} value={displayAmount} />
     </Pressable>
   );
@@ -63,7 +63,7 @@ export function LedgerTransactionRow({ transaction, isLast = false, onPress }: L
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 72,
     paddingHorizontal: 14,
@@ -87,26 +87,34 @@ const styles = StyleSheet.create({
     backgroundColor: colors.semantic.dangerTint,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   titleRow: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   titleText: {
     flex: 1,
     minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   metaRow: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.xs,
   },
   metaText: {
+    flexShrink: 1,
     minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   typeDot: {
     borderRadius: radii.pill,

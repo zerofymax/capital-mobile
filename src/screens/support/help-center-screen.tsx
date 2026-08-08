@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { FaqAccordionCard } from '@/components/support';
+import { FaqAccordionCard, SupportSectionHeading } from '@/components/support';
 import { AppText, Divider, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
@@ -145,7 +145,7 @@ export function HelpCenterScreen() {
             <>
               {visibleTopics.length > 0 ? (
                 <View style={styles.section}>
-                  <AppText variant="sectionTitle">موضوعات المساعدة</AppText>
+                  <SupportSectionHeading>موضوعات المساعدة</SupportSectionHeading>
                   <View style={styles.topicGrid}>
                     {visibleTopics.map((topic) => (
                       <TopicCard key={topic.id} onPress={handleTopicPress} topic={topic} />
@@ -157,7 +157,7 @@ export function HelpCenterScreen() {
               {visibleFaqs.length > 0 ? (
                 <View style={styles.section}>
                   <View style={styles.sectionTitleRow}>
-                    <AppText variant="sectionTitle">الأسئلة الشائعة</AppText>
+                    <AppText style={styles.sectionRowTitle} variant="sectionTitle">الأسئلة الشائعة</AppText>
                     <Pressable
                       accessibilityLabel="عرض جميع الأسئلة"
                       accessibilityRole="button"
@@ -210,12 +210,11 @@ function HelpHeader() {
         onPress={() => router.back()}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={19} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={19} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         مركز المساعدة
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -230,10 +229,10 @@ function TopicCard({ topic, onPress }: { topic: HelpTopic; onPress: (topic: Help
     >
       <Ionicons color={colors.text.muted} name={topic.icon} size={18} />
       <View style={styles.topicCopy}>
-        <AppText align="center" style={styles.topicText} variant="body">
+        <AppText style={styles.topicText} variant="body">
           {topic.title}
         </AppText>
-        <AppText align="center" numberOfLines={2} tone="secondary" variant="caption">
+        <AppText numberOfLines={2} style={styles.topicDescription} tone="secondary" variant="caption">
           {topic.description}
         </AppText>
       </View>
@@ -249,6 +248,7 @@ function SupportActionRow({ action, onPress }: { action: HelpCenterAction; onPre
       onPress={() => onPress(action)}
       style={({ pressed }) => [styles.actionRow, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
       <View style={styles.actionCopy}>
         <View style={styles.actionTitleRow}>
           <AppText style={styles.actionTitle} variant="body">
@@ -268,7 +268,6 @@ function SupportActionRow({ action, onPress }: { action: HelpCenterAction; onPre
           </AppText>
         ) : null}
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
     </Pressable>
   );
 }
@@ -314,8 +313,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 40,
   },
   backButton: {
@@ -332,10 +332,9 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 22,
     lineHeight: 30,
-  },
-  headerSlot: {
-    height: 42,
-    width: 42,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   searchCard: {
     alignItems: 'center',
@@ -365,14 +364,18 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(232,163,61,0.24)',
     borderRadius: radii.button,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     padding: spacing.md,
   },
   noticeText: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.sm,
   },
   topicGrid: {
@@ -396,17 +399,35 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   topicCopy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     gap: spacing.xs,
     minWidth: 0,
+    width: '100%',
   },
   topicText: {
     fontSize: 14,
     lineHeight: 20,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  topicDescription: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   sectionTitleRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
+  },
+  sectionRowTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   viewAllButton: {
     paddingHorizontal: spacing.xs,
@@ -425,19 +446,23 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 48,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
   actionCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: 1,
     minWidth: 0,
   },
   actionTitleRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
@@ -445,10 +470,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     lineHeight: 20,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   actionSubtitle: {
+    alignSelf: 'stretch',
     fontSize: 11,
     lineHeight: 16,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   badge: {
     backgroundColor: colors.semantic.successTint,

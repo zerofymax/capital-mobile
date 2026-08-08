@@ -5,12 +5,13 @@ import { router } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { SupportModalHeader } from '@/components/support';
+import { SupportModalHeader, SupportSectionHeading } from '@/components/support';
 import { AppText, Divider, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 import {
   appEngagementLinks,
   getAppVersionInfo,
@@ -84,9 +85,11 @@ export function AboutCapitalScreen() {
           contentInsetAdjustmentBehavior="never"
           showsVerticalScrollIndicator={false}
         >
-          <AppText align="center" tone="secondary" variant="supporting">
-            تعرّف على التطبيق، الإصدار الحالي، والسياسات المرتبطة باستخدامه.
-          </AppText>
+          <View style={styles.intro}>
+            <AppText style={styles.introText} tone="secondary" variant="supporting">
+              {directionSafeText('تعرّف على التطبيق، الإصدار الحالي، والسياسات المرتبطة باستخدامه.')}
+            </AppText>
+          </View>
 
           <SolidCard style={styles.heroCard}>
             <View style={styles.logoMark}>
@@ -108,7 +111,7 @@ export function AboutCapitalScreen() {
           <PrototypeNotice />
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">معلومات الإصدار</AppText>
+            <SupportSectionHeading>معلومات الإصدار</SupportSectionHeading>
             <SolidCard style={styles.rowsCard}>
               <InfoRow label="إصدار التطبيق" ltrValue value={versionInfo.versionLabel} />
               {versionInfo.buildNumber ? (
@@ -123,13 +126,13 @@ export function AboutCapitalScreen() {
           </View>
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">ما الجديد في هذا الإصدار؟</AppText>
+            <SupportSectionHeading>ما الجديد في هذا الإصدار؟</SupportSectionHeading>
             <SolidCard style={styles.releaseCard}>
               {releaseNotes.map((note) => (
                 <View key={note.id} style={styles.releaseRow}>
                   <Ionicons color={colors.brand.calmGreen} name="checkmark-circle-outline" size={17} />
                   <AppText style={styles.releaseText} tone="secondary" variant="supporting">
-                    {note.label}
+                    {directionSafeText(note.label)}
                   </AppText>
                 </View>
               ))}
@@ -143,7 +146,7 @@ export function AboutCapitalScreen() {
           <LinkSection items={legalInformationLinks} onPress={handleLinkPress} title="المعلومات القانونية" />
 
           <View style={styles.section}>
-            <AppText variant="sectionTitle">قنوات التواصل الرسمية</AppText>
+            <SupportSectionHeading>قنوات التواصل الرسمية</SupportSectionHeading>
             <SolidCard style={styles.placeholderCard}>
               <Ionicons color={colors.text.tertiary} name="link-outline" size={20} />
               <AppText style={styles.placeholderText} tone="secondary" variant="supporting">
@@ -164,14 +167,16 @@ export function AboutCapitalScreen() {
 }
 
 function PrototypeNotice() {
+  const notice =
+    'Capital حاليًا نموذج تجريبي محلي. بعض البيانات والوظائف المعروضة تجريبية ولا تمثل خدمات مالية أو محاسبية أو مصرفية فعلية.';
+
   return (
     <SolidCard style={styles.prototypeCard}>
       <View style={styles.prototypeIcon}>
         <Ionicons color={colors.semantic.warning} name="information-circle-outline" size={18} />
       </View>
       <AppText style={styles.prototypeText} tone="warning" variant="supporting">
-        Capital حاليًا نموذج تجريبي محلي. بعض البيانات والوظائف المعروضة تجريبية ولا تمثل خدمات مالية أو
-        محاسبية أو مصرفية فعلية.
+        {directionSafeText(notice)}
       </AppText>
     </SolidCard>
   );
@@ -188,7 +193,7 @@ function LinkSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">{title}</AppText>
+      <SupportSectionHeading>{title}</SupportSectionHeading>
       <SolidCard style={styles.rowsCard}>
         {items.map((item, index) => (
           <View key={item.id}>
@@ -210,21 +215,21 @@ function AboutLinkRow({ item, onPress }: { item: AboutCapitalLinkItem; onPress: 
       onPress={onPress}
       style={({ pressed }) => [styles.linkRow, pressed && !item.soon && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
       <View style={styles.linkIcon}>
         <Ionicons color={colors.text.muted} name={item.icon} size={18} />
       </View>
       <View style={styles.linkCopy}>
         <View style={styles.linkTitleRow}>
           <AppText style={styles.linkTitle} variant="body">
-            {item.title}
+            {directionSafeText(item.title)}
           </AppText>
           {item.soon ? <SoonBadge /> : null}
         </View>
         <AppText style={styles.linkDescription} tone="secondary" variant="caption">
-          {item.description}
+          {directionSafeText(item.description)}
         </AppText>
       </View>
-      {item.soon ? null : <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />}
     </Pressable>
   );
 }
@@ -232,11 +237,11 @@ function AboutLinkRow({ item, onPress }: { item: AboutCapitalLinkItem; onPress: 
 function InfoRow({ label, value, ltrValue = false }: { label: string; value: string; ltrValue?: boolean }) {
   return (
     <View style={styles.infoRow}>
-      <AppText tone="secondary" variant="caption">
-        {label}
-      </AppText>
       <AppText style={[styles.infoValue, ltrValue && styles.ltrValue]} variant="supporting">
-        {value}
+        {ltrValue ? directionSafeText(value) : value}
+      </AppText>
+      <AppText style={styles.infoLabel} tone="secondary" variant="caption">
+        {label}
       </AppText>
     </View>
   );
@@ -276,6 +281,18 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingTop: spacing.md,
   },
+  intro: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  introText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   heroCard: {
     alignItems: 'center',
     gap: spacing.md,
@@ -297,7 +314,9 @@ const styles = StyleSheet.create({
   },
   heroCopy: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
   },
   appTitleRow: {
     alignItems: 'center',
@@ -307,7 +326,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   heroDescription: {
+    alignSelf: 'stretch',
     lineHeight: 24,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   statusBadge: {
     backgroundColor: colors.semantic.successTint,
@@ -321,7 +344,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.28)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   prototypeIcon: {
@@ -335,8 +359,12 @@ const styles = StyleSheet.create({
   prototypeText: {
     flex: 1,
     lineHeight: 22,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.md,
   },
   rowsCard: {
@@ -344,12 +372,20 @@ const styles = StyleSheet.create({
   },
   infoRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
     minHeight: 56,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+    width: '100%',
+  },
+  infoLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoValue: {
     flexShrink: 1,
@@ -363,18 +399,27 @@ const styles = StyleSheet.create({
   },
   releaseRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   releaseText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   releaseNote: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   linkRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 76,
     paddingHorizontal: spacing.lg,
@@ -396,15 +441,22 @@ const styles = StyleSheet.create({
   },
   linkTitleRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
   linkTitle: {
     flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   linkDescription: {
+    alignSelf: 'stretch',
     lineHeight: 18,
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   soonBadge: {
     backgroundColor: colors.semantic.warningTint,
@@ -416,17 +468,20 @@ const styles = StyleSheet.create({
   },
   placeholderCard: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   placeholderText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   copyright: {
     writingDirection: 'ltr',
   },
   pressed: {
     opacity: 0.74,
-    transform: [{ scale: 0.98 }],
   },
 });

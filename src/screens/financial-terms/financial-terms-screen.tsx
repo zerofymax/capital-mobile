@@ -21,6 +21,25 @@ import {
 } from './financial-terms-data';
 import type { FinancialTerm, FinancialTermCategoryFilter } from './financial-terms-types';
 
+const categoryDisplayOrder: readonly FinancialTermCategoryFilter[] = [
+  'all',
+  'basics',
+  'profitability',
+  'liquidity',
+  'saas',
+  'invoices',
+];
+
+const displayedFinancialTermCategories = categoryDisplayOrder.map((categoryId) => {
+  const categoryDefinition = financialTermCategories.find((item) => item.id === categoryId);
+
+  if (!categoryDefinition) {
+    throw new Error(`Missing financial term category: ${categoryId}`);
+  }
+
+  return categoryDefinition;
+});
+
 export function FinancialTermsScreen() {
   const insets = useSafeAreaInsets();
   const themeColors = useThemeColors();
@@ -76,7 +95,7 @@ export function FinancialTermsScreen() {
           contentContainerStyle={styles.categoryList}
           style={styles.categoryScroll}
         >
-          {financialTermCategories.map((item) => {
+          {displayedFinancialTermCategories.map((item) => {
             const selected = item.id === category;
 
             return (
@@ -97,10 +116,10 @@ export function FinancialTermsScreen() {
         </ScrollView>
 
         <View style={styles.resultHeader}>
-          <AppText tone="secondary" variant="supporting">
+          <AppText style={styles.resultCount} tone="secondary" variant="supporting">
             {resultLabel}
           </AppText>
-          <AppText variant="sectionTitle">{getFinancialTermCategoryLabel(category)}</AppText>
+          <AppText style={styles.resultTitle} variant="sectionTitle">{getFinancialTermCategoryLabel(category)}</AppText>
         </View>
 
         {terms.length === 0 ? <EmptyTermsState onClear={() => setQuery('')} /> : null}
@@ -122,7 +141,7 @@ export function FinancialTermsHeader({ title, subtitle, onBack }: { title: strin
         accessibilityLabel="رجوع"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName="chevron-forward-outline"
+        iconName="chevron-back-outline"
         iconSize={21}
         onPress={onBack}
         pressedStyle={styles.pressed}
@@ -130,16 +149,15 @@ export function FinancialTermsHeader({ title, subtitle, onBack }: { title: strin
         style={styles.backButton}
       />
       <View style={styles.headerCopy}>
-        <AppText align="center" style={styles.headerTitle} variant="screenTitle">
+        <AppText align="right" style={styles.headerTitle} variant="screenTitle">
           {title}
         </AppText>
         {subtitle ? (
-          <AppText align="center" tone="secondary" variant="supporting">
+          <AppText align="right" style={styles.headerSubtitle} tone="secondary" variant="supporting">
             {subtitle}
           </AppText>
         ) : null}
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -152,11 +170,15 @@ function FinancialTermCard({ term, onPress }: { term: FinancialTerm; onPress: ()
       onPress={onPress}
       style={({ pressed }) => [styles.termCard, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
       <View style={styles.termIcon}>
         <Ionicons color={colors.brand.calmGreen} name={term.icon} size={19} />
       </View>
       <View style={styles.termCopy}>
         <View style={styles.termTitleRow}>
+          <AppText numberOfLines={1} style={styles.termTitle} variant="cardTitle">
+            {term.titleAr}
+          </AppText>
           {term.acronym ? (
             <View style={styles.acronymBadge}>
               <AppText align="center" style={styles.acronymText} variant="caption">
@@ -164,18 +186,14 @@ function FinancialTermCard({ term, onPress }: { term: FinancialTerm; onPress: ()
               </AppText>
             </View>
           ) : null}
-          <AppText numberOfLines={1} variant="cardTitle">
-            {term.titleAr}
-          </AppText>
         </View>
-        <AppText tone="secondary" variant="caption">
+        <AppText style={styles.termText} tone="secondary" variant="caption">
           {getFinancialTermCategoryLabel(term.category)}
         </AppText>
-        <AppText numberOfLines={2} tone="secondary" variant="supporting">
+        <AppText numberOfLines={2} style={styles.termText} tone="secondary" variant="supporting">
           {directionSafeText(term.shortDefinition)}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
     </Pressable>
   );
 }
@@ -224,7 +242,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   backButton: {
@@ -238,14 +257,23 @@ const styles = StyleSheet.create({
     width: 38,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   headerTitle: {
+    alignSelf: 'stretch',
     fontSize: 25,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
-  headerSlot: {
-    width: 38,
+  headerSubtitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   scrollArea: {
     flex: 1,
@@ -261,7 +289,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     minHeight: 48,
     paddingHorizontal: spacing.md,
@@ -275,10 +304,12 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   categoryScroll: {
+    direction: 'rtl',
     marginHorizontal: -spacing.xs,
   },
   categoryList: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingHorizontal: spacing.xs,
     paddingVertical: spacing.xs,
@@ -301,8 +332,20 @@ const styles = StyleSheet.create({
   },
   resultHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  resultCount: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'rtl',
+  },
+  resultTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   termList: {
     gap: spacing.md,
@@ -313,7 +356,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.card,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 108,
     padding: spacing.md,
@@ -327,12 +371,16 @@ const styles = StyleSheet.create({
     width: 40,
   },
   termCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   termTitleRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
@@ -341,12 +389,25 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(167,200,161,0.24)',
     borderRadius: radii.pill,
     borderWidth: 1,
+    flexShrink: 0,
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
   },
   acronymText: {
     color: colors.brand.calmGreen,
     writingDirection: 'ltr',
+  },
+  termTitle: {
+    flexShrink: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  termText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   emptyCard: {
     alignItems: 'center',

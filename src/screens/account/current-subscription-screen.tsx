@@ -223,12 +223,11 @@ function SubscriptionHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         الاشتراك الحالي
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -252,29 +251,24 @@ function PlanHeroCard({ subscription }: { subscription: SubscriptionState }) {
           <View style={styles.heroIcon}>
             <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={24} />
           </View>
+          <StatusBadge label={subscription.autoRenewEnabled ? 'نشط' : 'تم إيقاف التجديد'} tone="success" />
           <View style={styles.heroCopy}>
-            <AppText tone="secondary" variant="caption">
+            <AppText style={styles.fullWidthRtlText} tone="secondary" variant="caption">
               الخطة الحالية
             </AppText>
-            <AppText align="left" style={styles.ltrText} variant="screenTitle">
+            <AppText align="right" style={styles.planName} variant="screenTitle">
               {subscription.planName}
             </AppText>
           </View>
-          <StatusBadge label={subscription.autoRenewEnabled ? 'نشط' : 'تم إيقاف التجديد'} tone="success" />
         </View>
 
-        <View style={styles.priceRow}>
-          <AppText align="left" style={styles.priceText} variant="numericValue">
-            {formatSubscriptionAmount(subscription.monthlyPrice, subscription.currency)}
-          </AppText>
-          <AppText tone="secondary" variant="supporting">
-            / شهريًا
-          </AppText>
-        </View>
+        <AppText align="right" numberOfLines={1} style={styles.priceText} variant="numericValue">
+          {`${formatSubscriptionAmount(subscription.monthlyPrice, subscription.currency)} / شهريًا`}
+        </AppText>
 
         <View style={styles.heroFooter}>
           <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={16} />
-          <AppText style={styles.description} tone="secondary" variant="supporting">
+          <AppText style={[styles.description, styles.flexRtlText]} tone="secondary" variant="supporting">
             {footerLabel}
           </AppText>
         </View>
@@ -286,7 +280,7 @@ function PlanHeroCard({ subscription }: { subscription: SubscriptionState }) {
 function BillingSummaryCard({ subscription }: { subscription: SubscriptionState }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">تفاصيل الفاتورة</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">تفاصيل الفاتورة</AppText>
       <SolidCard style={styles.rowsCard}>
         <InfoRow label="دورة الفوترة" value="شهري" />
         <Divider />
@@ -309,7 +303,7 @@ function BillingSummaryCard({ subscription }: { subscription: SubscriptionState 
 function BenefitsCard() {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">مزايا خطتك</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">مزايا خطتك</AppText>
       <SolidCard style={styles.benefitsCard}>
         {planBenefits.map((benefit, index) => (
           <View key={benefit}>
@@ -317,7 +311,7 @@ function BenefitsCard() {
               <View style={styles.checkIcon}>
                 <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={15} />
               </View>
-              <AppText style={styles.benefitText} variant="supporting">
+              <AppText style={[styles.benefitText, styles.rtlText]} variant="supporting">
                 {benefit}
               </AppText>
             </View>
@@ -332,7 +326,7 @@ function BenefitsCard() {
 function UsageSummaryCard({ usageItems }: { usageItems: SubscriptionUsage[] }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">استخدامك هذا الشهر</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">استخدامك هذا الشهر</AppText>
       <SolidCard style={styles.usageCard}>
         {usageItems.map((item, index) => (
           <View key={item.id}>
@@ -357,7 +351,7 @@ function UsageRow({ item }: { item: SubscriptionUsage }) {
       style={styles.usageRow}
     >
       <View style={styles.usageHeader}>
-        <AppText style={styles.usageLabel} variant="supporting">
+        <AppText style={[styles.usageLabel, styles.rtlText]} variant="supporting">
           {item.label}
         </AppText>
         <AppText align="left" style={styles.ltrText} tone="secondary" variant="caption">
@@ -380,7 +374,7 @@ function ManagementSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">إدارة الاشتراك</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">إدارة الاشتراك</AppText>
       <SolidCard style={styles.rowsCard}>
         {actions.map((action, index) => (
           <View key={action.id}>
@@ -403,23 +397,23 @@ function ManagementRow({ action, onPress }: { action: ManagementAction; onPress:
       onPress={onPress}
       style={({ pressed }) => [styles.managementRow, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
       <View style={[styles.managementIcon, isDanger && styles.dangerIcon]}>
         <Ionicons color={isDanger ? colors.semantic.danger : colors.brand.green} name={action.icon} size={18} />
-      </View>
-      <View style={styles.managementCopy}>
-        <AppText tone={isDanger ? 'danger' : 'primary'} variant="body">
-          {action.title}
-        </AppText>
-        <AppText style={styles.rowDescription} tone="secondary" variant="caption">
-          {action.description}
-        </AppText>
       </View>
       {action.status ? (
         <AppText align="left" numberOfLines={1} style={styles.paymentStatus} tone="secondary" variant="caption">
           {action.status}
         </AppText>
       ) : null}
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
+      <View style={styles.managementCopy}>
+        <AppText style={styles.fullWidthRtlText} tone={isDanger ? 'danger' : 'primary'} variant="body">
+          {action.title}
+        </AppText>
+        <AppText style={[styles.rowDescription, styles.fullWidthRtlText]} tone="secondary" variant="caption">
+          {action.description}
+        </AppText>
+      </View>
     </Pressable>
   );
 }
@@ -436,8 +430,8 @@ function AutoRenewalCard({ subscription }: { subscription: SubscriptionState }) 
         <Ionicons color={colors.brand.calmGreen} name="refresh-outline" size={20} />
       </View>
       <View style={styles.autoRenewCopy}>
-        <AppText variant="cardTitle">{title}</AppText>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={styles.fullWidthRtlText} variant="cardTitle">{title}</AppText>
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           {description}
         </AppText>
       </View>
@@ -449,7 +443,7 @@ function PrototypeNotice({ message }: { message: string }) {
   return (
     <SolidCard style={styles.prototypeNotice}>
       <Ionicons color={colors.brand.calmGreen} name="information-circle-outline" size={18} />
-      <AppText style={styles.feedbackText} tone="secondary" variant="supporting">
+      <AppText style={[styles.feedbackText, styles.rtlText]} tone="secondary" variant="supporting">
         {message}
       </AppText>
     </SolidCard>
@@ -463,8 +457,8 @@ function SupportCard({ onPress }: { onPress: () => void }) {
         <Ionicons color={colors.brand.calmGreen} name="chatbubble-ellipses-outline" size={20} />
       </View>
       <View style={styles.supportCopy}>
-        <AppText variant="cardTitle">هل تحتاج مساعدة في الاشتراك؟</AppText>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={styles.fullWidthRtlText} variant="cardTitle">هل تحتاج مساعدة في الاشتراك؟</AppText>
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           تواصل مع فريق الدعم بشأن الفوترة أو الخطط.
         </AppText>
         <AppButton onPress={onPress} style={styles.supportButton} variant="secondary">
@@ -478,10 +472,10 @@ function SupportCard({ onPress }: { onPress: () => void }) {
 function InfoRow({ label, value, ltr = false }: { label: string; value: string; ltr?: boolean }) {
   return (
     <View style={styles.infoRow}>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.infoLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align={ltr ? 'left' : 'right'} style={[styles.infoValue, ltr && styles.ltrText]} variant="supporting">
+      <AppText align="left" style={[styles.infoValue, ltr && styles.ltrText]} variant="supporting">
         {value}
       </AppText>
     </View>
@@ -509,9 +503,11 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 42,
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -525,10 +521,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   planHero: {
     borderColor: 'rgba(167,200,161,0.28)',
@@ -541,8 +536,9 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   heroHeader: {
-    alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   heroIcon: {
@@ -556,9 +552,16 @@ const styles = StyleSheet.create({
     width: 50,
   },
   heroCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  planName: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
   },
   ltrText: {
     writingDirection: 'ltr',
@@ -572,13 +575,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  priceRow: {
-    alignItems: 'baseline',
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
-  },
   priceText: {
+    alignSelf: 'stretch',
     color: colors.text.primary,
+    textAlign: 'right',
+    width: '100%',
     writingDirection: 'ltr',
   },
   heroFooter: {
@@ -587,38 +588,57 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
     borderRadius: radii.control,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   description: {
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   rowsCard: {
     padding: 0,
   },
   infoRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
     minHeight: 58,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+    width: '100%',
+  },
+  infoLabel: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoValue: {
     flex: 1,
+    textAlign: 'left',
   },
   benefitsCard: {
     padding: 0,
   },
   benefitRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 50,
     paddingHorizontal: spacing.lg,
@@ -646,6 +666,7 @@ const styles = StyleSheet.create({
   },
   usageHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
@@ -666,7 +687,8 @@ const styles = StyleSheet.create({
   },
   managementRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 78,
     paddingHorizontal: spacing.lg,
@@ -687,6 +709,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(229,103,90,0.28)',
   },
   managementCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -696,24 +719,30 @@ const styles = StyleSheet.create({
   },
   paymentStatus: {
     maxWidth: 108,
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   feedbackCard: {
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   feedbackText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   prototypeNotice: {
     alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.58)',
     borderColor: 'rgba(167,200,161,0.22)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
@@ -721,7 +750,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   autoRenewIcon: {
@@ -735,13 +765,15 @@ const styles = StyleSheet.create({
     width: 42,
   },
   autoRenewCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   supportCard: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   supportIcon: {
@@ -755,6 +787,7 @@ const styles = StyleSheet.create({
     width: 42,
   },
   supportCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
@@ -763,6 +796,22 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     minHeight: 42,
     paddingHorizontal: spacing.lg,
+  },
+  fullWidthRtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  flexRtlText: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

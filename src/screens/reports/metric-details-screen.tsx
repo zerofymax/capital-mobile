@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText, SolidCard } from '@/components/ui';
@@ -18,6 +18,9 @@ import { MiniTrend, NoticeBanner, ReportModalHeader } from './startup-report-com
 import { getSaaSMetric, saasPeriods, type GrowthMetricsSourceData } from './saas-metrics-data';
 import type { GrowthMetricDefinition, MetricStatus, SaaSPeriod } from './saas-metrics-types';
 
+const useAndroidRtlLayout = Platform.OS === 'android';
+const androidSystemNavigationClearance = 48;
+
 export function MetricDetailsScreen() {
   const insets = useSafeAreaInsets();
   const { metricId, period } = useLocalSearchParams<{ metricId?: string; period?: SaaSPeriod }>();
@@ -32,7 +35,9 @@ export function MetricDetailsScreen() {
     [businessInfo, goals, invoices, recurringExpenses, transactions],
   );
   const metric = useMemo(() => getSaaSMetric(metricId, activePeriod, sourceData), [activePeriod, metricId, sourceData]);
-  const bottomPadding = insets.bottom + 24;
+  const bottomPadding = useAndroidRtlLayout
+    ? insets.bottom + androidSystemNavigationClearance + spacing.xxl
+    : insets.bottom + spacing.xxl;
   const hasTrendData = metric.rawValue !== null && metric.history.length > 0;
   const statusLabelOverride = metric.rawValue === null ? (metric.badge ?? 'يحتاج بيانات') : undefined;
 
@@ -48,18 +53,28 @@ export function MetricDetailsScreen() {
         contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
-        <ReportModalHeader onBack={() => router.back()} subtitle={metric.abbreviation} title={metric.title} />
+        <ReportModalHeader
+          androidRtlLayout
+          onBack={() => router.back()}
+          subtitle={metric.abbreviation}
+          subtitleWritingDirection="ltr"
+          title={metric.title}
+        />
 
         <SolidCard style={styles.heroCard}>
-          <View style={styles.heroTop}>
+          <View style={[styles.heroTop, useAndroidRtlLayout && styles.heroTopAndroid]}>
             <View style={styles.valueBox}>
-              <AppText tone="secondary" variant="caption">
+              <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
                 القيمة الحالية
               </AppText>
-              <AppText style={styles.value} variant="screenTitle">
+              <AppText
+                align="right"
+                style={[styles.value, metric.rawValue === null ? styles.rtlValue : styles.ltrValue]}
+                variant="screenTitle"
+              >
                 {directionSafeText(metric.value)}
               </AppText>
-              <AppText tone="secondary" variant="caption">
+              <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
                 {directionSafeText(metric.comparison)}
               </AppText>
             </View>
@@ -70,14 +85,14 @@ export function MetricDetailsScreen() {
           ) : (
             <View style={styles.unavailableTrendBox}>
               <Ionicons color={colors.text.tertiary} name="bar-chart-outline" size={18} />
-              <AppText align="center" tone="secondary" variant="caption">
+              <AppText align="center" style={styles.unavailableTrendText} tone="secondary" variant="caption">
                 لا توجد بيانات تاريخية موثوقة لهذا المؤشر حاليًا.
               </AppText>
             </View>
           )}
         </SolidCard>
 
-        <NoticeBanner message="هذه المؤشرات تقديرية وتعتمد على البيانات المدخلة." tone="warning" />
+        <NoticeBanner androidRtlLayout message="هذه المؤشرات تقديرية وتعتمد على البيانات المدخلة." tone="warning" />
 
         <InfoSection icon="information-circle-outline" title="ما معنى هذا المؤشر؟" text={metric.explanation} />
         <InfoSection icon="calculator-outline" title="طريقة الحساب" text={metric.formula} footer={metric.calculationDescription} />
@@ -105,17 +120,19 @@ function MetricStatusBadge({ labelOverride, status }: { labelOverride?: string; 
 function SourceValues({ metric }: { metric: GrowthMetricDefinition }) {
   return (
     <SolidCard style={styles.infoCard}>
-      <View style={styles.infoHeader}>
+      <View style={[styles.infoHeader, useAndroidRtlLayout && styles.infoHeaderAndroid]}>
         <View style={styles.infoIcon}>
           <Ionicons color={colors.brand.calmGreen} name="server-outline" size={17} />
         </View>
-        <AppText variant="cardTitle">القيم المستخدمة في الحساب</AppText>
+        <AppText align="right" style={styles.infoTitle} variant="cardTitle">
+          القيم المستخدمة في الحساب
+        </AppText>
       </View>
       <View style={styles.sourceList}>
         {metric.sourceValues.map((value) => (
-          <View key={value} style={styles.sourceRow}>
+          <View key={value} style={[styles.sourceRow, useAndroidRtlLayout && styles.sourceRowAndroid]}>
             <View style={styles.sourceDot} />
-            <AppText style={styles.sourceText} tone="secondary" variant="body">
+            <AppText align="right" style={styles.sourceText} tone="secondary" variant="body">
               {directionSafeText(value)}
             </AppText>
           </View>
@@ -138,18 +155,20 @@ function InfoSection({
 }) {
   return (
     <SolidCard style={styles.infoCard}>
-      <View style={styles.infoHeader}>
+      <View style={[styles.infoHeader, useAndroidRtlLayout && styles.infoHeaderAndroid]}>
         <View style={styles.infoIcon}>
           <Ionicons color={colors.brand.calmGreen} name={icon} size={17} />
         </View>
-        <AppText variant="cardTitle">{title}</AppText>
+        <AppText align="right" style={styles.infoTitle} variant="cardTitle">
+          {title}
+        </AppText>
       </View>
-      <AppText tone="secondary" variant="body">
+      <AppText align="right" style={styles.rtlText} tone="secondary" variant="body">
         {directionSafeText(text)}
       </AppText>
       {footer ? (
         <View style={styles.footerNote}>
-          <AppText tone="secondary" variant="caption">
+          <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
             {directionSafeText(footer)}
           </AppText>
         </View>
@@ -203,22 +222,35 @@ const styles = StyleSheet.create({
   },
   heroTop: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
   },
+  heroTopAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
   valueBox: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
   },
   value: {
     fontSize: 31,
+    textAlign: 'right',
+    width: '100%',
+  },
+  ltrValue: {
+    writingDirection: 'ltr',
+  },
+  rtlValue: {
+    writingDirection: 'rtl',
   },
   statusBadge: {
     alignItems: 'center',
     borderRadius: radii.pill,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.xs,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
@@ -234,13 +266,23 @@ const styles = StyleSheet.create({
     minHeight: 90,
     padding: spacing.md,
   },
+  unavailableTrendText: {
+    alignSelf: 'stretch',
+    textAlign: 'center',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   infoCard: {
     gap: spacing.md,
   },
   infoHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+  },
+  infoHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   infoIcon: {
     alignItems: 'center',
@@ -262,8 +304,12 @@ const styles = StyleSheet.create({
   },
   sourceRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
+  },
+  sourceRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   sourceDot: {
     backgroundColor: colors.brand.calmGreen,
@@ -273,5 +319,19 @@ const styles = StyleSheet.create({
   },
   sourceText: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  infoTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

@@ -309,17 +309,16 @@ function EditProfileHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText style={styles.headerText} variant="screenTitle">
           تعديل الملف الشخصي
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText style={styles.headerText} tone="secondary" variant="supporting">
           حدّث بياناتك الشخصية الظاهرة داخل Capital.
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -434,9 +433,11 @@ function ProfileInputField({
 function ProfilePreview({ formState }: { formState: EditProfileFormState }) {
   return (
     <View style={styles.previewCard}>
-      <AppText style={styles.sectionHeading} variant="sectionTitle">
-        معاينة الملف الشخصي
-      </AppText>
+      <View style={styles.previewHeadingWrap}>
+        <AppText style={styles.sectionHeading} variant="sectionTitle">
+          معاينة الملف الشخصي
+        </AppText>
+      </View>
       <View style={styles.previewBody}>
         <MiniAvatar formState={formState} />
         <View style={styles.previewCopy}>
@@ -649,8 +650,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 52,
   },
   backButton: {
@@ -659,18 +661,23 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.control,
     borderWidth: 1,
+    direction: 'ltr',
     height: 40,
     justifyContent: 'center',
     width: 40,
   },
   headerCopy: {
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
-  headerSlot: {
-    height: 40,
-    width: 40,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   avatarSection: {
     alignItems: 'center',
@@ -724,15 +731,25 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   formCard: {
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.lg,
   },
   fieldGroup: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
+    width: '100%',
   },
   fieldLabel: {
+    alignSelf: 'stretch',
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   input: {
+    alignSelf: 'stretch',
     backgroundColor: colors.surface.card,
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
@@ -743,6 +760,7 @@ const styles = StyleSheet.create({
     minHeight: 54,
     paddingHorizontal: spacing.lg,
     textAlign: 'right',
+    width: '100%',
     writingDirection: 'rtl',
   },
   inputError: {
@@ -753,8 +771,11 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   helperText: {
+    alignSelf: 'stretch',
     lineHeight: 18,
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   previewCard: {
     backgroundColor: colors.glass.fillDeep,
@@ -764,12 +785,22 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
   },
+  previewHeadingWrap: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
   sectionHeading: {
+    alignSelf: 'flex-end',
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   previewBody: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   previewAvatar: {
@@ -786,18 +817,27 @@ const styles = StyleSheet.create({
   },
   previewCopy: {
     alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   previewName: {
+    alignSelf: 'stretch',
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   previewRole: {
+    alignSelf: 'stretch',
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   previewEmail: {
-    textAlign: 'left',
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
     writingDirection: 'ltr',
   },
   actions: {

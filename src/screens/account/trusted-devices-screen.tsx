@@ -243,12 +243,11 @@ function TrustedDevicesHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         الأجهزة الموثوقة
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -311,17 +310,17 @@ function DeviceCard({
         <View style={styles.deviceIcon}>
           <Ionicons color={isTrusted ? colors.brand.calmGreen : colors.semantic.warning} name="phone-portrait-outline" size={22} />
         </View>
-        <View style={styles.deviceCopy}>
-          <AppText align="left" style={styles.ltrText} variant="cardTitle">
-            {device.name}
-          </AppText>
-          <AppText align="left" style={styles.ltrText} tone="secondary" variant="caption">
-            {device.platform}
-          </AppText>
-        </View>
         <View style={styles.badgeStack}>
           <StatusBadge label={isTrusted ? 'موثوق' : 'غير موثوق'} tone={isTrusted ? 'success' : 'warning'} />
           {device.isCurrentDevice ? <StatusBadge label="هذا الجهاز" tone="success" /> : null}
+        </View>
+        <View style={styles.deviceCopy}>
+          <AppText align="right" numberOfLines={1} style={[styles.deviceName, styles.ltrText]} variant="cardTitle">
+            {device.name}
+          </AppText>
+          <AppText align="right" style={[styles.deviceName, styles.ltrText]} tone="secondary" variant="caption">
+            {device.platform}
+          </AppText>
         </View>
       </View>
 
@@ -438,8 +437,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -453,17 +453,18 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerTitle: {
+    alignSelf: 'stretch',
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   introCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: 'rgba(11,46,38,0.70)',
     borderColor: 'rgba(167,200,161,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   introIcon: {
@@ -477,19 +478,25 @@ const styles = StyleSheet.create({
     width: 42,
   },
   introCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   description: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryCard: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
   summaryCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -511,14 +518,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.28)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   feedbackText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
   deviceCard: {
@@ -532,8 +544,9 @@ const styles = StyleSheet.create({
     opacity: 0.94,
   },
   deviceHeader: {
-    alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   deviceIcon: {
@@ -547,12 +560,17 @@ const styles = StyleSheet.create({
     width: 42,
   },
   deviceCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   ltrText: {
     writingDirection: 'ltr',
+  },
+  deviceName: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
   },
   badgeStack: {
     alignItems: 'flex-start',
@@ -577,17 +595,23 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   deviceFact: {
+    width: '100%',
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
   factCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   currentRestriction: {
+    alignSelf: 'stretch',
     lineHeight: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   deviceActions: {
     flexDirection: 'row-reverse',
@@ -600,19 +624,21 @@ const styles = StyleSheet.create({
     minWidth: 138,
   },
   securityNote: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   noteCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,
   },
   inlineAction: {
-    alignSelf: 'flex-start',
+    alignSelf: 'flex-end',
     backgroundColor: 'rgba(255,255,255,0.045)',
     borderColor: 'rgba(232,163,61,0.24)',
     borderRadius: radii.pill,

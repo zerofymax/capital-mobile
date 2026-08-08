@@ -23,6 +23,16 @@ export function FinancialSetupProgressHeader({
   return (
     <View style={styles.root}>
       <View style={styles.topRow}>
+        <Pressable
+          accessibilityLabel="العودة"
+          accessibilityRole="button"
+          hitSlop={12}
+          onPress={onBack}
+          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
+        >
+          <Ionicons color={colors.text.primary} name="chevron-back-outline" size={20} />
+        </Pressable>
+
         <View style={styles.stepBadge}>
           <View style={styles.badgeNumberRow}>
             <AppText align="center" style={styles.ltrText} variant="caption">
@@ -36,16 +46,6 @@ export function FinancialSetupProgressHeader({
             </AppText>
           </View>
         </View>
-
-        <Pressable
-          accessibilityLabel="العودة"
-          accessibilityRole="button"
-          hitSlop={12}
-          onPress={onBack}
-          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
-        >
-          <Ionicons color={colors.text.primary} name="chevron-forward" size={20} />
-        </Pressable>
       </View>
 
       <View accessibilityLabel={`الخطوة ${safeCurrentStep} من ${safeTotalSteps}`} style={styles.progressTrack}>
@@ -67,7 +67,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     direction: 'ltr',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: spacing.md,
+    justifyContent: 'flex-start',
   },
   backButton: {
     alignItems: 'center',

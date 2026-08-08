@@ -100,7 +100,7 @@ export function LanguageAppearanceScreen() {
         {notice ? <Notice message={notice} /> : null}
 
         <View style={styles.section}>
-          <AppText variant="sectionTitle">المظهر</AppText>
+          <AppText style={styles.sectionTitle} variant="sectionTitle">المظهر</AppText>
           <View style={styles.optionList}>
             {appearanceOptions.map((option) => (
               <AppearanceCard
@@ -114,7 +114,7 @@ export function LanguageAppearanceScreen() {
         </View>
 
         <View style={styles.section}>
-          <AppText variant="sectionTitle">اللغة</AppText>
+          <AppText style={styles.sectionTitle} variant="sectionTitle">اللغة</AppText>
           <View style={styles.optionList}>
             <LanguageCard
               description="اللغة الحالية للتطبيق."
@@ -161,17 +161,16 @@ function ModalHeader({ onBack }: { onBack: () => void }) {
           pressed && styles.pressed,
         ]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={21} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={21} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText align="right" style={styles.headerText} variant="screenTitle">
           المظهر واللغة
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText align="right" style={styles.headerText} tone="secondary" variant="supporting">
           خصّص طريقة ظهور Capital واختر لغة التطبيق.
         </AppText>
       </View>
-      <View style={styles.headerSpacer} />
     </View>
   );
 }
@@ -206,7 +205,7 @@ function AppearanceCard({
       </View>
       <View style={styles.optionCopy}>
         <View style={styles.optionTitleRow}>
-          <AppText variant="cardTitle">{option.title}</AppText>
+          <AppText style={styles.optionTitle} variant="cardTitle">{option.title}</AppText>
           {option.soon ? (
             <View style={[styles.selectedBadge, { backgroundColor: colors.surface.muted }]}>
               <AppText align="center" tone="secondary" variant="caption">
@@ -222,7 +221,7 @@ function AppearanceCard({
             </View>
           ) : null}
         </View>
-        <AppText tone="secondary" variant="caption">
+        <AppText style={styles.optionDescription} tone="secondary" variant="caption">
           {option.description}
         </AppText>
         <View style={styles.previewRow}>
@@ -277,7 +276,7 @@ function LanguageCard({
       </View>
       <View style={styles.optionCopy}>
         <View style={styles.optionTitleRow}>
-          <AppText align={titleLtr ? 'left' : 'right'} style={titleLtr && styles.ltrTitle} variant="cardTitle">
+          <AppText align="right" style={[styles.optionTitle, titleLtr && styles.ltrTitle]} variant="cardTitle">
             {title}
           </AppText>
           <View style={[styles.selectedBadge, { backgroundColor: selected ? colors.semantic.successTint : colors.surface.muted }]}>
@@ -287,7 +286,7 @@ function LanguageCard({
             </AppText>
           </View>
         </View>
-        <AppText tone="secondary" variant="caption">
+        <AppText style={styles.optionDescription} tone="secondary" variant="caption">
           {description}
         </AppText>
       </View>
@@ -322,7 +321,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
   },
@@ -335,23 +335,36 @@ const styles = StyleSheet.create({
     width: 42,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
-  headerSpacer: {
-    width: 42,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
     gap: spacing.md,
   },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   optionList: {
+    alignSelf: 'stretch',
     gap: spacing.md,
   },
   optionCard: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     borderRadius: radii.card,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 86,
     padding: spacing.md,
@@ -365,12 +378,15 @@ const styles = StyleSheet.create({
     width: 42,
   },
   optionCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   optionTitleRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     justifyContent: 'space-between',
@@ -378,14 +394,17 @@ const styles = StyleSheet.create({
   selectedBadge: {
     alignItems: 'center',
     borderRadius: radii.pill,
+    flexShrink: 0,
     flexDirection: 'row-reverse',
     gap: spacing.xs,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
   previewRow: {
+    alignSelf: 'flex-start',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingTop: spacing.xs,
   },
@@ -409,18 +428,38 @@ const styles = StyleSheet.create({
   },
   languageNotice: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   notice: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   noticeText: {
+    alignSelf: 'stretch',
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  optionTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  optionDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   ltrTitle: {
+    textAlign: 'right',
     writingDirection: 'ltr',
   },
   pressed: {

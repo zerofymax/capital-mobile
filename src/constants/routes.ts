@@ -7,7 +7,6 @@ export const routes = {
   register: '/(auth)/register',
   pin: '/(auth)/pin',
   onboardingWelcome: '/(onboarding)/welcome',
-  financialSetup: '/(onboarding)/financial-setup',
   financialSetupBusinessInfo: '/(onboarding)/financial-setup/business-info',
   financialSetupBusinessProfile: '/(onboarding)/financial-setup/business-profile',
   financialSetupBusinessStage: '/(onboarding)/financial-setup/business-stage',

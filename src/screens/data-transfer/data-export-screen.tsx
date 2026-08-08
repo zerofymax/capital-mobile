@@ -219,10 +219,10 @@ function Header() {
         <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText align="right" variant="screenTitle">
           تصدير البيانات
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText align="right" tone="secondary" variant="supporting">
           جهّز نسخة CSV من بيانات Capital.
         </AppText>
       </View>
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 68,
     paddingHorizontal: 16,
@@ -483,8 +483,9 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   summaryRow: {
+    width: '100%',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 38,
   },
@@ -493,6 +494,7 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   previewRow: {
+    width: '100%',
     backgroundColor: colors.surface.muted,
     borderRadius: radii.input,
     gap: spacing.sm,

@@ -49,6 +49,7 @@ export function AddBudgetScreen() {
   const parsedAmount = parseBudgetAmount(amount) ?? 0;
   const previewBudget = categoryId ? createPreviewBudget(categoryId, Math.max(parsedAmount, 0), month, threshold, alertEnabled) : null;
   const amountError = errors.budget && (submitted || amount !== '5000') ? errors.budget : errors.duplicate;
+  const selectedCategoryIcon = budgetCategories.find((category) => category.id === categoryId)?.icon;
 
   function handleSave() {
     setSubmitted(true);
@@ -84,10 +85,12 @@ export function AddBudgetScreen() {
         >
           <BudgetHeader onBack={() => router.back()} subtitle="حدد حد الإنفاق لفئة خلال شهر معين" title="إضافة ميزانية" />
 
-          <NoticeBanner message="الميزانية تحدد حد الإنفاق المتوقع، ولا تسجل عملية مالية جديدة." tone="warning" />
+          <NoticeBanner androidRtlLayout message="الميزانية تحدد حد الإنفاق المتوقع، ولا تسجل عملية مالية جديدة." tone="warning" />
 
           <SelectField
+            androidRtlLayout
             error={submitted ? errors.categoryId : undefined}
+            iconName={selectedCategoryIcon}
             label="الفئة"
             onPress={() => setPicker('category')}
             value={categoryIdToName(categoryId)}
@@ -98,25 +101,29 @@ export function AddBudgetScreen() {
             onChangeText={(value) => setAmount(formatBudgetInput(value))}
             value={amount}
           />
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.fieldDescription} tone="secondary" variant="caption">
             الحد الأقصى المخطط للإنفاق على هذه الفئة
           </AppText>
 
-          <SelectField iconName="calendar-outline" label="الشهر" onPress={() => setPicker('month')} value={month} />
+          <SelectField androidRtlLayout iconName="calendar-outline" label="الشهر" onPress={() => setPicker('month')} value={month} />
 
           <View style={styles.section}>
-            <AppText variant="cardTitle">تنبيه الاقتراب من الحد</AppText>
-            <AppText tone="secondary" variant="supporting">
+            <AppText style={styles.sectionTitle} variant="cardTitle">
+              تنبيه الاقتراب من الحد
+            </AppText>
+            <AppText style={styles.sectionDescription} tone="secondary" variant="supporting">
               ينبّه عند وصول الإنفاق إلى نسبة محددة من الميزانية.
             </AppText>
-            <ThresholdSelector onChange={setThreshold} value={threshold} />
+            <ThresholdSelector androidRtlLayout onChange={setThreshold} value={threshold} />
           </View>
 
-          <ToggleRow enabled={alertEnabled} onValueChange={setAlertEnabled} />
+          <ToggleRow androidRtlLayout enabled={alertEnabled} onValueChange={setAlertEnabled} />
 
           <View style={styles.section}>
-            <AppText variant="cardTitle">معاينة الميزانية</AppText>
-            {previewBudget ? <SummaryMiniCard budget={previewBudget} /> : null}
+            <AppText style={styles.sectionTitle} variant="cardTitle">
+              معاينة الميزانية
+            </AppText>
+            {previewBudget ? <SummaryMiniCard androidRtlLayout budget={previewBudget} /> : null}
           </View>
 
           <AppButton disabled={blockingError} iconName="checkmark-outline" onPress={handleSave}>
@@ -129,6 +136,7 @@ export function AddBudgetScreen() {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setCategoryId(categoryNameToId(value));
@@ -140,6 +148,7 @@ export function AddBudgetScreen() {
         visible={picker === 'category'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setMonth(value);
@@ -188,6 +197,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
+  },
+  fieldDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  sectionDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

@@ -22,16 +22,16 @@ export function ReportTypeRow({ report, isLast = false, onPress }: ReportTypeRow
         onPress={onPress}
         style={({ pressed }) => [styles.root, pressed && styles.pressed]}
       >
-        <View style={styles.iconWrap}>
-          <Ionicons color={colors.brand.green} name={report.icon} size={18} />
-        </View>
         <View style={styles.copy}>
-          <AppText numberOfLines={1} variant="body">
+          <AppText numberOfLines={1} style={styles.copyText} variant="body">
             {report.title}
           </AppText>
-          <AppText numberOfLines={2} tone="secondary" variant="caption">
+          <AppText numberOfLines={2} style={styles.copyText} tone="secondary" variant="caption">
             {report.description}
           </AppText>
+        </View>
+        <View style={styles.iconWrap}>
+          <Ionicons color={colors.brand.green} name={report.icon} size={18} />
         </View>
         <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={16} />
       </Pressable>
@@ -43,7 +43,7 @@ export function ReportTypeRow({ report, isLast = false, onPress }: ReportTypeRow
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 78,
     paddingHorizontal: spacing.md,
@@ -60,9 +60,15 @@ const styles = StyleSheet.create({
     width: 36,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     backgroundColor: 'rgba(255,255,255,0.035)',

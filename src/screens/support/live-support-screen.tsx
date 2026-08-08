@@ -240,7 +240,7 @@ function renderMessage({ item }: ListRenderItemInfo<SupportChatMessage>) {
         <AppText style={styles.messageText} variant="body">
           {item.text}
         </AppText>
-        <AppText align="left" style={styles.messageTime} tone="tertiary" variant="caption">
+        <AppText align="right" style={styles.messageTime} tone="tertiary" variant="caption">
           {item.time}
         </AppText>
       </View>
@@ -258,13 +258,13 @@ function LiveSupportHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
 
       <View style={styles.headerMain}>
         <SupportAvatar />
         <View style={styles.headerCopy}>
-          <AppText numberOfLines={1} variant="sectionTitle">
+          <AppText numberOfLines={1} style={styles.headerTitle} variant="sectionTitle">
             الدردشة مع الدعم
           </AppText>
           <View accessibilityRole="text" style={styles.statusRow}>
@@ -278,8 +278,6 @@ function LiveSupportHeader({ onBackPress }: { onBackPress: () => void }) {
           </View>
         </View>
       </View>
-
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -329,7 +327,8 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 54,
   },
@@ -346,17 +345,21 @@ const styles = StyleSheet.create({
   headerMain: {
     alignItems: 'center',
     flex: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minWidth: 0,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   statusRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.xs,
@@ -367,9 +370,11 @@ const styles = StyleSheet.create({
     height: 7,
     width: 7,
   },
-  headerSlot: {
-    height: 40,
-    width: 18,
+  headerTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   avatar: {
     alignItems: 'center',
@@ -409,12 +414,15 @@ const styles = StyleSheet.create({
   systemCard: {
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     padding: spacing.md,
   },
   systemText: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   messageRow: {
     alignItems: 'flex-end',
@@ -422,11 +430,13 @@ const styles = StyleSheet.create({
     maxWidth: '88%',
   },
   supportRow: {
-    alignSelf: 'flex-end',
-    flexDirection: 'row-reverse',
+    alignSelf: 'flex-start',
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   userRow: {
-    alignSelf: 'flex-start',
+    alignSelf: 'flex-end',
+    direction: 'ltr',
     flexDirection: 'row',
   },
   bubble: {
@@ -439,23 +449,28 @@ const styles = StyleSheet.create({
   },
   supportBubble: {
     backgroundColor: colors.surface.card,
-    borderBottomRightRadius: radii.small,
+    borderBottomLeftRadius: radii.small,
     borderColor: colors.surface.border,
   },
   userBubble: {
     backgroundColor: colors.semantic.successTint,
-    borderBottomLeftRadius: radii.small,
+    borderBottomRightRadius: radii.small,
     borderColor: 'rgba(79,138,91,0.36)',
   },
   messageText: {
+    alignSelf: 'stretch',
     textAlign: 'right',
+    width: '100%',
     writingDirection: 'rtl',
   },
   messageTime: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
     writingDirection: 'rtl',
   },
   quickTopics: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
@@ -475,6 +490,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.glass,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     padding: spacing.sm,

@@ -15,7 +15,7 @@ export function CardTransactionRow({ transaction, isLast = false }: CardTransact
     <View style={styles.wrap}>
       <View style={styles.row}>
         <View style={styles.copy}>
-          <AppText variant="body">{transaction.title}</AppText>
+          <AppText style={styles.title} variant="body">{transaction.title}</AppText>
           <AppText align="left" style={styles.ltrText} tone="secondary" variant="caption">
             {transaction.date}
           </AppText>
@@ -35,14 +35,20 @@ const styles = StyleSheet.create({
   },
   row: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 52,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  title: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   ltrText: {
     writingDirection: 'ltr',

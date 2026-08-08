@@ -16,14 +16,14 @@ type ConnectionCardProps = {
 export function ConnectionCard({ title, description, status, iconName }: ConnectionCardProps) {
   return (
     <SolidCard style={styles.root}>
-      <View style={styles.iconWrap}>
-        <Ionicons color={colors.brand.link} name={iconName} size={20} />
-      </View>
       <View style={styles.copy}>
-        <AppText variant="cardTitle">{title}</AppText>
-        <AppText tone="secondary" variant="supporting">
+        <AppText style={styles.copyText} variant="cardTitle">{title}</AppText>
+        <AppText style={styles.copyText} tone="secondary" variant="supporting">
           {description}
         </AppText>
+      </View>
+      <View style={styles.iconWrap}>
+        <Ionicons color={colors.brand.link} name={iconName} size={20} />
       </View>
       <View style={styles.badge}>
         <AppText tone="warning" variant="caption">
@@ -37,7 +37,7 @@ export function ConnectionCard({ title, description, status, iconName }: Connect
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   iconWrap: {
@@ -51,8 +51,15 @@ const styles = StyleSheet.create({
     width: 42,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  copyText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   badge: {
     backgroundColor: colors.semantic.warningTint,

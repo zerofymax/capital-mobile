@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ReportExportSheet } from '@/components/reports/report-export-sheet';
@@ -12,7 +12,7 @@ import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
-import { NumericText } from '@/utils/rtl';
+import { directionSafeText, NumericText } from '@/utils/rtl';
 import {
   monthlyReportData,
   type MonthlyReportAction,
@@ -21,6 +21,8 @@ import {
 } from './monthly-report-data';
 
 const chartHeight = 130;
+const bottomActionsMinHeight = 50;
+const useAndroidRtlLayout = Platform.OS === 'android';
 
 export function MonthlyReportScreen() {
   const insets = useSafeAreaInsets();
@@ -61,7 +63,9 @@ export function MonthlyReportScreen() {
         contentContainerStyle={[
           styles.content,
           {
-            paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
+            paddingBottom: useAndroidRtlLayout
+              ? insets.bottom + bottomActionsMinHeight + spacing.xxl
+              : Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
           },
         ]}
         contentInsetAdjustmentBehavior="never"
@@ -119,13 +123,17 @@ function ReportHeader() {
         onPress={() => router.replace(routes.reports)}
         style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons
+          color={colors.text.muted}
+          name={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+          size={22}
+        />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" variant="screenTitle">
+        <AppText align="right" style={styles.headerTitle} variant="screenTitle">
           {monthlyReportData.title}
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
+        <AppText align="right" style={styles.headerPeriod} tone="secondary" variant="supporting">
           {monthlyReportData.period}
         </AppText>
       </View>
@@ -137,15 +145,15 @@ function ReportHeader() {
 function SummaryCard() {
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={styles.summaryHeader}>
-        <AppText variant="cardTitle">الملخص التنفيذي</AppText>
+      <View style={[styles.summaryHeader, useAndroidRtlLayout && styles.summaryHeaderAndroid]}>
+        <AppText style={styles.summaryTitle} variant="cardTitle">الملخص التنفيذي</AppText>
         <View style={styles.manualReportBadge}>
           <AppText align="center" style={styles.manualReportBadgeText} variant="caption">
             {monthlyReportData.sourceBadge}
           </AppText>
         </View>
       </View>
-      <View style={styles.sourceNoteBox}>
+      <View style={[styles.sourceNoteBox, useAndroidRtlLayout && styles.sourceNoteBoxAndroid]}>
         <Ionicons color={colors.semantic.warning} name="information-circle-outline" size={16} />
         <AppText style={styles.sourceNoteText} tone="secondary" variant="caption">
           {monthlyReportData.sourceNote}
@@ -163,7 +171,7 @@ function MetricGrid({ metrics }: { metrics: readonly MonthlyReportMetric[] }) {
     <View style={styles.metricGrid}>
       {metrics.map((metric) => (
         <View key={metric.id} style={styles.metricCard}>
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.metricLabel} tone="secondary" variant="caption">
             {metric.label}
           </AppText>
           <NumericText style={[styles.metricValue, getMetricToneStyle(metric.tone)]}>
@@ -171,11 +179,11 @@ function MetricGrid({ metrics }: { metrics: readonly MonthlyReportMetric[] }) {
           </NumericText>
           {metric.change ? (
             <NumericText style={[styles.metricChange, metric.tone === 'danger' ? styles.dangerText : styles.successText]}>
-              {metric.change}
+              {directionSafeText(metric.change)}
             </NumericText>
           ) : null}
           {metric.support ? (
-            <AppText tone="secondary" variant="caption">
+            <AppText style={styles.metricSupport} tone="secondary" variant="caption">
               {metric.support}
             </AppText>
           ) : null}
@@ -192,11 +200,23 @@ function RevenueExpenseChart() {
   return (
     <SolidCard style={styles.chartCard}>
       <View style={styles.cardHeader}>
-        <AppText variant="cardTitle">الإيرادات مقابل المصروفات</AppText>
-        <View style={styles.legend}>
-          <LegendItem color={colors.brand.green} label="إيرادات الفترة الحالية" />
-          <LegendItem color={colors.semantic.danger} label="مصروفات الفترة الحالية" />
-          <LegendItem color={colors.text.tertiary} label="الفترة السابقة" />
+        <View style={styles.sectionTitleWrapper}>
+          <AppText style={styles.chartTitle} variant="cardTitle">الإيرادات مقابل المصروفات</AppText>
+        </View>
+        <View style={[styles.legend, useAndroidRtlLayout && styles.legendAndroid]}>
+          {useAndroidRtlLayout ? (
+            <>
+              <LegendItem color={colors.text.tertiary} label="الفترة السابقة" />
+              <LegendItem color={colors.semantic.danger} label="مصروفات الفترة الحالية" />
+              <LegendItem color={colors.brand.green} label="إيرادات الفترة الحالية" />
+            </>
+          ) : (
+            <>
+              <LegendItem color={colors.brand.green} label="إيرادات الفترة الحالية" />
+              <LegendItem color={colors.semantic.danger} label="مصروفات الفترة الحالية" />
+              <LegendItem color={colors.text.tertiary} label="الفترة السابقة" />
+            </>
+          )}
         </View>
       </View>
 
@@ -270,15 +290,21 @@ function LegendItem({ color, label }: { color: string; label: string }) {
 function SummaryList({ rows, title }: { rows: readonly MonthlyReportListRow[]; title: string }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">{title}</AppText>
+      <View style={styles.sectionTitleWrapper}>
+        <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
+      </View>
       <SolidCard style={styles.listCard}>
         {rows.map((row, index) => (
           <View key={row.id} style={styles.rowBlock}>
-            <View style={styles.summaryRow}>
-              <AppText style={styles.rowLabel} variant="body">
-                {row.label}
-              </AppText>
-              <NumericText style={styles.rowAmount}>{row.amount}</NumericText>
+            <View style={[styles.summaryRow, useAndroidRtlLayout && styles.summaryRowAndroid]}>
+              <View style={styles.rowLabelSlot}>
+                <AppText style={styles.rowLabel} variant="body">
+                  {row.label}
+                </AppText>
+              </View>
+              <View style={styles.rowAmountSlot}>
+                <NumericText style={styles.rowAmount}>{row.amount}</NumericText>
+              </View>
             </View>
             {index < rows.length - 1 ? <Divider /> : null}
           </View>
@@ -291,7 +317,7 @@ function SummaryList({ rows, title }: { rows: readonly MonthlyReportListRow[]; t
 function InterpretationCard() {
   return (
     <SolidCard style={styles.interpretationCard}>
-      <View style={styles.interpretationHeader}>
+      <View style={[styles.interpretationHeader, useAndroidRtlLayout && styles.interpretationHeaderAndroid]}>
         <View style={styles.aiIcon}>
           <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={18} />
         </View>
@@ -314,24 +340,45 @@ function RecommendedActions({
   onPress: (action: MonthlyReportAction) => void;
 }) {
   return (
-    <View style={styles.section}>
-      <AppText variant="sectionTitle">إجراءات موصى بها</AppText>
+    <View style={[styles.section, styles.recommendedSection]}>
+      <View style={styles.recommendedSectionTitleWrapper}>
+        <AppText style={styles.recommendedSectionTitle} variant="sectionTitle">إجراءات موصى بها</AppText>
+      </View>
       <View style={styles.recommendedList}>
         {actions.map((action) => (
           <Pressable
             accessibilityRole="button"
             key={action.id}
             onPress={() => onPress(action)}
-            style={({ pressed }) => [styles.recommendedRow, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.recommendedRow,
+              useAndroidRtlLayout && styles.recommendedRowAndroid,
+              pressed && styles.pressed,
+            ]}
           >
-            <View style={[styles.actionDot, action.accent === 'amber' ? styles.amberDot : styles.greenDot]} />
-            <View style={styles.actionTitle}>
-              <AppText variant="body">{action.title}</AppText>
-              <AppText tone="secondary" variant="caption">
-                تجريبي
-              </AppText>
-            </View>
-            <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+            {useAndroidRtlLayout ? (
+              <>
+                <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+                <View style={[styles.actionDot, action.accent === 'amber' ? styles.amberDot : styles.greenDot]} />
+                <View style={[styles.actionTitle, styles.actionTitleAndroid]}>
+                  <AppText style={styles.actionTitleText} variant="body">{action.title}</AppText>
+                  <AppText style={styles.actionCaption} tone="secondary" variant="caption">
+                    تجريبي
+                  </AppText>
+                </View>
+              </>
+            ) : (
+              <>
+                <View style={[styles.actionDot, action.accent === 'amber' ? styles.amberDot : styles.greenDot]} />
+                <View style={styles.actionTitle}>
+                  <AppText style={styles.actionTitleText} variant="body">{action.title}</AppText>
+                  <AppText style={styles.actionCaption} tone="secondary" variant="caption">
+                    تجريبي
+                  </AppText>
+                </View>
+                <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+              </>
+            )}
           </Pressable>
         ))}
       </View>
@@ -367,9 +414,10 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
+    ...Platform.select({ android: { direction: 'ltr', width: '100%' } }),
   },
   headerButton: {
     alignItems: 'center',
@@ -382,22 +430,45 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    ...Platform.select({ android: { alignItems: 'flex-end' } }),
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
+  headerTitle: {
+    writingDirection: 'rtl',
+    textAlign: 'right',
+    width: '100%',
+  },
+  headerPeriod: {
+    ...Platform.select({ android: { textAlign: 'right', width: '100%' } }),
+    writingDirection: 'rtl',
+  },
   headerSlot: {
     height: 40,
     width: 40,
+    ...Platform.select({ android: { display: 'none' } }),
   },
   summaryCard: {
     gap: spacing.md,
   },
   summaryHeader: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  summaryHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  summaryTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   manualReportBadge: {
     backgroundColor: colors.semantic.warningTint,
@@ -416,15 +487,25 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     padding: spacing.md,
   },
+  sourceNoteBoxAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
   sourceNoteText: {
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   bodyText: {
+    alignSelf: 'stretch',
     lineHeight: 26,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   metricGrid: {
     flexDirection: 'row-reverse',
@@ -443,16 +524,30 @@ const styles = StyleSheet.create({
     minWidth: 150,
     padding: spacing.md,
   },
+  metricLabel: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   metricValue: {
     fontSize: 20,
     fontWeight: '700',
     lineHeight: 28,
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
   },
   metricChange: {
     fontSize: 12,
     lineHeight: 17,
     textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  metricSupport: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   successText: {
     color: colors.semantic.success,
@@ -467,13 +562,28 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   cardHeader: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
+  },
+  chartTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   legend: {
     alignItems: 'flex-start',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
+  },
+  legendAndroid: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    width: '100%',
   },
   legendItem: {
     alignItems: 'center',
@@ -508,7 +618,21 @@ const styles = StyleSheet.create({
     width: 14,
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   listCard: {
     gap: spacing.md,
@@ -517,13 +641,30 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   summaryRow: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  summaryRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
   },
   rowLabel: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  rowLabelSlot: {
+    alignItems: 'flex-end',
     flex: 1,
+    minWidth: 0,
+  },
+  rowAmountSlot: {
+    alignItems: 'flex-start',
+    flexShrink: 0,
   },
   rowAmount: {
     color: colors.text.primary,
@@ -531,6 +672,7 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     minWidth: 100,
     textAlign: 'left',
+    writingDirection: 'ltr',
   },
   interpretationCard: {
     backgroundColor: colors.semantic.successTint,
@@ -542,8 +684,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
+  interpretationHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
   interpretationTitle: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   aiIcon: {
     alignItems: 'center',
@@ -556,17 +706,37 @@ const styles = StyleSheet.create({
   recommendedList: {
     gap: spacing.sm,
   },
+  recommendedSection: {
+    alignSelf: 'stretch',
+    width: '100%',
+  },
+  recommendedSectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  recommendedSectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   recommendedRow: {
     alignItems: 'center',
     backgroundColor: colors.surface.card,
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 62,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
+  },
+  recommendedRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
   },
   actionDot: {
     borderRadius: radii.pill,
@@ -581,6 +751,20 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     flex: 1,
+    minWidth: 0,
+  },
+  actionTitleAndroid: {
+    alignItems: 'flex-end',
+  },
+  actionTitleText: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  actionCaption: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   notice: {
     alignItems: 'center',
@@ -601,12 +785,12 @@ const styles = StyleSheet.create({
   },
   primaryBottomAction: {
     flex: 1.4,
-    minHeight: 50,
+    minHeight: bottomActionsMinHeight,
     paddingHorizontal: spacing.sm,
   },
   secondaryBottomAction: {
     flex: 1,
-    minHeight: 50,
+    minHeight: bottomActionsMinHeight,
     paddingHorizontal: spacing.sm,
   },
   pressed: {

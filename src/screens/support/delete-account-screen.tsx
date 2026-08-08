@@ -375,12 +375,11 @@ function DeleteAccountHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         حذف الحساب
       </AppText>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -461,6 +460,7 @@ function ReminderActionRow({ action, onPress }: { action: ReminderAction; onPres
       onPress={onPress}
       style={({ pressed }) => [styles.reminderRow, pressed && styles.pressed]}
     >
+      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
       <View style={styles.reminderIcon}>
         <Ionicons color={colors.brand.calmGreen} name={action.icon} size={18} />
       </View>
@@ -470,7 +470,6 @@ function ReminderActionRow({ action, onPress }: { action: ReminderAction; onPres
           {action.description}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
     </Pressable>
   );
 }
@@ -510,8 +509,8 @@ function ReasonSection({
             onChangeText={onOtherReasonChange}
             placeholder="اكتب ملاحظتك..."
             placeholderTextColor={colors.text.tertiary}
-            style={styles.textArea}
-            textAlign="right"
+          style={styles.textArea}
+          textAlign="right"
             textAlignVertical="top"
             value={formState.otherReason}
           />
@@ -616,7 +615,9 @@ function PhraseSection({
       <FormField
         accessibilityLabel="عبارة تأكيد حذف الحساب"
         error={error}
+        errorStyle={styles.formLabel}
         label="عبارة التأكيد"
+        labelStyle={styles.formLabel}
         onChangeText={onChangeText}
         placeholder="اكتب: حذف حسابي"
         returnKeyType="done"
@@ -695,8 +696,9 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 42,
   },
   backButton: {
@@ -710,16 +712,17 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerTitle: {
+    alignSelf: 'stretch',
     flex: 1,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   warningCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.dangerTint,
     borderColor: 'rgba(229,103,90,0.30)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -734,14 +737,19 @@ const styles = StyleSheet.create({
     width: 44,
   },
   cardCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   cardDescription: {
+    alignSelf: 'stretch',
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
+    alignItems: 'flex-end',
     gap: spacing.md,
   },
   rowsCard: {
@@ -749,6 +757,7 @@ const styles = StyleSheet.create({
   },
   deletedRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 52,
@@ -764,7 +773,10 @@ const styles = StyleSheet.create({
     width: 22,
   },
   rowText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   prototypeNote: {
     backgroundColor: colors.surface.muted,
@@ -773,11 +785,15 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   noteText: {
+    alignSelf: 'stretch',
     lineHeight: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   reminderRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 74,
     paddingHorizontal: spacing.lg,
@@ -794,23 +810,31 @@ const styles = StyleSheet.create({
     width: 38,
   },
   rowCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   rowDescription: {
+    alignSelf: 'stretch',
     lineHeight: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   noticeCard: {
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   noticeText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   reasonList: {
     gap: spacing.sm,
@@ -821,6 +845,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 52,
@@ -832,7 +857,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(229,103,90,0.36)',
   },
   reasonLabel: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   radio: {
     alignItems: 'center',
@@ -854,6 +882,7 @@ const styles = StyleSheet.create({
     width: 12,
   },
   otherReasonField: {
+    alignItems: 'flex-end',
     gap: spacing.sm,
   },
   textArea: {
@@ -867,9 +896,17 @@ const styles = StyleSheet.create({
     minHeight: 104,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  formLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   checkboxRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 74,
@@ -880,8 +917,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(229,103,90,0.055)',
   },
   checkboxLabel: {
+    alignSelf: 'stretch',
     flex: 1,
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   checkbox: {
     alignItems: 'center',
@@ -898,9 +938,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(229,103,90,0.70)',
   },
   identityCard: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.26)',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -910,6 +951,7 @@ const styles = StyleSheet.create({
   },
   timelineCard: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },

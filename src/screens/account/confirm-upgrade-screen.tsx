@@ -341,10 +341,10 @@ function ConfirmUpgradeHeader({ onBackPress }: { onBackPress: () => void }) {
         <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
+        <AppText align="right" numberOfLines={1} variant="screenTitle">
           تأكيد الترقية
         </AppText>
-        <AppText align="center" tone="secondary" variant="caption">
+        <AppText align="right" tone="secondary" variant="caption">
           راجع تفاصيل الخطة قبل المتابعة
         </AppText>
       </View>
@@ -684,7 +684,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 54,
   },
@@ -769,8 +769,9 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   billingRow: {
+    width: '100%',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 88,
     paddingHorizontal: spacing.lg,
@@ -820,8 +821,9 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   infoRow: {
+    width: '100%',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
     minHeight: 58,

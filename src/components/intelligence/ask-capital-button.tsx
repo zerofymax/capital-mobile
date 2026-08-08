@@ -28,7 +28,7 @@ export function AskCapitalButton({ onPress }: AskCapitalButtonProps) {
       />
       <View style={styles.content}>
         <Ionicons color={colors.brand.green} name="sparkles-outline" size={17} />
-        <AppText align="center" variant="body">
+        <AppText align="right" style={styles.label} variant="body">
           اسأل Capital عن أرقامك
         </AppText>
       </View>
@@ -48,11 +48,16 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'center',
     position: 'relative',
     zIndex: 1,
+  },
+  label: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.78,

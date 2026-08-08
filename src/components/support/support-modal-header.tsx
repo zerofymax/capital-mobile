@@ -5,30 +5,37 @@ import { CapitalGlassIconButton } from '@/components/navigation/capital-glass-ic
 import { AppText } from '@/components/ui';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
+import { directionSafeText } from '@/utils/rtl';
 
 type SupportModalHeaderProps = {
   title: string;
   onClose?: () => void;
+  accessibilityLabel?: string;
+  iconName?: 'close-outline' | 'chevron-back-outline';
 };
 
-export function SupportModalHeader({ title, onClose }: SupportModalHeaderProps) {
+export function SupportModalHeader({
+  title,
+  onClose,
+  accessibilityLabel = 'إغلاق',
+  iconName = 'close-outline',
+}: SupportModalHeaderProps) {
   return (
     <View style={styles.root}>
+      <AppText align="right" numberOfLines={1} style={styles.title} variant="screenTitle">
+        {directionSafeText(title)}
+      </AppText>
       <CapitalGlassIconButton
-        accessibilityLabel="إغلاق"
+        accessibilityLabel={accessibilityLabel}
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName="close-outline"
+        iconName={iconName}
         iconSize={22}
         onPress={onClose ?? router.back}
         pressedStyle={styles.pressed}
         radius={radii.control}
         style={styles.closeButton}
       />
-      <AppText align="center" numberOfLines={1} style={styles.title} variant="screenTitle">
-        {title}
-      </AppText>
-      <View style={styles.slot} />
     </View>
   );
 }
@@ -36,7 +43,9 @@ export function SupportModalHeader({ title, onClose }: SupportModalHeaderProps) 
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
+    gap: 12,
     justifyContent: 'space-between',
     minHeight: 42,
   },
@@ -52,10 +61,9 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-  },
-  slot: {
-    height: 40,
-    width: 40,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.72,

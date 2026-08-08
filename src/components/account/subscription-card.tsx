@@ -90,15 +90,17 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
   },
   copy: {
-    alignItems: 'flex-start',
+    alignItems: Platform.OS === 'android' ? 'flex-end' : 'flex-start',
     flex: 1,
     justifyContent: 'center',
     minWidth: 0,
   },
   titleRow: {
+    alignSelf: Platform.OS === 'android' ? 'stretch' : 'auto',
     alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.sm,
+    justifyContent: Platform.OS === 'android' ? 'flex-start' : 'flex-start',
   },
   titleRowIos: {
     gap: spacing.md,
@@ -132,11 +134,13 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
   priceText: {
+    alignSelf: 'flex-start',
     color: colors.text.primary,
     fontSize: 18,
     lineHeight: 27,
     marginTop: spacing.xs,
     maxWidth: '100%',
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   priceRowIos: {
@@ -176,6 +180,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: spacing.xs,
     textAlign: 'left',
+    width: '100%',
     writingDirection: 'rtl',
   },
   cta: {

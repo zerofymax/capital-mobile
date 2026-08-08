@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -9,11 +9,13 @@ import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
-import { directionSafeText } from '@/utils/rtl';
+import { directionSafeText, formatCurrency } from '@/utils/rtl';
 import { BottomConfirmSheet, GoalHeader, GoalProgressBar, GoalStatusBadge, NoticeBanner } from './components';
 import { deleteGoal, useGoalsStore } from './goals-store';
 import { getGoalSummary, goalToneColors } from './goal-utils';
 import { initialGoals } from './goals-data';
+
+const useAndroidRtlLayout = Platform.OS === 'android';
 
 export function GoalDetailsScreen() {
   const insets = useSafeAreaInsets();
@@ -45,19 +47,42 @@ export function GoalDetailsScreen() {
       >
         <GoalHeader onBack={() => router.back()} title="تفاصيل الهدف" />
 
-        {notice ? <NoticeBanner message={notice} /> : null}
+        {notice ? <NoticeBanner androidRtlLayout message={notice} /> : null}
 
-        <SolidCard style={styles.identityCard}>
-          <View style={[styles.goalIcon, { backgroundColor: tone.tint }]}>
-            <Ionicons color={tone.accent} name={summary.type.icon} size={22} />
-          </View>
-          <View style={styles.identityCopy}>
-            <AppText variant="sectionTitle">{summary.name}</AppText>
-            <AppText tone="secondary" variant="caption">
-              {summary.type.name} · الموعد {summary.targetDate}
-            </AppText>
-          </View>
-          <GoalStatusBadge status={summary.displayStatus} />
+        <SolidCard style={[styles.identityCard, useAndroidRtlLayout && styles.identityCardAndroid]}>
+          {useAndroidRtlLayout ? (
+            <>
+              <View style={[styles.goalIcon, { backgroundColor: tone.tint }]}>
+                <Ionicons color={tone.accent} name={summary.type.icon} size={22} />
+              </View>
+              <View style={styles.identityBodyAndroid}>
+                <View style={styles.identityDetailsAndroid}>
+                  <GoalStatusBadge status={summary.displayStatus} />
+                  <View style={styles.identityCopyAndroid}>
+                    <AppText style={styles.identityTitleAndroid} variant="sectionTitle">
+                      {summary.name}
+                    </AppText>
+                    <AppText style={styles.identityDescriptionAndroid} tone="secondary" variant="caption">
+                      {summary.type.name} · الموعد {summary.targetDate}
+                    </AppText>
+                  </View>
+                </View>
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={[styles.goalIcon, { backgroundColor: tone.tint }]}>
+                <Ionicons color={tone.accent} name={summary.type.icon} size={22} />
+              </View>
+              <View style={styles.identityCopy}>
+                <AppText variant="sectionTitle">{summary.name}</AppText>
+                <AppText tone="secondary" variant="caption">
+                  {summary.type.name} · الموعد {summary.targetDate}
+                </AppText>
+              </View>
+              <GoalStatusBadge status={summary.displayStatus} />
+            </>
+          )}
         </SolidCard>
 
         <SolidCard style={styles.summaryCard}>
@@ -76,7 +101,7 @@ export function GoalDetailsScreen() {
           </View>
           <GoalProgressBar progress={summary.progress} tone={summary.displayStatus.tone} />
           <AppText align="center" variant="supporting">
-            {summary.completed ? 'تم تحقيق الهدف بالكامل' : 'حققت أكثر من نصف هدفك المالي'}
+            {directionSafeText(getProgressMessage(summary.progress, summary.completed))}
           </AppText>
         </SolidCard>
 
@@ -99,6 +124,7 @@ export function GoalDetailsScreen() {
       </ScrollView>
 
       <BottomConfirmSheet
+        androidRtlLayout
         danger
         description={`سيتم حذف هدف ${summary.name} وسجل متابعته، ولن يتم حذف أي معاملات مالية مسجلة.`}
         onPrimaryPress={handleDelete}
@@ -119,27 +145,27 @@ function Metric({ label, value, tone }: { label: string; value: number; tone?: k
         {label}
       </AppText>
       <AppText align="center" style={[styles.metricValue, tone && { color: goalToneColors[tone].text }]} variant="caption">
-        {directionSafeText(`${value.toLocaleString('en-US')} ر.س`)}
+        {directionSafeText(formatCurrency(value))}
       </AppText>
     </View>
   );
 }
 
 function TimelineCard({ summary }: { summary: ReturnType<typeof getGoalSummary> }) {
-  const rows: [string, string][] = [
-    ['تاريخ البدء', summary.startDate],
-    ['الموعد المستهدف', summary.targetDate],
-    ['الوقت المتبقي', summary.expectedCompletion.label],
-    ['المساهمة الشهرية', `${summary.monthlyContribution.toLocaleString('en-US')} ر.س`],
+  const rows: { label: string; value: string; valueDirection?: 'ltr' | 'rtl' }[] = [
+    { label: 'تاريخ البدء', value: summary.startDate },
+    { label: 'الموعد المستهدف', value: summary.targetDate },
+    { label: 'الوقت المتبقي', value: getRemainingTimeLabel(summary.targetDate, summary.completed), valueDirection: 'rtl' },
+    { label: 'المساهمة الشهرية', value: formatCurrency(summary.monthlyContribution) },
   ];
 
   return (
     <View style={styles.section}>
-      <AppText variant="cardTitle">الجدول الزمني</AppText>
+      <SectionTitle>الجدول الزمني</SectionTitle>
       <SolidCard style={styles.infoCard}>
-        {rows.map(([label, value], index) => (
-          <View key={label}>
-            <InfoRow label={label} value={value} />
+        {rows.map((row, index) => (
+          <View key={row.label}>
+            <InfoRow label={row.label} value={row.value} valueDirection={row.valueDirection} />
             {index < 3 ? <Divider /> : null}
           </View>
         ))}
@@ -162,9 +188,9 @@ function InfoCard({ summary }: { summary: ReturnType<typeof getGoalSummary> }) {
   const rows: [string, string][] = [
     ['اسم الهدف', summary.name],
     ['نوع الهدف', summary.type.name],
-    ['المبلغ المستهدف', `${summary.targetAmount.toLocaleString('en-US')} ر.س`],
-    ['المبلغ المحقق', `${summary.currentAmount.toLocaleString('en-US')} ر.س`],
-    ['المساهمة الشهرية', `${summary.monthlyContribution.toLocaleString('en-US')} ر.س`],
+    ['المبلغ المستهدف', formatCurrency(summary.targetAmount)],
+    ['المبلغ المحقق', formatCurrency(summary.currentAmount)],
+    ['المساهمة الشهرية', formatCurrency(summary.monthlyContribution)],
     ['الموعد المستهدف', summary.targetDate],
     ['التذكير', summary.reminderEnabled ? 'مفعل' : 'غير مفعل'],
     ['يوم التذكير', summary.reminderDay],
@@ -173,7 +199,7 @@ function InfoCard({ summary }: { summary: ReturnType<typeof getGoalSummary> }) {
 
   return (
     <View style={styles.section}>
-      <AppText variant="cardTitle">معلومات الهدف</AppText>
+      <SectionTitle>معلومات الهدف</SectionTitle>
       <SolidCard style={styles.infoCard}>
         {rows.map(([label, value], index) => (
           <View key={label}>
@@ -196,7 +222,9 @@ function ContributionHistory({ goal }: { goal: ReturnType<typeof getGoalSummary>
       {goal.realizedContributions.length ? (
         <>
           <View style={styles.sectionHeader}>
-            <AppText variant="cardTitle">سجل المساهمات</AppText>
+            <AppText style={styles.sectionHeaderTitle} variant="cardTitle">
+              سجل المساهمات
+            </AppText>
             <AppText style={styles.linkText} variant="caption">
               عرض كل المساهمات
             </AppText>
@@ -207,7 +235,7 @@ function ContributionHistory({ goal }: { goal: ReturnType<typeof getGoalSummary>
 
       {goal.plannedContributions.length ? (
         <>
-          <AppText variant="cardTitle">مساهمات مخططة</AppText>
+          <SectionTitle>مساهمات مخططة</SectionTitle>
           <ContributionList contributions={goal.plannedContributions} planned />
         </>
       ) : null}
@@ -224,25 +252,56 @@ function ContributionList({
 }) {
   return (
     <SolidCard style={styles.infoCard}>
-      {contributions.map((contribution, index) => (
-        <View key={contribution.id}>
-          <View style={styles.contributionRow}>
-            <View style={[styles.contributionIcon, planned && styles.plannedContributionIcon]}>
-              <Ionicons color={planned ? colors.semantic.warning : '#35D39A'} name={planned ? 'calendar-outline' : 'arrow-up-outline'} size={15} />
-            </View>
-            <View style={styles.contributionCopy}>
-              <AppText variant="cardTitle">{contribution.title}</AppText>
-              <AppText tone="secondary" variant="caption">
-                {contribution.date}
-              </AppText>
-            </View>
-            <AppText align="left" style={[styles.contributionAmount, planned && styles.plannedContributionAmount]} variant="caption">
-              {directionSafeText(`+${contribution.amount.toLocaleString('en-US')} ر.س`)}
+      {contributions.map((contribution, index) => {
+        const contributionIcon = (
+          <View style={[styles.contributionIcon, planned && styles.plannedContributionIcon]}>
+            <Ionicons color={planned ? colors.semantic.warning : '#35D39A'} name={planned ? 'calendar-outline' : 'arrow-up-outline'} size={15} />
+          </View>
+        );
+        const contributionCopy = (
+          <View style={useAndroidRtlLayout ? styles.contributionCopyAndroid : styles.contributionCopy}>
+            <AppText style={useAndroidRtlLayout ? styles.contributionTitleAndroid : undefined} variant="cardTitle">
+              {contribution.title}
+            </AppText>
+            <AppText style={useAndroidRtlLayout ? styles.contributionDateAndroid : undefined} tone="secondary" variant="caption">
+              {contribution.date}
             </AppText>
           </View>
-          {index < contributions.length - 1 ? <Divider /> : null}
-        </View>
-      ))}
+        );
+        const contributionAmount = (
+          <AppText
+            align="left"
+            numberOfLines={1}
+            style={[styles.contributionAmount, planned && styles.plannedContributionAmount]}
+            variant="caption"
+          >
+            {directionSafeText(`+${formatCurrency(contribution.amount)}`)}
+          </AppText>
+        );
+
+        return (
+          <View key={contribution.id}>
+            <View style={[styles.contributionRow, useAndroidRtlLayout && styles.contributionRowAndroid]}>
+              {useAndroidRtlLayout ? (
+                <>
+                  {contributionIcon}
+                  {contributionAmount}
+                  <View style={styles.contributionBodyAndroid}>
+                    {contributionCopy}
+                  </View>
+                </>
+              ) : (
+                <>
+                  {contributionIcon}
+                  {contributionCopy}
+                  {contributionAmount}
+                </>
+              )}
+            </View>
+            {index < contributions.length - 1 ? <Divider /> : null}
+          </View>
+        );
+      })}
     </SolidCard>
   );
 }
@@ -250,33 +309,104 @@ function ContributionList({
 function InsightCard({ summary }: { summary: ReturnType<typeof getGoalSummary> }) {
   return (
     <SolidCard style={styles.insightCard}>
-      <View style={styles.insightHeader}>
+      <View style={[styles.insightHeader, useAndroidRtlLayout && styles.insightHeaderAndroid]}>
         <Ionicons color="#9DD5FF" name="sparkles-outline" size={17} />
-        <AppText style={styles.linkText} variant="cardTitle">
+        <AppText style={[styles.linkText, useAndroidRtlLayout && styles.insightTitleAndroid]} variant="cardTitle">
           {summary.completed ? 'تقدم ممتاز' : 'تقدم جيد'}
         </AppText>
       </View>
-      <AppText variant="body">
+      <AppText style={useAndroidRtlLayout ? styles.insightTextAndroid : undefined} variant="body">
         {summary.completed
           ? 'تم تحقيق الهدف بالكامل. يمكنك الآن متابعة أهداف مالية جديدة لنشاطك.'
-          : `حققت ${summary.progress}% من هدف ${summary.name} ويتبقى ${summary.remaining.toLocaleString('en-US')} ر.س للوصول إلى المبلغ المستهدف.`}
+          : directionSafeText(`حققت ${summary.progress}% من هدف ${summary.name} ويتبقى ${formatCurrency(summary.remaining)} للوصول إلى المبلغ المستهدف.`)}
       </AppText>
     </SolidCard>
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function SectionTitle({ children }: { children: string }) {
+  return (
+    <View style={styles.sectionTitleWrapper}>
+      <AppText style={styles.sectionTitle} variant="cardTitle">
+        {children}
+      </AppText>
+    </View>
+  );
+}
+
+function InfoRow({ label, value, valueDirection = 'ltr' }: { label: string; value: string; valueDirection?: 'ltr' | 'rtl' }) {
   return (
     <View style={styles.infoRow}>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.infoLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="left" style={styles.infoValue} variant="caption">
+      <AppText align="left" style={[styles.infoValue, valueDirection === 'rtl' && styles.infoValueRtl]} variant="caption">
         {directionSafeText(value)}
       </AppText>
     </View>
   );
 }
+
+function getProgressMessage(progress: number, completed: boolean) {
+  if (completed) {
+    return 'تم تحقيق الهدف بالكامل';
+  }
+
+  if (progress < 50) {
+    return `حققت ${progress}% من هدفك المالي، وأصبحت قريبًا من المنتصف.`;
+  }
+
+  if (progress === 50) {
+    return `حققت ${progress}% من هدفك المالي، ووصلت إلى المنتصف.`;
+  }
+
+  return `حققت ${progress}% من هدفك المالي، وتجاوزت المنتصف.`;
+}
+
+function getRemainingTimeLabel(targetDate: string, completed: boolean, today = new Date()) {
+  if (completed) {
+    return 'تم تحقيق الهدف';
+  }
+
+  const [monthName, yearText] = targetDate.trim().split(/\s+/);
+  const targetMonth = monthName ? goalMonthIndexes[monthName] : undefined;
+  const targetYear = Number(yearText);
+
+  if (targetMonth === undefined || !Number.isFinite(targetYear)) {
+    return 'غير محدد';
+  }
+
+  const remainingMonths = (targetYear - today.getFullYear()) * 12 + targetMonth - today.getMonth();
+
+  if (remainingMonths <= 0) {
+    return 'أقل من شهر';
+  }
+  if (remainingMonths === 1) {
+    return 'حوالي شهر';
+  }
+  if (remainingMonths === 2) {
+    return 'حوالي شهرين';
+  }
+
+  const formattedMonths = remainingMonths.toLocaleString('en-US');
+
+  return remainingMonths <= 10 ? `حوالي ${formattedMonths} أشهر` : `حوالي ${formattedMonths} شهرًا`;
+}
+
+const goalMonthIndexes: Record<string, number> = {
+  يناير: 0,
+  فبراير: 1,
+  مارس: 2,
+  أبريل: 3,
+  مايو: 4,
+  يونيو: 5,
+  يوليو: 6,
+  أغسطس: 7,
+  سبتمبر: 8,
+  أكتوبر: 9,
+  نوفمبر: 10,
+  ديسمبر: 11,
+};
 
 const styles = StyleSheet.create({
   root: {
@@ -292,9 +422,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
+  identityCardAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
+  identityBodyAndroid: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
+  identityDetailsAndroid: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
+    maxWidth: '100%',
+  },
   goalIcon: {
     alignItems: 'center',
     borderRadius: radii.control,
+    flexShrink: 0,
     height: 44,
     justifyContent: 'center',
     width: 44,
@@ -303,6 +450,24 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  identityCopyAndroid: {
+    alignItems: 'flex-end',
+    flexShrink: 1,
+    gap: spacing.xs,
+    minWidth: 0,
+  },
+  identityTitleAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  identityDescriptionAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   summaryCard: {
     gap: spacing.md,
@@ -329,26 +494,54 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   sectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  sectionHeaderTitle: {
+    flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoCard: {
     gap: spacing.sm,
   },
   infoRow: {
+    width: '100%',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 34,
+  },
+  infoLabel: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoValue: {
     color: colors.text.primary,
     fontWeight: '700',
     writingDirection: 'ltr',
+  },
+  infoValueRtl: {
+    writingDirection: 'rtl',
   },
   noteBox: {
     backgroundColor: 'rgba(46,168,255,0.10)',
@@ -367,10 +560,20 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     minHeight: 52,
   },
+  contributionRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
+  contributionBodyAndroid: {
+    alignItems: 'flex-end',
+    flex: 1,
+    minWidth: 0,
+  },
   contributionIcon: {
     alignItems: 'center',
     backgroundColor: 'rgba(53,211,154,0.12)',
     borderRadius: radii.control,
+    flexShrink: 0,
     height: 34,
     justifyContent: 'center',
     width: 34,
@@ -383,8 +586,28 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     minWidth: 0,
   },
+  contributionCopyAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    flexShrink: 1,
+    gap: spacing.xs,
+    minWidth: 0,
+  },
+  contributionTitleAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  contributionDateAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   contributionAmount: {
     color: '#35D39A',
+    flexShrink: 0,
     fontWeight: '700',
     writingDirection: 'ltr',
   },
@@ -400,5 +623,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+  },
+  insightHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  insightTitleAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  insightTextAndroid: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

@@ -50,7 +50,7 @@ export function RegisterScreen() {
       return;
     }
 
-    router.push(routes.authAccountCreated);
+    router.push(routes.financialSetupBusinessInfo);
   }
 
   return (
@@ -63,6 +63,7 @@ export function RegisterScreen() {
         style={StyleSheet.absoluteFill}
       />
       <ScrollView
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
         contentContainerStyle={[
           styles.content,
           {
@@ -70,55 +71,66 @@ export function RegisterScreen() {
             paddingTop: Math.max(insets.top + spacing.xl, spacing.safeTop),
           },
         ]}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         <RegisterHeader onBack={() => router.push(routes.authWelcome)} />
         <View style={styles.titleBlock}>
-          <AppText variant="screenTitle">إنشاء حساب</AppText>
-          <AppText tone="secondary" variant="body">
+          <AppText style={styles.rtlText} variant="screenTitle">إنشاء حساب</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="body">
             بيانات الدخول
           </AppText>
         </View>
 
         <View style={styles.form}>
-          <AuthInput
-            autoCapitalize="words"
-            error={notice && !values.fullName.trim() ? missingLoginDataMessage : undefined}
-            label="الاسم الكامل"
-            onChangeText={(value) => updateField('fullName', value)}
-            placeholder="مثال: عبدالله الشهري"
-            textContentType="name"
-            value={values.fullName}
-          />
-          <AuthInput
-            error={notice && !values.phone.trim() ? missingLoginDataMessage : undefined}
-            keyboardType="phone-pad"
-            label="رقم الجوال"
-            ltr
-            onChangeText={(value) => updateField('phone', value)}
-            placeholder="05XX XXX XXX"
-            textContentType="telephoneNumber"
-            value={values.phone}
-          />
-          <AuthInput
-            autoCapitalize="none"
-            autoComplete="new-password"
-            error={notice && !values.password.trim() ? missingLoginDataMessage : undefined}
-            label="كلمة المرور"
-            onChangeText={(value) => updateField('password', value)}
-            placeholder="8 أحرف على الأقل"
-            secureTextEntry
-            textContentType="newPassword"
-            value={values.password}
-          />
+          <View style={styles.fieldWrapper}>
+            <AuthInput
+              autoCapitalize="words"
+              error={notice && !values.fullName.trim() ? missingLoginDataMessage : undefined}
+              label="الاسم الكامل"
+              onChangeText={(value) => updateField('fullName', value)}
+              placeholder="مثال: عبدالله الشهري"
+              rtlLayout
+              textContentType="name"
+              value={values.fullName}
+            />
+          </View>
+          <View style={styles.fieldWrapper}>
+            <AuthInput
+              error={notice && !values.phone.trim() ? missingLoginDataMessage : undefined}
+              keyboardType="phone-pad"
+              label="رقم الجوال"
+              ltr
+              onChangeText={(value) => updateField('phone', value)}
+              placeholder="05XX XXX XXX"
+              rtlLayout
+              textContentType="telephoneNumber"
+              value={values.phone}
+            />
+          </View>
+          <View style={styles.fieldWrapper}>
+            <AuthInput
+              autoCapitalize="none"
+              autoComplete="new-password"
+              error={notice && !values.password.trim() ? missingLoginDataMessage : undefined}
+              label="كلمة المرور"
+              onChangeText={(value) => updateField('password', value)}
+              placeholder="8 أحرف على الأقل"
+              rtlLayout
+              secureTextEntry
+              textContentType="newPassword"
+              value={values.password}
+            />
+          </View>
         </View>
 
         <View style={styles.spacer} />
 
         <View style={styles.bottomActions}>
           <AppButton onPress={handleContinue}>متابعة</AppButton>
-          <RegisterAgreementText />
+          <RegisterAgreementText align="right" />
         </View>
 
         {notice ? <AuthPrototypeNotice message={notice} tone="danger" /> : null}
@@ -137,7 +149,7 @@ function RegisterHeader({ onBack }: { onBack: () => void }) {
         onPress={onBack}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.primary} name="chevron-forward" size={20} />
+        <Ionicons color={colors.text.primary} name="chevron-back-outline" size={20} />
       </Pressable>
     </View>
   );
@@ -154,8 +166,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   topBar: {
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     minHeight: 42,
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -168,12 +183,27 @@ const styles = StyleSheet.create({
     width: 42,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     gap: spacing.xs,
+    width: '100%',
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   form: {
     gap: spacing.lg,
     paddingTop: spacing.lg,
+  },
+  fieldWrapper: {
+    alignItems: 'stretch',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
   },
   spacer: {
     flexGrow: 1,

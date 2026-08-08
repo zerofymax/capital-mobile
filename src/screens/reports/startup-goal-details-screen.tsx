@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, SolidCard } from '@/components/ui';
@@ -39,6 +39,9 @@ import {
   useStartupReportsStore,
 } from './startup-report-store';
 
+const useAndroidRtlLayout = Platform.OS === 'android';
+const androidSystemNavigationClearance = 48;
+
 export function StartupGoalDetailsScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -47,13 +50,15 @@ export function StartupGoalDetailsScreen() {
   const [deleteVisible, setDeleteVisible] = useState(false);
   const [milestoneVisible, setMilestoneVisible] = useState(false);
   const [milestoneTitle, setMilestoneTitle] = useState('');
-  const bottomPadding = Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
+  const bottomPadding = useAndroidRtlLayout
+    ? insets.bottom + androidSystemNavigationClearance + spacing.xl
+    : Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
 
   if (!goal) {
     return (
       <SafeAreaView edges={['top']} style={styles.root}>
         <View style={[styles.notFound, { paddingBottom: bottomPadding }]}>
-          <ReportModalHeader onBack={() => router.back()} subtitle="قد يكون الهدف حُذف من النسخة التجريبية." title="تعذر العثور على الهدف" />
+          <ReportModalHeader androidRtlLayout onBack={() => router.back()} subtitle="قد يكون الهدف حُذف من النسخة التجريبية." title="تعذر العثور على الهدف" />
           <SolidCard style={styles.infoCard}>
             <AppText tone="secondary" variant="body">
               لا يمكن عرض تفاصيل هدف غير موجود.
@@ -87,7 +92,7 @@ export function StartupGoalDetailsScreen() {
         showsVerticalScrollIndicator={false}
         style={styles.scrollArea}
       >
-        <ReportModalHeader onBack={() => router.back()} subtitle={type.label} title="تفاصيل الهدف" />
+        <ReportModalHeader androidRtlLayout onBack={() => router.back()} subtitle={type.label} title="تفاصيل الهدف" />
 
         <GoalHero goal={goal} />
         <ProgressSection goal={goal} />
@@ -96,8 +101,8 @@ export function StartupGoalDetailsScreen() {
         <MilestonesSection goal={goal} onAdd={() => setMilestoneVisible(true)} />
 
         <SolidCard style={styles.infoCard}>
-          <AppText variant="cardTitle">ملاحظات</AppText>
-          <AppText tone="secondary" variant="body">
+          <SectionHeader icon="document-text-outline" title="ملاحظات" />
+          <AppText align="right" style={styles.rtlText} tone="secondary" variant="body">
             {goal.notes || 'لا توجد ملاحظات لهذا الهدف.'}
           </AppText>
         </SolidCard>
@@ -111,6 +116,7 @@ export function StartupGoalDetailsScreen() {
       </ScrollView>
 
       <ConfirmSheet
+        androidRtlLayout
         danger
         description="سيتم حذف الهدف ومراحله من النسخة التجريبية الحالية، ولا يمكن التراجع عن هذا الإجراء."
         onPrimaryPress={handleDelete}
@@ -134,22 +140,42 @@ export function StartupGoalDetailsScreen() {
 function GoalHero({ goal }: { goal: StartupGoal }) {
   const type = getStartupGoalTypeMeta(goal.type);
   const status = resolveGoalStatus(goal);
+  const goalTitle = (
+    <View style={[styles.goalTitleBlock, useAndroidRtlLayout && styles.goalTitleBlockAndroid]}>
+      <AppText align="right" style={styles.rtlText} variant="sectionTitle">
+        {goal.title}
+      </AppText>
+      <AppText align="right" style={styles.rtlText} tone="secondary" variant="supporting">
+        {type.label} · {goal.owner} · آخر تحديث {goal.updatedAt}
+      </AppText>
+    </View>
+  );
+  const goalIcon = (
+    <View style={styles.iconBubble}>
+      <Ionicons color={colors.brand.calmGreen} name={type.icon} size={20} />
+    </View>
+  );
 
   return (
     <SolidCard style={styles.heroCard}>
-      <View style={styles.goalHeader}>
-        <View style={styles.goalTitleBlock}>
-          <AppText variant="sectionTitle">{goal.title}</AppText>
-          <AppText tone="secondary" variant="supporting">
-            {type.label} · {goal.owner} · آخر تحديث {goal.updatedAt}
-          </AppText>
-        </View>
-        <View style={styles.iconBubble}>
-          <Ionicons color={colors.brand.calmGreen} name={type.icon} size={20} />
-        </View>
+      <View style={[styles.goalHeader, useAndroidRtlLayout && styles.goalHeaderAndroid]}>
+        {useAndroidRtlLayout ? (
+          <>
+            {goalIcon}
+            <View style={styles.goalHeroIdentity}>
+              <StatusBadge status={status} />
+              {goalTitle}
+            </View>
+          </>
+        ) : (
+          <>
+            {goalTitle}
+            {goalIcon}
+          </>
+        )}
       </View>
-      <StatusBadge status={status} />
-      <AppText tone="secondary" variant="body">
+      {!useAndroidRtlLayout ? <StatusBadge status={status} /> : null}
+      <AppText align="right" style={styles.rtlText} tone="secondary" variant="body">
         {goal.description}
       </AppText>
     </SolidCard>
@@ -164,11 +190,11 @@ function ProgressSection({ goal }: { goal: StartupGoal }) {
   return (
     <SolidCard style={styles.infoCard}>
       <SectionHeader icon="trending-up-outline" title="التقدم" />
-      <View style={styles.amountRow}>
-        <AppText tone="secondary" variant="caption">
+      <View style={[styles.amountRow, useAndroidRtlLayout && styles.amountRowAndroid]}>
+        <AppText align="right" style={styles.rowLabel} tone="secondary" variant="caption">
           نسبة التقدم
         </AppText>
-        <AppText style={styles.successText} variant="caption">
+        <AppText align="left" style={[styles.rowValue, styles.successText]} variant="caption">
           {directionSafeText(`${actualProgress}%`)}
         </AppText>
       </View>
@@ -178,7 +204,7 @@ function ProgressSection({ goal }: { goal: StartupGoal }) {
         <Stat label="المستهدف" value={formatGoalNumber(goal.targetValue, goal.unit)} />
         <Stat label="المراحل" value={`${milestonesProgress}%`} />
       </View>
-      <AppText tone="secondary" variant="body">
+      <AppText align="right" style={styles.rtlText} tone="secondary" variant="body">
         {directionSafeText(`تم تحقيق ${formatGoalNumber(goal.currentValue, goal.unit)} من أصل ${formatGoalNumber(goal.targetValue, goal.unit)}.`)}
       </AppText>
     </SolidCard>
@@ -207,20 +233,20 @@ function BudgetSection({ goal }: { goal: StartupGoal }) {
         <Stat label="المصروف" value={formatSar(goal.spentBudget)} />
         <Stat label="المتبقي" tone={remainingBudget < 0 ? 'danger' : undefined} value={formatSar(remainingBudget)} />
       </View>
-      <View style={styles.amountRow}>
-        <AppText tone="secondary" variant="caption">
+      <View style={[styles.amountRow, useAndroidRtlLayout && styles.amountRowAndroid]}>
+        <AppText align="right" style={styles.rowLabel} tone="secondary" variant="caption">
           استهلاك الميزانية
         </AppText>
-        <AppText tone={tone} variant="caption">
+        <AppText align="left" style={styles.rowValue} tone={tone} variant="caption">
           {budgetUsage === null ? 'غير متاح' : directionSafeText(formatPercent(budgetUsage))}
         </AppText>
       </View>
       <ProgressBar progress={budgetUsage ?? 0} tone={budgetStatus === 'over-budget' ? 'intervene' : budgetStatus === 'near-limit' ? 'watch' : 'good'} />
       <View style={[styles.insightBox, tone === 'danger' && styles.dangerBox, tone === 'warning' && styles.warningBox]}>
-        <AppText tone={tone} variant="caption">
+        <AppText align="right" style={styles.rtlText} tone={tone} variant="caption">
           {label}
         </AppText>
-        <AppText tone="secondary" variant="body">
+        <AppText align="right" style={styles.rtlText} tone="secondary" variant="body">
           {compareProgressToBudget(goal)}
         </AppText>
       </View>
@@ -259,13 +285,17 @@ function MilestonesSection({ goal, onAdd }: { goal: StartupGoal; onAdd: () => vo
   return (
     <View style={styles.section}>
       <View style={styles.sectionTitleRow}>
-        <AppText variant="sectionTitle">المراحل الفرعية</AppText>
         <Pressable accessibilityLabel="إضافة مرحلة" accessibilityRole="button" onPress={onAdd} style={({ pressed }) => [styles.addMilestoneButton, pressed && styles.pressed]}>
           <Ionicons color={colors.brand.calmGreen} name="add-outline" size={17} />
           <AppText style={styles.addMilestoneText} variant="caption">
             إضافة مرحلة
           </AppText>
         </Pressable>
+        <View style={styles.sectionTitleWrapper}>
+          <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+            المراحل الفرعية
+          </AppText>
+        </View>
       </View>
       <View style={styles.milestoneList}>
         {goal.milestones.map((milestone) => (
@@ -274,24 +304,49 @@ function MilestonesSection({ goal, onAdd }: { goal: StartupGoal; onAdd: () => vo
             accessibilityRole="button"
             key={milestone.id}
             onPress={() => toggleStartupGoalMilestone(goal.id, milestone.id)}
-            style={({ pressed }) => [styles.milestoneRow, pressed && styles.pressed]}
+            style={({ pressed }) => [styles.milestoneRow, useAndroidRtlLayout && styles.milestoneRowAndroid, pressed && styles.pressed]}
           >
-            <View style={[styles.milestoneCheck, milestone.completed && styles.milestoneCheckActive]}>
-              {milestone.completed ? <Ionicons color={colors.text.primary} name="checkmark-outline" size={15} /> : null}
-            </View>
-            <View style={styles.milestoneCopy}>
-              <AppText style={milestone.completed && styles.completedText} variant="body">
-                {milestone.title}
-              </AppText>
-              {milestone.date ? (
-                <AppText tone="secondary" variant="caption">
-                  {formatDate(milestone.date)}
+            {useAndroidRtlLayout ? (
+              <>
+                <View style={[styles.milestoneCheck, milestone.completed && styles.milestoneCheckActive]}>
+                  {milestone.completed ? <Ionicons color={colors.text.primary} name="checkmark-outline" size={15} /> : null}
+                </View>
+                <View style={styles.milestoneIdentity}>
+                  <AppText tone={milestone.completed ? 'success' : 'secondary'} variant="caption">
+                    {milestone.completed ? 'مكتملة' : 'غير مكتملة'}
+                  </AppText>
+                  <View style={[styles.milestoneCopy, styles.milestoneCopyAndroid]}>
+                    <AppText align="right" style={[styles.rtlText, milestone.completed && styles.completedText]} variant="body">
+                      {milestone.title}
+                    </AppText>
+                    {milestone.date ? (
+                      <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
+                        {formatDate(milestone.date)}
+                      </AppText>
+                    ) : null}
+                  </View>
+                </View>
+              </>
+            ) : (
+              <>
+                <View style={[styles.milestoneCheck, milestone.completed && styles.milestoneCheckActive]}>
+                  {milestone.completed ? <Ionicons color={colors.text.primary} name="checkmark-outline" size={15} /> : null}
+                </View>
+                <View style={styles.milestoneCopy}>
+                  <AppText style={milestone.completed && styles.completedText} variant="body">
+                    {milestone.title}
+                  </AppText>
+                  {milestone.date ? (
+                    <AppText tone="secondary" variant="caption">
+                      {formatDate(milestone.date)}
+                    </AppText>
+                  ) : null}
+                </View>
+                <AppText tone={milestone.completed ? 'success' : 'secondary'} variant="caption">
+                  {milestone.completed ? 'مكتملة' : 'غير مكتملة'}
                 </AppText>
-              ) : null}
-            </View>
-            <AppText tone={milestone.completed ? 'success' : 'secondary'} variant="caption">
-              {milestone.completed ? 'مكتملة' : 'غير مكتملة'}
-            </AppText>
+              </>
+            )}
           </Pressable>
         ))}
       </View>
@@ -312,13 +367,20 @@ function AddMilestoneSheet({
   onClose: () => void;
   onSave: () => void;
 }) {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = useAndroidRtlLayout
+    ? insets.bottom + androidSystemNavigationClearance + spacing.xl
+    : insets.bottom + spacing.xl;
+
   return (
     <Modal animationType="fade" onRequestClose={onClose} statusBarTranslucent transparent visible={visible}>
       <View style={styles.sheetRoot}>
         <Pressable accessibilityLabel="إغلاق" onPress={onClose} style={styles.sheetBackdrop} />
-        <View style={styles.sheetCard}>
+        <View style={[styles.sheetCard, { paddingBottom: bottomPadding }]}>
           <View style={styles.sheetHandle} />
-          <AppText variant="sectionTitle">إضافة مرحلة</AppText>
+          <AppText align="right" style={styles.sheetTitle} variant="sectionTitle">
+            إضافة مرحلة
+          </AppText>
           <View style={styles.inputWrap}>
             <TextInput
               onChangeText={onChangeTitle}
@@ -347,7 +409,11 @@ function SectionHeader({ title, icon }: { title: string; icon: keyof typeof Ioni
       <View style={styles.smallIcon}>
         <Ionicons color={colors.brand.calmGreen} name={icon} size={17} />
       </View>
-      <AppText variant="cardTitle">{title}</AppText>
+      <View style={styles.sectionHeaderTitleWrapper}>
+        <AppText align="right" style={styles.sectionHeaderTitle} variant="cardTitle">
+          {title}
+        </AppText>
+      </View>
     </View>
   );
 }
@@ -367,11 +433,11 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: 'da
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <View style={styles.infoRow}>
-      <AppText tone="secondary" variant="caption">
+    <View style={[styles.infoRow, useAndroidRtlLayout && styles.infoRowAndroid]}>
+      <AppText align="right" style={styles.infoLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="left" variant="caption">
+      <AppText align="left" style={styles.infoValue} variant="caption">
         {directionSafeText(value)}
       </AppText>
     </View>
@@ -405,9 +471,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
+  goalHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
   goalTitleBlock: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  goalTitleBlockAndroid: {
+    flex: 0,
+    flexShrink: 1,
+  },
+  goalHeroIdentity: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flex: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'flex-end',
+    minWidth: 0,
   },
   iconBubble: {
     alignItems: 'center',
@@ -422,8 +507,25 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
+    width: '100%',
+  },
+  sectionHeaderTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flex: 1,
+    justifyContent: 'center',
+    minWidth: 0,
+  },
+  sectionHeaderTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   smallIcon: {
     alignItems: 'center',
@@ -437,6 +539,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
+  },
+  amountRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  rowLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  rowValue: {
+    flexShrink: 0,
+    textAlign: 'left',
   },
   successText: {
     color: colors.semantic.success,
@@ -469,19 +585,51 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(232,163,61,0.24)',
   },
   infoRow: {
+    width: '100%',
     borderBottomColor: colors.surface.separator,
     borderBottomWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     paddingBottom: spacing.sm,
+  },
+  infoRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  infoLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  infoValue: {
+    flexShrink: 0,
+    textAlign: 'left',
   },
   section: {
     gap: spacing.md,
   },
   sectionTitleRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flex: 1,
+    justifyContent: 'center',
+    minWidth: 0,
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   addMilestoneButton: {
     alignItems: 'center',
@@ -511,6 +659,10 @@ const styles = StyleSheet.create({
     minHeight: 58,
     paddingHorizontal: spacing.md,
   },
+  milestoneRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
   milestoneCheck: {
     alignItems: 'center',
     backgroundColor: colors.surface.muted,
@@ -526,8 +678,29 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xs,
   },
+  milestoneCopyAndroid: {
+    alignItems: 'flex-end',
+    flex: 0,
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  milestoneIdentity: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flex: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'flex-end',
+    minWidth: 0,
+  },
   completedText: {
     color: colors.brand.calmGreen,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   sheetRoot: {
     backgroundColor: colors.background.overlay,
@@ -557,6 +730,12 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     height: 4,
     width: 36,
+  },
+  sheetTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   inputWrap: {
     backgroundColor: colors.surface.card,

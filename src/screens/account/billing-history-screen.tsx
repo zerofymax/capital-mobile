@@ -106,7 +106,9 @@ export function BillingHistoryScreen() {
         <FilterChips selectedFilter={selectedFilter} onFilterPress={handleFilterPress} />
 
         <View style={styles.section}>
-          <AppText variant="sectionTitle">2026</AppText>
+          <View style={styles.yearTitleWrapper}>
+            <AppText align="right" style={styles.yearTitle} variant="sectionTitle">2026</AppText>
+          </View>
           {visibleInvoices.length > 0 ? (
             visibleInvoices.map((invoice) => (
               <InvoiceCard
@@ -151,17 +153,16 @@ function BillingHistoryHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
+        <AppText align="right" numberOfLines={1} style={styles.fullWidthRtlText} variant="screenTitle">
           سجل الفواتير
         </AppText>
-        <AppText align="center" tone="secondary" variant="caption">
+        <AppText align="right" style={styles.fullWidthRtlText} tone="secondary" variant="caption">
           عرض المدفوعات والفواتير السابقة
         </AppText>
       </View>
-      <View style={styles.headerSlot} />
     </View>
   );
 }
@@ -177,17 +178,17 @@ function BillingSummaryCard({ invoiceCount, subscription }: { invoiceCount: numb
           <Ionicons color={colors.brand.calmGreen} name="receipt-outline" size={21} />
         </View>
         <View style={styles.copy}>
-          <AppText variant="cardTitle">ملخص الفوترة</AppText>
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.fullWidthRtlText} variant="cardTitle">ملخص الفوترة</AppText>
+          <AppText style={styles.fullWidthRtlText} tone="secondary" variant="caption">
             جميع القيم المعروضة تجريبية ومحلية فقط.
           </AppText>
         </View>
       </View>
       <View style={styles.summaryGrid}>
-        <SummaryMetric label="إجمالي المدفوعات" value={totalPayments} />
         <SummaryMetric label="عدد الفواتير" value={`${invoiceCount}`} />
-        <SummaryMetric label="آخر دفعة" value={lastPayment} />
+        <SummaryMetric label="إجمالي المدفوعات" value={totalPayments} />
         <SummaryMetric label="تاريخ آخر دفعة" value="15 يوليو 2026" />
+        <SummaryMetric label="آخر دفعة" value={lastPayment} />
       </View>
     </SolidCard>
   );
@@ -196,10 +197,10 @@ function BillingSummaryCard({ invoiceCount, subscription }: { invoiceCount: numb
 function SummaryMetric({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.summaryMetric}>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.summaryMetricLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="left" style={styles.ltrText} variant="body">
+      <AppText align="right" numberOfLines={1} style={styles.summaryMetricValue} variant="body">
         {value}
       </AppText>
     </View>
@@ -257,10 +258,10 @@ function InvoiceCard({
             <Ionicons color={colors.brand.calmGreen} name="document-text-outline" size={20} />
           </View>
           <View style={styles.invoiceCopy}>
-            <AppText align="left" numberOfLines={1} style={styles.ltrText} variant="body">
+            <AppText align="right" numberOfLines={1} style={styles.invoiceNumber} variant="body">
               {invoice.invoiceNumber}
             </AppText>
-            <AppText align="left" style={styles.ltrText} tone="secondary" variant="caption">
+            <AppText align="right" style={styles.invoicePlan} tone="secondary" variant="caption">
               {invoice.planName}
             </AppText>
           </View>
@@ -269,18 +270,18 @@ function InvoiceCard({
 
         <View style={styles.invoiceMetaRow}>
           <View style={styles.metaItem}>
-            <AppText tone="secondary" variant="caption">
+            <AppText style={styles.metaLabel} tone="secondary" variant="caption">
               المبلغ
             </AppText>
-            <AppText align="left" style={styles.ltrText} variant="supporting">
+            <AppText align="right" style={styles.metaLtrValue} variant="supporting">
               {invoice.amount}
             </AppText>
           </View>
           <View style={styles.metaItem}>
-            <AppText tone="secondary" variant="caption">
+            <AppText style={styles.metaLabel} tone="secondary" variant="caption">
               تاريخ الدفع
             </AppText>
-            <AppText variant="supporting">{invoice.paymentDate}</AppText>
+            <AppText style={styles.metaRtlValue} variant="supporting">{invoice.paymentDate}</AppText>
           </View>
         </View>
 
@@ -360,10 +361,10 @@ function InvoiceStatusBadge({ label, tone }: { label: string; tone: InvoiceTone 
 function InfoRow({ label, value, ltr = false }: { label: string; value: string; ltr?: boolean }) {
   return (
     <View style={styles.infoRow}>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.infoLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align={ltr ? 'left' : 'right'} style={[styles.infoValue, ltr && styles.ltrText]} variant="supporting">
+      <AppText align="left" style={[styles.infoValue, ltr ? styles.ltrText : styles.rtlValue]} variant="supporting">
         {value}
       </AppText>
     </View>
@@ -377,8 +378,8 @@ function SupportCard({ onPress }: { onPress: () => void }) {
         <Ionicons color={colors.brand.calmGreen} name="chatbubble-ellipses-outline" size={20} />
       </View>
       <View style={styles.copy}>
-        <AppText variant="cardTitle">هل لديك استفسار عن فاتورة؟</AppText>
-        <AppText style={styles.description} tone="secondary" variant="supporting">
+        <AppText style={styles.fullWidthRtlText} variant="cardTitle">هل لديك استفسار عن فاتورة؟</AppText>
+        <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
           تواصل مع الدعم بخصوص الفوترة أو حالة الدفع.
         </AppText>
         <AppButton onPress={onPress} style={styles.supportButton} variant="secondary">
@@ -400,9 +401,11 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 54,
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
@@ -415,20 +418,18 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
-  },
-  headerSlot: {
-    height: 40,
-    width: 40,
   },
   summaryCard: {
     gap: spacing.lg,
   },
   summaryHeader: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   summaryIcon: {
@@ -442,11 +443,13 @@ const styles = StyleSheet.create({
     width: 42,
   },
   copy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
   summaryGrid: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.md,
@@ -462,16 +465,44 @@ const styles = StyleSheet.create({
     minHeight: 72,
     padding: spacing.md,
   },
+  summaryMetricLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  summaryMetricValue: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
+  },
   filtersScroller: {
+    direction: 'rtl',
     marginHorizontal: -16,
   },
   filtersContent: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingHorizontal: 16,
   },
   section: {
+    alignItems: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  yearTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  yearTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
   },
   invoiceCard: {
     padding: 0,
@@ -483,7 +514,8 @@ const styles = StyleSheet.create({
   },
   invoiceTopRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   invoiceIcon: {
@@ -497,9 +529,22 @@ const styles = StyleSheet.create({
     width: 38,
   },
   invoiceCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  invoiceNumber: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
+  },
+  invoicePlan: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
   },
   statusBadge: {
     borderRadius: radii.pill,
@@ -509,21 +554,46 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   invoiceMetaRow: {
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   metaItem: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+  },
+  metaLabel: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  metaLtrValue: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
+  },
+  metaRtlValue: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   periodRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
   periodText: {
     flex: 1,
     lineHeight: 19,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   expandedArea: {
     gap: spacing.sm,
@@ -532,32 +602,48 @@ const styles = StyleSheet.create({
   },
   infoRow: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
     minHeight: 42,
+    width: '100%',
+  },
+  infoLabel: {
+    flexBasis: '38%',
+    flexShrink: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoValue: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'left',
   },
   downloadButton: {
     marginTop: spacing.sm,
     minHeight: 44,
+    width: '100%',
   },
   feedbackCard: {
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.24)',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
   },
   feedbackText: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   supportCard: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   supportIcon: {
@@ -577,9 +663,22 @@ const styles = StyleSheet.create({
   },
   description: {
     lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   ltrText: {
+    textAlign: 'left',
     writingDirection: 'ltr',
+  },
+  rtlValue: {
+    textAlign: 'left',
+    writingDirection: 'rtl',
+  },
+  fullWidthRtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, SolidCard } from '@/components/ui';
@@ -67,12 +67,12 @@ export function BudgetsScreen() {
         <BudgetHeader onBack={() => router.back()} subtitle="راقب حدود الإنفاق حسب الفئة" title="الميزانيات" />
         <MonthSelector />
 
-        {notice ? <NoticeBanner message={notice} /> : null}
+        {notice ? <NoticeBanner androidRtlLayout message={notice} /> : null}
 
         <MonthlySummaryCard remaining={remaining} spent={totalSpent} total={totalBudget} usage={usage} />
         <BudgetAlertCard />
 
-        <View style={styles.filterRow}>
+        <View style={[styles.filterRow, Platform.OS === 'android' && styles.filterRowAndroid]}>
           {filters.map((item) => (
             <Pressable
               accessibilityLabel={item.label}
@@ -90,7 +90,17 @@ export function BudgetsScreen() {
         </View>
 
         <View style={styles.section}>
-          <AppText variant="sectionTitle">ميزانيات الفئات</AppText>
+          {Platform.OS === 'android' ? (
+            <View style={styles.sectionTitleWrapperAndroid}>
+              <AppText style={styles.sectionTitle} variant="sectionTitle">
+                ميزانيات الفئات
+              </AppText>
+            </View>
+          ) : (
+            <AppText style={styles.sectionTitle} variant="sectionTitle">
+              ميزانيات الفئات
+            </AppText>
+          )}
           <View style={styles.budgetList}>
             {visibleBudgets.map((budget) => (
               <BudgetCategoryCard budget={budget} key={budget.id} onPress={openDetails} />
@@ -123,26 +133,70 @@ function MonthSelector() {
 }
 
 function MonthlySummaryCard({ total, spent, remaining, usage }: { total: number; spent: number; remaining: number; usage: number }) {
+  const summaryTitle = (
+    <AppText style={Platform.OS === 'android' ? styles.summaryTitleAndroid : undefined} variant="sectionTitle">
+      ميزانية يوليو
+    </AppText>
+  );
+  const summaryBadge = <BudgetStatusBadge label="ضمن الميزانية" tone="green" />;
+  const totalMetric = <Metric label="إجمالي الميزانية" value={total} />;
+  const spentMetric = <Metric label="المصروف" value={spent} />;
+  const remainingMetric = <Metric label="المتبقي" tone="green" value={remaining} />;
+  const usageLabel = (
+    <AppText style={Platform.OS === 'android' ? styles.usageLabelAndroid : undefined} tone="secondary" variant="caption">
+      نسبة الاستخدام
+    </AppText>
+  );
+  const usageValue = (
+    <AppText style={[styles.usageText, Platform.OS === 'android' && styles.usageTextAndroid]} variant="caption">
+      {usage}%
+    </AppText>
+  );
+
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={styles.summaryHeader}>
-        <AppText variant="sectionTitle">ميزانية يوليو</AppText>
-        <BudgetStatusBadge label="ضمن الميزانية" tone="green" />
+      <View style={[styles.summaryHeader, Platform.OS === 'android' && styles.summaryHeaderAndroid]}>
+        {Platform.OS === 'android' ? (
+          <>
+            {summaryBadge}
+            {summaryTitle}
+          </>
+        ) : (
+          <>
+            {summaryTitle}
+            {summaryBadge}
+          </>
+        )}
       </View>
-      <View style={styles.summaryMetrics}>
-        <Metric label="إجمالي الميزانية" value={total} />
-        <Metric label="المصروف" value={spent} />
-        <Metric label="المتبقي" tone="green" value={remaining} />
+      <View style={[styles.summaryMetrics, Platform.OS === 'android' && styles.summaryMetricsAndroid]}>
+        {Platform.OS === 'android' ? (
+          <>
+            {remainingMetric}
+            {spentMetric}
+            {totalMetric}
+          </>
+        ) : (
+          <>
+            {totalMetric}
+            {spentMetric}
+            {remainingMetric}
+          </>
+        )}
       </View>
-      <View style={styles.usageRow}>
-        <AppText tone="secondary" variant="caption">
-          نسبة الاستخدام
-        </AppText>
-        <AppText style={styles.usageText} variant="caption">
-          {usage}%
-        </AppText>
+      <View style={[styles.usageRow, Platform.OS === 'android' && styles.usageRowAndroid]}>
+        {Platform.OS === 'android' ? (
+          <>
+            {usageValue}
+            {usageLabel}
+          </>
+        ) : (
+          <>
+            {usageLabel}
+            {usageValue}
+          </>
+        )}
       </View>
-      <BudgetProgressBar tone="green" usage={usage} />
+      <BudgetProgressBar androidPhysicalLeft tone="green" usage={usage} />
     </SolidCard>
   );
 }
@@ -162,11 +216,11 @@ function Metric({ label, value, tone }: { label: string; value: number; tone?: B
 
 function BudgetAlertCard() {
   return (
-    <SolidCard style={styles.alertCard}>
+    <SolidCard style={[styles.alertCard, Platform.OS === 'android' && styles.alertCardAndroid]}>
       <View style={styles.alertIcon}>
         <Ionicons color={colors.semantic.warning} name="warning-outline" size={19} />
       </View>
-      <View style={styles.alertCopy}>
+      <View style={[styles.alertCopy, Platform.OS === 'android' && styles.alertCopyAndroid]}>
         <AppText style={styles.alertTitle} variant="cardTitle">
           تنبيهات الميزانية
         </AppText>
@@ -239,11 +293,27 @@ const styles = StyleSheet.create({
   },
   summaryHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  summaryHeaderAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+  },
+  summaryTitleAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryMetrics: {
     flexDirection: 'row-reverse',
+  },
+  summaryMetricsAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   metric: {
     alignItems: 'center',
@@ -266,15 +336,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
   },
+  usageRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  usageLabelAndroid: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   usageText: {
     color: '#35D39A',
     fontWeight: '700',
+  },
+  usageTextAndroid: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'ltr',
   },
   alertCard: {
     backgroundColor: 'rgba(34,24,8,0.78)',
     borderColor: 'rgba(243,183,68,0.28)',
     flexDirection: 'row-reverse',
     gap: spacing.md,
+  },
+  alertCardAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
   },
   alertIcon: {
     alignItems: 'center',
@@ -288,18 +379,36 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xs,
   },
+  alertCopyAndroid: {
+    alignItems: 'flex-end',
+    minWidth: 0,
+  },
   alertTitle: {
     color: colors.semantic.warning,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   alertText: {
     color: colors.text.primary,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   alertLink: {
     color: colors.semantic.warning,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   filterRow: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
+  },
+  filterRowAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    width: '100%',
   },
   filterChip: {
     alignItems: 'center',
@@ -321,6 +430,18 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: spacing.md,
+  },
+  sectionTitleWrapperAndroid: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   budgetList: {
     gap: spacing.md,

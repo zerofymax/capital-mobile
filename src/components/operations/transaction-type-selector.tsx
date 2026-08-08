@@ -9,6 +9,7 @@ import { spacing } from '@/theme/spacing';
 
 type TransactionTypeSelectorProps = {
   value: OperationTransactionType;
+  physicalRtlLayout?: boolean;
   onChange: (value: OperationTransactionType) => void;
 };
 
@@ -17,9 +18,9 @@ const options: { label: string; value: OperationTransactionType }[] = [
   { label: 'مصروف', value: 'expense' },
 ];
 
-export function TransactionTypeSelector({ value, onChange }: TransactionTypeSelectorProps) {
+export function TransactionTypeSelector({ value, physicalRtlLayout = false, onChange }: TransactionTypeSelectorProps) {
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, physicalRtlLayout && styles.physicalRtlRow]}>
       {options.map((option) => {
         const selected = value === option.value;
         const isIncome = option.value === 'income';
@@ -58,9 +59,13 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.button,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
     padding: spacing.xs,
+  },
+  physicalRtlRow: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
   },
   option: {
     alignItems: 'center',

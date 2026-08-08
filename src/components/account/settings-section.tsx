@@ -15,7 +15,11 @@ export function SettingsSection({ section, onRowPress }: SettingsSectionProps) {
 
   return (
     <View style={styles.root}>
-      <AppText variant="sectionTitle">{section.title}</AppText>
+      <View style={styles.sectionTitleWrap}>
+        <AppText style={styles.sectionTitle} variant="sectionTitle">
+          {section.title}
+        </AppText>
+      </View>
       <View style={[styles.card, { backgroundColor: colors.surface.card, borderColor: colors.surface.border }]}>
         {section.rows.map((row, index) => (
           <SettingsRow
@@ -33,6 +37,20 @@ export function SettingsSection({ section, onRowPress }: SettingsSectionProps) {
 const styles = StyleSheet.create({
   root: {
     gap: 11,
+  },
+  sectionTitleWrap: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    flex: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   card: {
     borderRadius: 20,

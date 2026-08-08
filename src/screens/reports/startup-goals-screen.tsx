@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, SolidCard } from '@/components/ui';
@@ -25,6 +25,9 @@ const filters: readonly { id: GoalFilter; label: string }[] = [
   { id: 'not-started', label: 'لم تبدأ' },
 ];
 
+const useAndroidRtlLayout = Platform.OS === 'android';
+const androidSystemNavigationClearance = 48;
+
 export function StartupGoalsScreen() {
   const insets = useSafeAreaInsets();
   const { goals, notice } = useStartupReportsStore();
@@ -33,7 +36,9 @@ export function StartupGoalsScreen() {
     () => goals.filter((goal) => filter === 'all' || resolveGoalStatus(goal) === filter),
     [filter, goals],
   );
-  const bottomPadding = Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
+  const bottomPadding = useAndroidRtlLayout
+    ? insets.bottom + androidSystemNavigationClearance + spacing.xl
+    : Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
 
   useEffect(() => {
     if (!notice) {
@@ -54,12 +59,13 @@ export function StartupGoalsScreen() {
         style={styles.scrollArea}
       >
         <ReportModalHeader
+          androidRtlLayout
           onBack={() => router.back()}
           subtitle="اربط ميزانيتك بأهم النتائج التي تريد شركتك تحقيقها."
           title="الأهداف والمراحل"
         />
 
-        {notice ? <NoticeBanner message={notice} /> : null}
+        {notice ? <NoticeBanner androidRtlLayout message={notice} /> : null}
 
         <GoalsSummary goals={goals} />
 
@@ -113,8 +119,10 @@ function GoalsSummary({ goals }: { goals: readonly StartupGoal[] }) {
 
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={styles.summaryTop}>
-        <AppText variant="sectionTitle">ملخص الأهداف</AppText>
+      <View style={[styles.summaryTop, useAndroidRtlLayout && styles.summaryTopAndroid]}>
+        <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
+          ملخص الأهداف
+        </AppText>
         <View style={styles.summaryBadge}>
           <AppText align="center" style={styles.summaryBadgeText} variant="caption">
             {goals.length} أهداف
@@ -132,10 +140,10 @@ function GoalsSummary({ goals }: { goals: readonly StartupGoal[] }) {
         <SummaryItem label="المصروف" tone="success" value={formatSar(spentBudget)} />
       </View>
       <View style={styles.progressHeader}>
-        <AppText tone="secondary" variant="caption">
+        <AppText align="right" style={styles.progressLabel} tone="secondary" variant="caption">
           متوسط التقدم
         </AppText>
-        <AppText style={styles.successText} variant="caption">
+        <AppText style={[styles.successText, styles.progressValue]} variant="caption">
           {directionSafeText(`${averageProgress}%`)}
         </AppText>
       </View>
@@ -147,10 +155,10 @@ function GoalsSummary({ goals }: { goals: readonly StartupGoal[] }) {
 function SummaryItem({ label, value, tone }: { label: string; value: string; tone?: 'success' | 'danger' }) {
   return (
     <View style={styles.summaryItem}>
-      <AppText align="center" tone="secondary" variant="caption">
+      <AppText align="right" style={styles.rtlLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="center" style={[styles.summaryValue, tone === 'success' && styles.successText, tone === 'danger' && styles.dangerText]} variant="cardTitle">
+      <AppText align="right" style={[styles.summaryValue, tone === 'success' && styles.successText, tone === 'danger' && styles.dangerText]} variant="cardTitle">
         {directionSafeText(value)}
       </AppText>
     </View>
@@ -191,8 +199,17 @@ const styles = StyleSheet.create({
   },
   summaryTop: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  summaryTopAndroid: {
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+  },
+  sectionTitle: {
+    flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   summaryBadge: {
     backgroundColor: colors.semantic.successTint,
@@ -204,10 +221,11 @@ const styles = StyleSheet.create({
     color: colors.brand.calmGreen,
   },
   summaryGrid: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.sm,
   },
   summaryItem: {
+    alignItems: 'flex-end',
     backgroundColor: 'rgba(255,255,255,0.035)',
     borderColor: colors.surface.border,
     borderRadius: radii.input,
@@ -220,6 +238,14 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontSize: 15,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
+  },
+  rtlLabel: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   successText: {
     color: colors.semantic.success,
@@ -228,12 +254,27 @@ const styles = StyleSheet.create({
     color: colors.semantic.danger,
   },
   progressHeader: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
+    gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  progressLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  progressValue: {
+    flexShrink: 0,
+    textAlign: 'left',
+    writingDirection: 'ltr',
   },
   filterRow: {
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },

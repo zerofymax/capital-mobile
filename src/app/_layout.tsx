@@ -2,7 +2,7 @@ import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
-import { I18nManager, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -13,18 +13,13 @@ import { configureRtl } from '@/utils/rtl';
 import { hydrateAppearancePreference, useResolvedAppearance } from '@/state/appearance-state';
 
 SplashScreen.preventAutoHideAsync().catch(() => null);
-configureRtl();
 
 export default function RootLayout() {
   const fontsReady = useOptionalCapitalFonts();
   const appearance = useResolvedAppearance();
 
   useEffect(() => {
-    I18nManager.allowRTL(true);
-    I18nManager.forceRTL(true);
-    if (typeof I18nManager.swapLeftAndRightInRTL === 'function') {
-      I18nManager.swapLeftAndRightInRTL(false);
-    }
+    configureRtl();
     hydrateAppearancePreference();
   }, []);
 

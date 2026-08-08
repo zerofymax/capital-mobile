@@ -94,8 +94,8 @@ export function FinancialSetupDataMethodScreen() {
         />
 
         <View style={styles.titleBlock}>
-          <AppText variant="screenTitle">كيف تريد إضافة بياناتك؟</AppText>
-          <AppText tone="secondary" variant="body">
+          <AppText style={styles.rtlText} variant="screenTitle">كيف تريد إضافة بياناتك؟</AppText>
+          <AppText style={styles.rtlText} tone="secondary" variant="body">
             اختر الطريقة الأنسب لك الآن
           </AppText>
         </View>
@@ -126,6 +126,9 @@ export function FinancialSetupDataMethodScreen() {
 
                 <View style={styles.methodCopy}>
                   <View style={styles.methodTitleRow}>
+                    <AppText style={styles.methodTitle} tone="primary" variant="cardTitle">
+                      {option.title}
+                    </AppText>
                     {option.statusLabel ? (
                       <View style={styles.statusBadge}>
                         <AppText align="center" tone="tertiary" variant="caption">
@@ -133,11 +136,8 @@ export function FinancialSetupDataMethodScreen() {
                         </AppText>
                       </View>
                     ) : null}
-                    <AppText style={styles.methodTitle} tone="primary" variant="cardTitle">
-                      {option.title}
-                    </AppText>
                   </View>
-                  <AppText tone="secondary" variant="supporting">
+                  <AppText style={styles.rtlText} tone="secondary" variant="supporting">
                     {option.description}
                   </AppText>
                 </View>
@@ -149,7 +149,7 @@ export function FinancialSetupDataMethodScreen() {
             );
           })}
           {selectionError ? (
-            <AppText tone="danger" variant="caption">
+            <AppText style={styles.rtlText} tone="danger" variant="caption">
               {selectionError}
             </AppText>
           ) : null}
@@ -175,9 +175,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
   },
   titleBlock: {
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
+    direction: 'ltr',
     gap: spacing.sm,
     paddingTop: spacing.xxxl,
+    width: '100%',
   },
   optionList: {
     gap: spacing.md,
@@ -189,6 +191,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.glass,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 92,
@@ -213,11 +216,15 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(167,200,161,0.48)',
   },
   methodCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   methodTitleRow: {
     alignItems: 'center',
+    alignSelf: 'stretch',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -225,6 +232,8 @@ const styles = StyleSheet.create({
   },
   methodTitle: {
     flexShrink: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   statusBadge: {
     backgroundColor: 'rgba(255,255,255,0.055)',
@@ -247,6 +256,12 @@ const styles = StyleSheet.create({
   selectionIndicatorSelected: {
     backgroundColor: colors.brand.green,
     borderColor: colors.brand.calmGreen,
+  },
+  rtlText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   spacer: {
     flexGrow: 1,

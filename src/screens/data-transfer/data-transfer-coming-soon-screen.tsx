@@ -23,10 +23,10 @@ export function DataTransferComingSoonScreen({ title }: DataTransferComingSoonSc
             <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
           </Pressable>
           <View style={styles.headerCopy}>
-            <AppText align="center" variant="screenTitle">
+            <AppText align="right" variant="screenTitle">
               {title}
             </AppText>
-            <AppText align="center" tone="secondary" variant="supporting">
+            <AppText align="right" tone="secondary" variant="supporting">
               هذه الميزة ستكون متاحة في تحديث قادم.
             </AppText>
           </View>
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 68,
   },

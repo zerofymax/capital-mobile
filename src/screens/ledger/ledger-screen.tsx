@@ -23,7 +23,7 @@ import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
-import { NumericText } from '@/utils/rtl';
+import { directionSafeText, NumericText } from '@/utils/rtl';
 import {
   calculateTransactionSummary,
   clearTransactionsNotice,
@@ -41,8 +41,6 @@ import {
 } from './ledger-data';
 import { useTransactionsStore } from './ledger-data';
 
-const periodOptionsRtl = [...transactionPeriodOptions].reverse();
-const typeFiltersRtl = [...transactionTypeFilters].reverse();
 const transactionDateOptionsNewestFirst = [...transactionDateOptions]
   .filter((option, index, options) => options.findIndex((item) => item.value === option.value) === index)
   .sort((first, second) => second.value.localeCompare(first.value));
@@ -68,15 +66,15 @@ export function LedgerScreen() {
   const hasResults = visibleTransactions.length > 0;
   const activeFilters = hasActiveTransactionFilters(filters);
 
-  const scrollPeriodFilterToSelected = useCallback((animated = false) => {
+  const scrollPeriodFilterToStart = useCallback((animated = false) => {
     requestAnimationFrame(() => {
-      periodScrollRef.current?.scrollToEnd({ animated });
+      periodScrollRef.current?.scrollTo({ animated, x: 0 });
     });
   }, []);
 
   useEffect(() => {
-    scrollPeriodFilterToSelected(false);
-  }, [scrollPeriodFilterToSelected]);
+    scrollPeriodFilterToStart(false);
+  }, [scrollPeriodFilterToStart]);
 
   function updateFilters(updater: (current: TransactionFilters) => TransactionFilters) {
     setFilters((current) => updater(current));
@@ -183,12 +181,12 @@ export function LedgerScreen() {
           ref={periodScrollRef}
           contentContainerStyle={styles.filtersContent}
           horizontal
-          onContentSizeChange={() => scrollPeriodFilterToSelected(false)}
-          onLayout={() => scrollPeriodFilterToSelected(false)}
+          onContentSizeChange={() => scrollPeriodFilterToStart(false)}
+          onLayout={() => scrollPeriodFilterToStart(false)}
           showsHorizontalScrollIndicator={false}
           style={styles.filtersScroller}
         >
-          {periodOptionsRtl.map((period) => (
+          {transactionPeriodOptions.map((period) => (
             <LedgerFilterChip
               key={period.key}
               label={period.label}
@@ -204,7 +202,7 @@ export function LedgerScreen() {
           showsHorizontalScrollIndicator={false}
           style={styles.filtersScroller}
         >
-          {typeFiltersRtl.map((filter) => (
+          {transactionTypeFilters.map((filter) => (
             <LedgerFilterChip
               key={filter.key}
               label={filter.label}
@@ -261,15 +259,6 @@ export function LedgerScreen() {
 function LedgerHeader({ activeFilters, onFilterPress }: { activeFilters: boolean; onFilterPress: () => void }) {
   return (
     <View style={styles.header}>
-      <View style={styles.headerSlot} />
-      <View style={styles.headerCopy}>
-        <AppText align="center" numberOfLines={1} variant="screenTitle">
-          العمليات
-        </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
-          تابع دخلك ومصروفاتك في مكان واحد.
-        </AppText>
-      </View>
       <Pressable
         accessibilityLabel="تصفية العمليات"
         accessibilityRole="button"
@@ -280,6 +269,14 @@ function LedgerHeader({ activeFilters, onFilterPress }: { activeFilters: boolean
         <Ionicons color={activeFilters ? colors.brand.green : colors.text.muted} name="filter-outline" size={18} />
         {activeFilters ? <View style={styles.activeFilterDot} /> : null}
       </Pressable>
+      <View style={styles.headerCopy}>
+        <AppText style={styles.headerText} numberOfLines={1} variant="screenTitle">
+          العمليات
+        </AppText>
+        <AppText style={styles.headerText} tone="secondary" variant="supporting">
+          تابع دخلك ومصروفاتك في مكان واحد.
+        </AppText>
+      </View>
     </View>
   );
 }
@@ -292,8 +289,8 @@ function SummaryCard({ summary }: { summary: ReturnType<typeof calculateTransact
           <Ionicons color={colors.brand.calmGreen} name="analytics-outline" size={18} />
         </View>
         <View style={styles.summaryCopy}>
-          <AppText variant="cardTitle">ملخص الفترة</AppText>
-          <AppText tone="secondary" variant="caption">
+          <AppText style={styles.summaryTitle} variant="cardTitle">ملخص الفترة</AppText>
+          <AppText style={styles.summaryDescription} tone="secondary" variant="caption">
             الملخص يتأثر بالفترة الزمنية فقط.
           </AppText>
         </View>
@@ -357,13 +354,13 @@ function AddTransactionSheet({
         <Pressable accessibilityLabel="إغلاق خيارات الإضافة" onPress={onClose} style={styles.sheetBackdrop} />
         <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom + spacing.xl, spacing.xxxl) }]}>
           <View style={styles.sheetHandle} />
-          <View style={styles.sheetHeader}>
-            <AppText variant="sectionTitle">إضافة عملية</AppText>
+          <View style={[styles.sheetHeader, styles.addSheetHeader]}>
             <Pressable accessibilityRole="button" hitSlop={10} onPress={onClose}>
               <AppText tone="link" variant="supporting">
                 إغلاق
               </AppText>
             </Pressable>
+            <AppText style={styles.addSheetTitle} variant="sectionTitle">إضافة عملية</AppText>
           </View>
           <ScrollView contentContainerStyle={styles.sheetActions} showsVerticalScrollIndicator={false}>
             <ActionChoice
@@ -426,8 +423,11 @@ function ActionChoice({
       }}
       style={({ pressed }) => [styles.actionChoice, pressed && styles.pressed]}
     >
-      <View style={[styles.actionIcon, toneStyle]}>
-        <Ionicons color={toneColor} name={icon} size={18} />
+      <View style={styles.actionLeading}>
+        <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
+        <View style={[styles.actionIcon, toneStyle]}>
+          <Ionicons color={toneColor} name={icon} size={18} />
+        </View>
       </View>
       <View style={styles.actionCopy}>
         <AppText style={styles.actionLabel} variant="buttonLabel">
@@ -437,7 +437,6 @@ function ActionChoice({
           {description}
         </AppText>
       </View>
-      <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
     </Pressable>
   );
 }
@@ -500,7 +499,7 @@ function TransactionFilterSheet({
           <ScrollView contentContainerStyle={styles.filterContent} showsVerticalScrollIndicator={false}>
             <FilterSection title="نوع العملية">
               <View style={styles.optionWrap}>
-                {typeFiltersRtl.map((option) => (
+                {transactionTypeFilters.map((option) => (
                   <LedgerFilterChip
                     key={option.key}
                     label={option.label}
@@ -526,7 +525,7 @@ function TransactionFilterSheet({
 
             <FilterSection title="الترتيب">
               <View style={styles.optionWrap}>
-                {[...transactionSortOptions].reverse().map((option) => (
+                {transactionSortOptions.map((option) => (
                   <LedgerFilterChip
                     key={option.key}
                     label={option.label}
@@ -538,7 +537,7 @@ function TransactionFilterSheet({
             </FilterSection>
 
             <FilterSection title="الفترة المخصصة">
-              <AppText tone="secondary" variant="caption">
+              <AppText style={styles.filterDescription} tone="secondary" variant="caption">
                 فعّل «فترة مخصصة» من شريط الفترة ثم اختر البداية والنهاية.
               </AppText>
               <View style={styles.customDates}>
@@ -568,7 +567,9 @@ function TransactionFilterSheet({
 function FilterSection({ title, children }: React.PropsWithChildren<{ title: string }>) {
   return (
     <View style={styles.filterSection}>
-      <AppText variant="cardTitle">{title}</AppText>
+      <AppText style={styles.filterSectionTitle} variant="cardTitle">
+        {title}
+      </AppText>
       {children}
     </View>
   );
@@ -585,14 +586,14 @@ function CustomDateColumn({
 }) {
   return (
     <View style={styles.customDateColumn}>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.filterSectionTitle} tone="secondary" variant="caption">
         {label}
       </AppText>
       <View style={styles.optionWrap}>
         {transactionDateOptionsNewestFirst.map((option) => (
           <LedgerFilterChip
             key={`${label}-${option.value}`}
-            label={option.label}
+            label={directionSafeText(option.label)}
             onPress={() => onSelect(option.value)}
             selected={selectedValue === option.value}
           />
@@ -616,18 +617,23 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.md,
     minHeight: 48,
   },
   headerCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
-  headerSlot: {
-    height: 38,
-    width: 38,
+  headerText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   headerButton: {
     alignItems: 'center',
@@ -671,7 +677,8 @@ const styles = StyleSheet.create({
   },
   summaryHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   summaryIcon: {
@@ -685,9 +692,23 @@ const styles = StyleSheet.create({
     width: 38,
   },
   summaryCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  summaryTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  summaryDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   summaryGrid: {
     flexDirection: 'row-reverse',
@@ -726,7 +747,8 @@ const styles = StyleSheet.create({
   },
   filtersContent: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingLeft: 16,
     paddingRight: 16,
@@ -783,8 +805,18 @@ const styles = StyleSheet.create({
   },
   sheetHeader: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  addSheetHeader: {
+    direction: 'ltr',
+    gap: spacing.md,
+  },
+  addSheetTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   sheetActions: {
     gap: spacing.md,
@@ -796,7 +828,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 72,
     paddingHorizontal: spacing.lg,
@@ -809,6 +842,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 36,
   },
+  actionLeading: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: 12,
+  },
   successIcon: {
     backgroundColor: colors.semantic.successTint,
   },
@@ -819,15 +858,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(167,200,161,0.10)',
   },
   actionCopy: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
     flex: 1,
     gap: 3,
     minWidth: 0,
   },
   actionLabel: {
+    alignSelf: 'stretch',
     textAlign: 'right',
+    writingDirection: 'rtl',
   },
   actionDescription: {
+    alignSelf: 'stretch',
     textAlign: 'right',
+    writingDirection: 'rtl',
   },
   filterContent: {
     gap: spacing.lg,
@@ -837,8 +882,17 @@ const styles = StyleSheet.create({
   filterSection: {
     gap: spacing.md,
   },
+  filterSectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  filterDescription: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   optionWrap: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },

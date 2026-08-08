@@ -9,6 +9,7 @@ import { AppText, SolidCard } from '@/components/ui';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 import { getLegalContentType, legalContent, type LegalContentType } from './support-data';
 
 export function LegalScreen() {
@@ -38,7 +39,7 @@ export function LegalScreen() {
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
       >
-        <SupportModalHeader title={headerTitle} />
+        <SupportModalHeader accessibilityLabel="العودة" iconName="chevron-back-outline" title={headerTitle} />
 
         <SolidCard style={styles.notice}>
           <View style={styles.noticeIcon}>
@@ -51,10 +52,12 @@ export function LegalScreen() {
 
         {sections.map((sectionType) => (
           <SolidCard key={sectionType} style={styles.legalCard}>
-            <AppText variant="sectionTitle">{legalContent[sectionType].title}</AppText>
-            <AppText tone="secondary" variant="body">
-              {legalContent[sectionType].body}
-            </AppText>
+            <View style={styles.legalCopy}>
+              <AppText style={styles.legalText} variant="sectionTitle">{legalContent[sectionType].title}</AppText>
+              <AppText style={styles.legalText} tone="secondary" variant="body">
+                {directionSafeText(legalContent[sectionType].body)}
+              </AppText>
+            </View>
           </SolidCard>
         ))}
       </ScrollView>
@@ -74,6 +77,7 @@ const styles = StyleSheet.create({
   notice: {
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     paddingVertical: spacing.md,
@@ -87,9 +91,25 @@ const styles = StyleSheet.create({
     width: 38,
   },
   noticeText: {
+    alignSelf: 'stretch',
     flex: 1,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   legalCard: {
     gap: spacing.md,
+  },
+  legalCopy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    gap: spacing.md,
+    width: '100%',
+  },
+  legalText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

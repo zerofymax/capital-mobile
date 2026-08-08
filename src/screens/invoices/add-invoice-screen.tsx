@@ -134,7 +134,7 @@ export function AddInvoiceScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <InvoiceHeader onBack={() => router.back()} subtitle="أنشئ فاتورة جديدة لمتابعة التحصيل" title="إضافة فاتورة" />
+          <InvoiceHeader rtl onBack={() => router.back()} subtitle="أنشئ فاتورة جديدة لمتابعة التحصيل" title="إضافة فاتورة" />
 
           <NoticeBanner message="هذه الفاتورة مخصصة للمتابعة داخل التطبيق، ولا يتم إرسالها أو تحصيلها تلقائيًا." tone="warning" />
 
@@ -142,26 +142,36 @@ export function AddInvoiceScreen() {
           <TextField error={submitted ? errors.invoiceNumber : undefined} label="رقم الفاتورة" ltr onChangeText={setInvoiceNumber} placeholder="INV-2026-1051" value={invoiceNumber} />
 
           <View style={styles.twoColumns}>
-            <SelectField error={submitted ? errors.issueDate : undefined} iconName="calendar-outline" label="تاريخ الإصدار" onPress={() => setPicker('issue')} value={issueDate} />
-            <SelectField error={submitted ? errors.dueDate : undefined} iconName="calendar-outline" label="تاريخ الاستحقاق" onPress={() => setPicker('due')} value={dueDate} />
+            <View style={styles.flexField}>
+              <SelectField error={submitted ? errors.issueDate : undefined} iconName="calendar-outline" label="تاريخ الإصدار" ltr onPress={() => setPicker('issue')} value={issueDate} />
+            </View>
+            <View style={styles.flexField}>
+              <SelectField error={submitted ? errors.dueDate : undefined} iconName="calendar-outline" label="تاريخ الاستحقاق" ltr onPress={() => setPicker('due')} value={dueDate} />
+            </View>
           </View>
 
           <InvoiceItemsEditor itemError={submitted ? errors.items : undefined} items={items} onAddItem={addItem} onChangeItem={updateItem} onRemoveItem={removeItem} />
 
           <View style={styles.twoColumns}>
-            <AmountField label="الخصم" onChangeText={(value) => setDiscount(formatAmountInput(value))} value={discount} />
-            <AmountField label="الضريبة" onChangeText={(value) => setTax(formatAmountInput(value))} value={tax} />
+            <View style={styles.flexField}>
+              <AmountField label="الخصم" onChangeText={(value) => setDiscount(formatAmountInput(value))} value={discount} />
+            </View>
+            <View style={styles.flexField}>
+              <AmountField label="الضريبة" onChangeText={(value) => setTax(formatAmountInput(value))} value={tax} />
+            </View>
           </View>
           <InvoiceTotalsCard discount={parsedDiscount} subtotal={subtotal} tax={parsedTax} total={total} />
 
-          <SelectField iconName="time-outline" label="حالة الدفع" onPress={() => setPicker('status')} value={invoiceStatusIdToName(status)} />
+          <SelectField androidCenterValue androidRtlLayout iconName="time-outline" label="حالة الدفع" onPress={() => setPicker('status')} value={invoiceStatusIdToName(status)} />
           {(status === 'paid' || status === 'partially-paid') && (
             <AmountField error={submitted ? errors.paid : undefined} label="المبلغ المدفوع" onChangeText={(value) => setPaid(formatAmountInput(value))} value={paid} />
           )}
           <TextField label="ملاحظات" onChangeText={setNotes} placeholder="اختياري" value={notes} />
 
           <View style={styles.section}>
-            <AppText variant="cardTitle">معاينة الفاتورة</AppText>
+            <AppText style={styles.sectionTitle} variant="cardTitle">
+              معاينة الفاتورة
+            </AppText>
             <InvoiceMiniCard invoice={previewInvoice} />
           </View>
 
@@ -175,6 +185,7 @@ export function AddInvoiceScreen() {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        ltr
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setIssueDate(value);
@@ -186,6 +197,7 @@ export function AddInvoiceScreen() {
         visible={picker === 'issue'}
       />
       <PickerSheet
+        ltr
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setDueDate(value);
@@ -197,6 +209,7 @@ export function AddInvoiceScreen() {
         visible={picker === 'due'}
       />
       <PickerSheet
+        androidRtlLayout
         onClose={() => setPicker(null)}
         onSelect={(value) => {
           setStatus(invoiceStatusNameToId(value));
@@ -282,10 +295,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   twoColumns: {
+    alignItems: 'flex-start',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
+  flexField: {
+    flex: 1,
+    minWidth: 0,
+  },
   section: {
     gap: spacing.md,
+  },
+  sectionTitle: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

@@ -311,7 +311,7 @@ function HomeCustomizationHeader({
       >
         <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
       </Pressable>
-      <AppText align="center" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
+      <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         تخصيص الصفحة الرئيسية
       </AppText>
       <Pressable
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 42,
   },
@@ -526,6 +526,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     paddingHorizontal: spacing.sm,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   restoreButton: {
     alignItems: 'center',

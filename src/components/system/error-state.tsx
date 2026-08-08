@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'flex-start',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
   },
   iconWrap: {

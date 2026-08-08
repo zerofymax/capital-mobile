@@ -25,12 +25,12 @@ export function TransactionActionRow({ action, onPress }: TransactionActionRowPr
       }}
       style={({ pressed }) => [styles.root, pressed && styles.pressed]}
     >
-      <View style={[styles.iconWrap, isDanger && styles.dangerIcon]}>
-        <Ionicons color={isDanger ? colors.semantic.danger : colors.text.muted} name={action.icon} size={19} />
-      </View>
       <AppText style={styles.label} tone={isDanger ? 'danger' : 'primary'} variant="body">
         {action.label}
       </AppText>
+      <View style={[styles.iconWrap, isDanger && styles.dangerIcon]}>
+        <Ionicons color={isDanger ? colors.semantic.danger : colors.text.muted} name={action.icon} size={19} />
+      </View>
       <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={18} />
     </Pressable>
   );
@@ -39,7 +39,7 @@ export function TransactionActionRow({ action, onPress }: TransactionActionRowPr
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: spacing.md,
     minHeight: 56,
   },
@@ -56,6 +56,9 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.74,

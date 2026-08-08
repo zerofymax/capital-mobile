@@ -1,13 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { directionSafeText } from '@/utils/rtl';
+
+const androidPhysicalRtlRow = Platform.OS === 'android'
+  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
+  : {};
+const androidPhysicalRightAlignedColumn = Platform.OS === 'android'
+  ? { direction: 'ltr' as const }
+  : {};
 
 type CapitalInsightCardProps = {
   eyebrow: string;
@@ -30,17 +37,21 @@ export function CapitalInsightCard({ eyebrow, title, description, ctaLabel, onPr
       />
       <View style={styles.content}>
         <View style={styles.eyebrowRow}>
-          <View style={styles.aiIcon}>
-            <Ionicons color={colors.text.primary} name="sparkles-outline" size={16} />
-          </View>
           <AppText style={styles.eyebrow} variant="caption">
             {directionSafeText(eyebrow)}
           </AppText>
+          <View style={styles.aiIcon}>
+            <Ionicons color={colors.text.primary} name="sparkles-outline" size={16} />
+          </View>
         </View>
-        <AppText variant="cardTitle">{title}</AppText>
-        <AppText tone="muted" variant="body">
-          {description}
-        </AppText>
+        <View style={styles.copy}>
+          <AppText style={styles.copyText} variant="cardTitle">
+            {title}
+          </AppText>
+          <AppText style={styles.copyText} tone="muted" variant="body">
+            {description}
+          </AppText>
+        </View>
         <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.cta, pressed && styles.pressed]}>
           <AppText style={styles.ctaText} variant="supporting">
             {ctaLabel}
@@ -60,6 +71,7 @@ const styles = StyleSheet.create({
     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 16px 32px rgba(0,0,0,0.4)',
     overflow: 'hidden',
     position: 'relative',
+    width: '100%',
   },
   blurFallback: {
     backgroundColor: colors.glass.fillDeep,
@@ -70,15 +82,21 @@ const styles = StyleSheet.create({
     top: 0,
   },
   content: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     gap: spacing.md,
     padding: spacing.xl,
     position: 'relative',
+    width: '100%',
     zIndex: 1,
+    ...androidPhysicalRightAlignedColumn,
   },
   eyebrowRow: {
     alignItems: 'center',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: 9,
+    width: '100%',
+    ...androidPhysicalRtlRow,
   },
   aiIcon: {
     alignItems: 'center',
@@ -92,14 +110,37 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     color: colors.brand.link,
+    flex: 1,
     fontWeight: '700',
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  copy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    flex: 1,
+    gap: spacing.md,
+    minWidth: 0,
+    width: '100%',
+    ...androidPhysicalRightAlignedColumn,
+  },
+  copyText: {
+    alignSelf: 'stretch',
+    flexShrink: 1,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   cta: {
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    flexDirection: 'row-reverse',
+    alignSelf: 'stretch',
+    direction: 'rtl',
+    flexDirection: 'row',
     gap: 6,
+    justifyContent: 'flex-start',
     minHeight: 44,
+    ...androidPhysicalRtlRow,
   },
   ctaText: {
     color: colors.brand.green,
