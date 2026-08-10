@@ -481,6 +481,7 @@ const styles = StyleSheet.create({
   },
   searchCard: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     backgroundColor: colors.surface.card,
     borderColor: colors.surface.border,
     borderRadius: radii.input,
@@ -490,6 +491,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
+    width: '100%',
   },
   searchInput: {
     color: colors.text.primary,
@@ -497,6 +499,7 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.regular,
     fontSize: 14,
     minHeight: 42,
+    minWidth: 0,
     padding: 0,
     textAlign: 'right',
     writingDirection: 'rtl',
@@ -537,29 +540,36 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
   },
   list: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   requestCard: {
+    alignSelf: 'stretch',
     backgroundColor: colors.surface.card,
     borderColor: colors.surface.border,
     borderRadius: radii.input,
     borderWidth: 1,
     gap: spacing.md,
     padding: spacing.lg,
+    width: '100%',
   },
   unreadCard: {
     borderColor: 'rgba(79,138,91,0.34)',
   },
   cardTop: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
+    width: '100%',
   },
   statusAndReference: {
     alignItems: 'center',
     direction: 'ltr',
+    flex: 1,
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -605,6 +615,7 @@ const styles = StyleSheet.create({
   cardBody: {
     alignItems: 'flex-end',
     gap: spacing.sm,
+    width: '100%',
   },
   rtlText: {
     alignSelf: 'stretch',
@@ -632,10 +643,12 @@ const styles = StyleSheet.create({
   },
   updateBlock: {
     alignItems: 'flex-end',
+    alignSelf: 'stretch',
     backgroundColor: colors.surface.muted,
     borderRadius: radii.control,
     gap: spacing.xs,
     padding: spacing.md,
+    width: '100%',
   },
   lastUpdate: {
     alignSelf: 'stretch',
@@ -645,10 +658,12 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   expandedBlock: {
+    alignSelf: 'stretch',
     borderTopColor: colors.surface.border,
     borderTopWidth: 1,
     gap: spacing.md,
     paddingTop: spacing.md,
+    width: '100%',
   },
   expandedGrid: {
     direction: 'rtl',
@@ -686,6 +701,7 @@ const styles = StyleSheet.create({
   },
   timeline: {
     gap: spacing.sm,
+    width: '100%',
   },
   timelineItem: {
     alignItems: 'center',

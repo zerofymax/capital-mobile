@@ -39,7 +39,8 @@ export function TransactionActionRow({ action, onPress }: TransactionActionRowPr
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 56,
   },

@@ -6,6 +6,7 @@ import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 're
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FinancialSetupProgressHeader } from '@/components/onboarding/financial-setup-progress-header';
+import { getFinancialSetupTopPadding } from '@/components/onboarding/financial-setup-layout';
 import { AppButton, AppText } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
@@ -77,10 +78,10 @@ export function FinancialSetupBusinessProfileScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top + spacing.xl, spacing.safeTop),
+            paddingTop: getFinancialSetupTopPadding(insets.top),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <FinancialSetupProgressHeader

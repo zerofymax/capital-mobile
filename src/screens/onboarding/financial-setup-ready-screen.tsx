@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, GlassSurface } from '@/components/ui';
+import { getFinancialSetupTopPadding } from '@/components/onboarding/financial-setup-layout';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
@@ -53,10 +54,10 @@ export function FinancialSetupReadyScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xl, spacing.xxxl),
-            paddingTop: Math.max(insets.top + spacing.xl, spacing.safeTop),
+            paddingTop: getFinancialSetupTopPadding(insets.top),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.hero}>

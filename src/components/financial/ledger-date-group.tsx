@@ -19,7 +19,7 @@ export function LedgerDateGroup({ group, onTransactionPress }: LedgerDateGroupPr
 
   return (
     <View style={styles.root}>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.title} tone="secondary" variant="caption">
         {group.label}
       </AppText>
       <View style={styles.card}>
@@ -39,6 +39,12 @@ export function LedgerDateGroup({ group, onTransactionPress }: LedgerDateGroupPr
 const styles = StyleSheet.create({
   root: {
     gap: spacing.sm,
+  },
+  title: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   card: {
     backgroundColor: colors.surface.card,

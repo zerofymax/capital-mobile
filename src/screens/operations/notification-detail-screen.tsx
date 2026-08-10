@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { NotificationDetailCard } from '@/components/operations';
@@ -15,10 +15,8 @@ import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { getPrototypeNotification } from './notification-data';
 
-const androidPhysicalLtrRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
-  : {};
-const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
+const androidPhysicalLtrRow: ViewStyle = { direction: 'ltr', flexDirection: 'row' };
+const androidHeaderSlot: ViewStyle = { width: 0 };
 
 export function NotificationDetailScreen() {
   const insets = useSafeAreaInsets();

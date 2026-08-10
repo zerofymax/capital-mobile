@@ -2,7 +2,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -24,13 +24,9 @@ import {
   type NotificationFilter,
 } from './notification-data';
 
-const androidPhysicalLtrRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
-  : {};
-const androidPhysicalRtlRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
-  : {};
-const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
+const androidPhysicalLtrRow: ViewStyle = { direction: 'ltr', flexDirection: 'row' };
+const androidPhysicalRtlRow: ViewStyle = { direction: 'ltr', flexDirection: 'row-reverse' };
+const androidHeaderSlot: ViewStyle = { width: 0 };
 
 export function NotificationsScreen() {
   const insets = useSafeAreaInsets();

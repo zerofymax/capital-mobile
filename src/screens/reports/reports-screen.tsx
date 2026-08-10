@@ -3,9 +3,10 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, type Href } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { TimeRangeSelector } from '@/components/financial';
 import { AppText, SolidCard } from '@/components/ui';
 import {
   getTabScreenContentBottomPadding,
@@ -68,7 +69,7 @@ const navigationCards: readonly {
 
 export function ReportsScreen() {
   const insets = useSafeAreaInsets();
-  const useAndroidRtlLayout = Platform.OS === 'android';
+  const useAndroidRtlLayout = true;
   const [selectedPeriod, setSelectedPeriod] = useState<StartupReportPeriod>('currentMonth');
   const { transactions } = useTransactionsStore();
   const { invoices } = useInvoicesStore();
@@ -115,22 +116,7 @@ export function ReportsScreen() {
           </AppText>
         </View>
 
-        <View style={[styles.periodRow, useAndroidRtlLayout && styles.periodRowAndroid]}>
-          {startupReportPeriods.map((period) => (
-            <Pressable
-              accessibilityLabel={period.label}
-              accessibilityRole="button"
-              accessibilityState={{ selected: selectedPeriod === period.id }}
-              key={period.id}
-              onPress={() => setSelectedPeriod(period.id)}
-              style={({ pressed }) => [styles.periodChip, selectedPeriod === period.id && styles.periodChipActive, pressed && styles.pressed]}
-            >
-              <AppText align="center" style={selectedPeriod === period.id && styles.periodChipTextActive} variant="caption">
-                {period.label}
-              </AppText>
-            </Pressable>
-          ))}
-        </View>
+        <TimeRangeSelector options={startupReportPeriods} selectedValue={selectedPeriod} onSelect={setSelectedPeriod} />
 
         <SummaryPanel summary={summary} />
 
@@ -195,7 +181,7 @@ export function ReportsScreen() {
 }
 
 function SummaryPanel({ summary }: { summary: OperationalGrowthSummary }) {
-  const useAndroidRtlLayout = Platform.OS === 'android';
+  const useAndroidRtlLayout = true;
   const keyGoalLabel = summary.activeGoal?.name ?? 'لا يوجد هدف نشط';
   const keyGoalProgress = summary.activeGoal?.progress ?? 0;
   const recurringTone = summary.recurring.ratioToIncome !== null && summary.recurring.ratioToIncome > 35 ? 'warning' : undefined;
@@ -227,7 +213,13 @@ function SummaryPanel({ summary }: { summary: OperationalGrowthSummary }) {
         <AppText style={styles.rtlText} tone="secondary" variant="caption">
           دخل الفترة
         </AppText>
-        <AppText style={[styles.heroValue, useAndroidRtlLayout && styles.heroValueAndroid]} variant="screenTitle">
+        <AppText
+          adjustsFontSizeToFit
+          minimumFontScale={0.65}
+          numberOfLines={1}
+          style={[styles.heroValue, useAndroidRtlLayout && styles.heroValueAndroid]}
+          variant="screenTitle"
+        >
           {directionSafeText(formatMoney(summary.current.income, summary.currencySymbol))}
         </AppText>
         <AppText style={[styles.positiveText, styles.rtlText]} variant="caption">
@@ -344,10 +336,10 @@ function toGrowthPeriod(period: StartupReportPeriod): SaaSPeriod {
 function SummaryMetric({ label, value, tone }: { label: string; value: string; tone?: 'warning' }) {
   return (
     <View style={styles.metricBox}>
-      <AppText align="center" tone="secondary" variant="caption">
+      <AppText style={styles.metricLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="center" style={[styles.metricValue, tone === 'warning' && styles.warningText]} variant="cardTitle">
+      <AppText style={[styles.metricValue, tone === 'warning' && styles.warningText]} variant="cardTitle">
         {directionSafeText(value)}
       </AppText>
     </View>
@@ -381,31 +373,6 @@ const styles = StyleSheet.create({
     width: '100%',
     writingDirection: 'rtl',
   },
-  periodRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  periodRowAndroid: {
-    direction: 'rtl',
-  },
-  periodChip: {
-    alignItems: 'center',
-    backgroundColor: colors.surface.card,
-    borderColor: colors.surface.border,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    flex: 1,
-    minHeight: 38,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.sm,
-  },
-  periodChipActive: {
-    backgroundColor: colors.brand.mediumGreen,
-    borderColor: colors.brand.mediumGreen,
-  },
-  periodChipTextActive: {
-    color: colors.text.primary,
-  },
   summaryCard: {
     gap: spacing.lg,
     overflow: 'hidden',
@@ -418,6 +385,7 @@ const styles = StyleSheet.create({
   summaryTopAndroid: {
     direction: 'ltr',
     flexDirection: 'row-reverse',
+    width: '100%',
   },
   summaryHeading: {
     alignItems: 'flex-start',
@@ -468,9 +436,13 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   heroValue: {
+    flexShrink: 1,
     fontSize: 31,
+    lineHeight: 40,
+    minWidth: 0,
   },
   heroValueAndroid: {
+    alignSelf: 'stretch',
     textAlign: 'right',
     width: '100%',
     writingDirection: 'ltr',
@@ -483,6 +455,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   metricBox: {
+    alignItems: 'flex-end',
     backgroundColor: 'rgba(255,255,255,0.035)',
     borderColor: colors.surface.border,
     borderRadius: radii.input,
@@ -495,6 +468,14 @@ const styles = StyleSheet.create({
   },
   metricValue: {
     fontSize: 16,
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'ltr',
+  },
+  metricLabel: {
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   warningText: {
     color: colors.semantic.warning,
@@ -515,6 +496,7 @@ const styles = StyleSheet.create({
   collectionHeaderAndroid: {
     direction: 'ltr',
     flexDirection: 'row-reverse',
+    width: '100%',
   },
   collectionTitleAndroid: {
     flex: 1,

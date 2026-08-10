@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -59,7 +59,7 @@ export function SignOutAllDevicesScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
         showsVerticalScrollIndicator={false}
@@ -134,7 +134,7 @@ function ResultsCard({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">النتائج المتوقعة</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">النتائج المتوقعة</AppText>
       <SolidCard style={styles.rowsCard}>
         {otherDevices.map((session) => (
           <View key={session.id}>
@@ -280,6 +280,13 @@ const styles = StyleSheet.create({
   section: {
     alignItems: 'flex-end',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   rowsCard: {
     padding: 0,

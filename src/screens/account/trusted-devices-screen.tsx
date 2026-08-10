@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmationDialog, EmptyState, EmptyStateIcon } from '@/components/system';
@@ -155,10 +155,10 @@ export function TrustedDevicesScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <TrustedDevicesHeader onBackPress={goBackToSecurity} />
@@ -180,13 +180,13 @@ export function TrustedDevicesScreen() {
 
         {currentDevice ? (
           <View style={styles.section}>
-            <AppText variant="sectionTitle">هذا الجهاز</AppText>
+            <AppText style={styles.sectionTitle} variant="sectionTitle">هذا الجهاز</AppText>
             <DeviceCard device={currentDevice} loadingAction={loadingAction} onRequestAction={requestDeviceAction} />
           </View>
         ) : null}
 
         <View style={styles.section}>
-          <AppText variant="sectionTitle">أجهزة أخرى</AppText>
+          <AppText style={styles.sectionTitle} variant="sectionTitle">أجهزة أخرى</AppText>
           {otherDevices.length > 0 ? (
             otherDevices.map((device) => (
               <DeviceCard
@@ -532,6 +532,13 @@ const styles = StyleSheet.create({
   section: {
     alignItems: 'flex-end',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   deviceCard: {
     gap: spacing.md,

@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SubscriptionSectionHeading } from '@/components/account';
 import { ConfirmationDialog, SuccessState } from '@/components/system';
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
@@ -23,6 +24,7 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
+import { directionSafeText } from '@/utils/rtl';
 import {
   formatSubscriptionAmount,
   getPaymentMethodLabel,
@@ -317,10 +319,11 @@ export function CancelSubscriptionScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
         keyboardShouldPersistTaps="handled"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <CancelHeader onBackPress={requestLeave} />
@@ -435,7 +438,7 @@ function WarningCard() {
       <View style={styles.copy}>
         <View style={styles.warningTitleRow}>
           <AppText style={styles.warningTitle} variant="cardTitle">
-            هل تريد إلغاء Capital Pro؟
+            {directionSafeText('هل تريد إلغاء Capital Pro؟')}
           </AppText>
           <StatusBadge label="نشط" tone="success" />
         </View>
@@ -453,7 +456,7 @@ function WarningCard() {
 function SubscriptionSummary({ subscription }: { subscription: SubscriptionState }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">ملخص الاشتراك الحالي</AppText>
+      <SubscriptionSectionHeading>ملخص الاشتراك الحالي</SubscriptionSectionHeading>
       <SolidCard style={styles.rowsCard}>
         <InfoRow label="الخطة الحالية" ltr value={subscription.planName} />
         <Divider />
@@ -474,7 +477,7 @@ function SubscriptionSummary({ subscription }: { subscription: SubscriptionState
 function ConsequencesCard({ accessUntilDate }: { accessUntilDate: string }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">ماذا يحدث بعد الإلغاء؟</AppText>
+      <SubscriptionSectionHeading>ماذا يحدث بعد الإلغاء؟</SubscriptionSectionHeading>
       <SolidCard style={styles.consequencesCard}>
         {consequenceItems.map((item, index) => {
           const displayItem = item === 'يستمر اشتراكك حتى 14 أغسطس 2026' ? `يستمر اشتراكك حتى ${accessUntilDate}` : item;
@@ -486,7 +489,7 @@ function ConsequencesCard({ accessUntilDate }: { accessUntilDate: string }) {
                 <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={15} />
               </View>
               <AppText style={styles.consequenceText} variant="supporting">
-                {displayItem}
+                {directionSafeText(displayItem)}
               </AppText>
             </View>
             {index < consequenceItems.length - 1 ? <Divider /> : null}
@@ -513,7 +516,7 @@ function RetentionSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">ربما يناسبك خيار آخر</AppText>
+      <SubscriptionSectionHeading>ربما يناسبك خيار آخر</SubscriptionSectionHeading>
       <SolidCard style={styles.rowsCard}>
         {retentionOptions.map((option, index) => (
           <View key={option.id}>
@@ -577,7 +580,7 @@ function ReasonSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">سبب الإلغاء</AppText>
+      <SubscriptionSectionHeading>سبب الإلغاء</SubscriptionSectionHeading>
       <SolidCard style={styles.reasonsCard}>
         {cancellationReasons.map((option, index) => (
           <View key={option.id}>
@@ -698,7 +701,7 @@ function ConfirmationCheckbox({
         style={({ pressed }) => [styles.checkboxRow, checked && styles.checkboxRowChecked, pressed && styles.pressed]}
       >
         <AppText style={styles.checkboxLabel} variant="supporting">
-          أفهم أن مزايا Capital Pro ستتوقف بعد نهاية دورة الفوترة الحالية.
+          {directionSafeText('أفهم أن مزايا Capital Pro ستتوقف بعد نهاية دورة الفوترة الحالية.')}
         </AppText>
         <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
           {checked ? <Ionicons color={colors.text.primary} name="checkmark-outline" size={16} /> : null}

@@ -72,7 +72,7 @@ export function BudgetsScreen() {
         <MonthlySummaryCard remaining={remaining} spent={totalSpent} total={totalBudget} usage={usage} />
         <BudgetAlertCard />
 
-        <View style={[styles.filterRow, Platform.OS === 'android' && styles.filterRowAndroid]}>
+        <View style={[styles.filterRow, Platform.OS !== 'web' && styles.filterRowAndroid]}>
           {filters.map((item) => (
             <Pressable
               accessibilityLabel={item.label}
@@ -90,7 +90,7 @@ export function BudgetsScreen() {
         </View>
 
         <View style={styles.section}>
-          {Platform.OS === 'android' ? (
+          {Platform.OS !== 'web' ? (
             <View style={styles.sectionTitleWrapperAndroid}>
               <AppText style={styles.sectionTitle} variant="sectionTitle">
                 ميزانيات الفئات
@@ -134,7 +134,7 @@ function MonthSelector() {
 
 function MonthlySummaryCard({ total, spent, remaining, usage }: { total: number; spent: number; remaining: number; usage: number }) {
   const summaryTitle = (
-    <AppText style={Platform.OS === 'android' ? styles.summaryTitleAndroid : undefined} variant="sectionTitle">
+    <AppText style={Platform.OS !== 'web' ? styles.summaryTitleAndroid : undefined} variant="sectionTitle">
       ميزانية يوليو
     </AppText>
   );
@@ -143,20 +143,20 @@ function MonthlySummaryCard({ total, spent, remaining, usage }: { total: number;
   const spentMetric = <Metric label="المصروف" value={spent} />;
   const remainingMetric = <Metric label="المتبقي" tone="green" value={remaining} />;
   const usageLabel = (
-    <AppText style={Platform.OS === 'android' ? styles.usageLabelAndroid : undefined} tone="secondary" variant="caption">
+    <AppText style={Platform.OS !== 'web' ? styles.usageLabelAndroid : undefined} tone="secondary" variant="caption">
       نسبة الاستخدام
     </AppText>
   );
   const usageValue = (
-    <AppText style={[styles.usageText, Platform.OS === 'android' && styles.usageTextAndroid]} variant="caption">
+    <AppText style={[styles.usageText, Platform.OS !== 'web' && styles.usageTextAndroid]} variant="caption">
       {usage}%
     </AppText>
   );
 
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={[styles.summaryHeader, Platform.OS === 'android' && styles.summaryHeaderAndroid]}>
-        {Platform.OS === 'android' ? (
+      <View style={[styles.summaryHeader, Platform.OS !== 'web' && styles.summaryHeaderAndroid]}>
+        {Platform.OS !== 'web' ? (
           <>
             {summaryBadge}
             {summaryTitle}
@@ -168,8 +168,8 @@ function MonthlySummaryCard({ total, spent, remaining, usage }: { total: number;
           </>
         )}
       </View>
-      <View style={[styles.summaryMetrics, Platform.OS === 'android' && styles.summaryMetricsAndroid]}>
-        {Platform.OS === 'android' ? (
+      <View style={[styles.summaryMetrics, Platform.OS !== 'web' && styles.summaryMetricsAndroid]}>
+        {Platform.OS !== 'web' ? (
           <>
             {remainingMetric}
             {spentMetric}
@@ -183,8 +183,8 @@ function MonthlySummaryCard({ total, spent, remaining, usage }: { total: number;
           </>
         )}
       </View>
-      <View style={[styles.usageRow, Platform.OS === 'android' && styles.usageRowAndroid]}>
-        {Platform.OS === 'android' ? (
+      <View style={[styles.usageRow, Platform.OS !== 'web' && styles.usageRowAndroid]}>
+        {Platform.OS !== 'web' ? (
           <>
             {usageValue}
             {usageLabel}
@@ -216,11 +216,11 @@ function Metric({ label, value, tone }: { label: string; value: number; tone?: B
 
 function BudgetAlertCard() {
   return (
-    <SolidCard style={[styles.alertCard, Platform.OS === 'android' && styles.alertCardAndroid]}>
+    <SolidCard style={[styles.alertCard, Platform.OS !== 'web' && styles.alertCardAndroid]}>
       <View style={styles.alertIcon}>
         <Ionicons color={colors.semantic.warning} name="warning-outline" size={19} />
       </View>
-      <View style={[styles.alertCopy, Platform.OS === 'android' && styles.alertCopyAndroid]}>
+      <View style={[styles.alertCopy, Platform.OS !== 'web' && styles.alertCopyAndroid]}>
         <AppText style={styles.alertTitle} variant="cardTitle">
           تنبيهات الميزانية
         </AppText>

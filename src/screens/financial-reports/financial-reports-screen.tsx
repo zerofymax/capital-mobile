@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { TimeRangeSelector } from '@/components/financial';
 import { CapitalGlassIconButton } from '@/components/navigation/capital-glass-icon-button';
 import { AppButton, AppText, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
@@ -69,7 +70,7 @@ export function FinancialReportsScreen() {
         showsVerticalScrollIndicator={false}
         style={styles.scrollArea}
       >
-        <PeriodSelector selectedPeriod={period} onSelect={setPeriod} />
+        <TimeRangeSelector options={financialReportPeriods} selectedValue={period} onSelect={setPeriod} />
         <NoticeCard />
         <SummaryCard periodLabel={report.periodLabel} report={report} />
         <InsightCard text={report.insight} />
@@ -88,7 +89,7 @@ export function FinancialReportsScreen() {
               onPress={() => openReport(card.type)}
               style={({ pressed }) => [styles.reportCard, pressed && styles.pressed]}
             >
-              <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />
+              <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} style={styles.reportChevron} />
               <View style={styles.reportCopy}>
                 <AppText style={styles.rtlText} variant="cardTitle">{card.title}</AppText>
                 <AppText style={styles.rtlText} tone="secondary" variant="supporting">
@@ -140,37 +141,6 @@ export function ReportHeader({ title, subtitle, onBack }: { title: string; subti
   );
 }
 
-function PeriodSelector({
-  selectedPeriod,
-  onSelect,
-}: {
-  selectedPeriod: FinancialReportPeriod;
-  onSelect: (period: FinancialReportPeriod) => void;
-}) {
-  return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.periodList} style={styles.periodScroll}>
-      {financialReportPeriods.map((period) => {
-        const selected = period.id === selectedPeriod;
-
-        return (
-          <Pressable
-            accessibilityLabel={period.label}
-            accessibilityRole="button"
-            accessibilityState={{ selected }}
-            key={period.id}
-            onPress={() => onSelect(period.id)}
-            style={({ pressed }) => [styles.periodChip, selected && styles.periodChipActive, pressed && styles.pressed]}
-          >
-            <AppText align="center" style={selected && styles.periodChipTextActive} variant="caption">
-              {period.label}
-            </AppText>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
-  );
-}
-
 function NoticeCard() {
   return (
     <View style={styles.notice}>
@@ -214,8 +184,14 @@ function SummaryCard({ periodLabel, report }: { periodLabel: string; report: Ret
             <AppText style={styles.rtlText} tone="secondary" variant="caption">
               {metric.label}
             </AppText>
-            <AppText style={styles.metricValue} variant="cardTitle">
-              {metric.value}
+            <AppText
+              adjustsFontSizeToFit
+              minimumFontScale={0.82}
+              numberOfLines={1}
+              style={styles.metricValue}
+              variant="cardTitle"
+            >
+              {directionSafeText(metric.value)}
             </AppText>
             {'comparison' in metric && metric.comparison ? (
               <AppText style={styles.rtlText} tone={metric.comparison.direction === 'down' ? 'warning' : metric.comparison.direction === 'unavailable' ? 'tertiary' : 'success'} variant="caption">
@@ -246,6 +222,7 @@ const styles = StyleSheet.create({
   root: {
     backgroundColor: colors.background.base,
     flex: 1,
+    overflow: 'hidden',
   },
   headerWrap: {
     paddingHorizontal: spacing.screenX,
@@ -284,6 +261,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 25,
+    lineHeight: 34,
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',
@@ -293,33 +271,6 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',
-  },
-  periodList: {
-    direction: 'ltr',
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.xs,
-  },
-  periodScroll: {
-    marginHorizontal: -spacing.xs,
-  },
-  periodChip: {
-    backgroundColor: colors.surface.card,
-    borderColor: colors.surface.border,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    minHeight: 36,
-    minWidth: 86,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-  },
-  periodChipActive: {
-    backgroundColor: colors.brand.green,
-    borderColor: 'rgba(167,200,161,0.36)',
-  },
-  periodChipTextActive: {
-    color: colors.text.primary,
   },
   notice: {
     alignItems: 'center',
@@ -358,6 +309,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(79,138,91,0.28)',
     borderRadius: radii.pill,
     borderWidth: 1,
+    flexShrink: 0,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
@@ -380,13 +332,15 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: spacing.xs,
     minHeight: 86,
+    minWidth: 0,
     padding: spacing.md,
   },
   metricValue: {
     color: colors.text.primary,
+    minWidth: 0,
     textAlign: 'right',
     width: '100%',
-    writingDirection: 'ltr',
+    writingDirection: 'rtl',
   },
   insightCard: {
     alignItems: 'flex-start',
@@ -436,6 +390,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.semantic.successTint,
     borderRadius: radii.control,
+    flexShrink: 0,
     height: 42,
     justifyContent: 'center',
     width: 42,
@@ -445,6 +400,9 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  reportChevron: {
+    flexShrink: 0,
   },
   rtlText: {
     alignSelf: 'stretch',

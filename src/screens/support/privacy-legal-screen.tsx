@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -163,10 +163,10 @@ export function PrivacyLegalScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <PrivacyLegalHeader onBackPress={handleBackPress} />
@@ -218,7 +218,7 @@ function IntroCard() {
         <Ionicons color={colors.brand.calmGreen} name="shield-checkmark-outline" size={22} />
       </View>
       <View style={styles.introCopy}>
-        <AppText variant="cardTitle">بياناتك تحت سيطرتك</AppText>
+        <AppText style={styles.introTitle} variant="cardTitle">بياناتك تحت سيطرتك</AppText>
         <AppText style={styles.introText} tone="secondary" variant="supporting">
           يمكنك مراجعة كيفية استخدام بياناتك، إدارة موافقاتك، وطلب نسخة من معلوماتك أو حذف حسابك.
         </AppText>
@@ -238,7 +238,7 @@ function PrivacyLegalSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">{title}</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
       <SolidCard style={styles.rowsCard}>
         {rows.map((row, index) => (
           <View key={row.id}>
@@ -282,7 +282,7 @@ function PrivacyLegalActionRow({ row, onPress }: { row: PrivacyLegalRow; onPress
 function ConsentStatusSection() {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">حالة الموافقات</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">حالة الموافقات</AppText>
       <SolidCard style={styles.rowsCard}>
         {consentStatuses.map((item, index) => (
           <View key={item.id}>
@@ -303,7 +303,7 @@ function ConsentStatusSection() {
 function AccountDataSummarySection() {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">ملخص بيانات الحساب</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">ملخص بيانات الحساب</AppText>
       <SolidCard style={styles.summaryCard}>
         {accountDataSummary.map((row, index) => (
           <View key={row.id}>
@@ -412,6 +412,12 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     writingDirection: 'rtl',
   },
+  introTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   noticeCard: {
     alignItems: 'center',
     backgroundColor: colors.semantic.warningTint,
@@ -430,6 +436,13 @@ const styles = StyleSheet.create({
   section: {
     alignItems: 'flex-end',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   rowsCard: {
     padding: 0,

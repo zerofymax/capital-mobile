@@ -11,7 +11,7 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { directionSafeText } from '@/utils/rtl';
-import { GoalCard, GoalHeader, GoalProgressBar, NoticeBanner } from './components';
+import { getGoalScreenTopPadding, GoalCard, GoalHeader, GoalProgressBar, NoticeBanner } from './components';
 import { getGoalSummary } from './goal-utils';
 import { clearGoalsNotice, useGoalsStore } from './goals-store';
 
@@ -59,7 +59,7 @@ export function GoalsScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top + spacing.sm, 48),
+            paddingTop: getGoalScreenTopPadding(insets.top),
           },
         ]}
         contentInsetAdjustmentBehavior="automatic"
@@ -71,7 +71,7 @@ export function GoalsScreen() {
 
         <SummaryCard activeCount={activeGoals.length} completedCount={completedGoals.length} progress={progress} totalAchieved={totalAchieved} totalTarget={totalTarget} />
 
-        <View style={[styles.filterRow, Platform.OS === 'android' && styles.filterRowAndroid]}>
+        <View style={[styles.filterRow, Platform.OS !== 'web' && styles.filterRowAndroid]}>
           {filters.map((item) => (
             <Pressable
               accessibilityLabel={item.label}
@@ -134,7 +134,7 @@ function SummaryCard({
   totalTarget: number;
 }) {
   const summaryTitle = (
-    <AppText style={Platform.OS === 'android' ? styles.summaryTitleAndroid : undefined} variant="sectionTitle">
+    <AppText style={Platform.OS !== 'web' ? styles.summaryTitleAndroid : undefined} variant="sectionTitle">
       ملخص الأهداف
     </AppText>
   );
@@ -146,20 +146,20 @@ function SummaryCard({
     </View>
   );
   const progressLabel = (
-    <AppText style={Platform.OS === 'android' ? styles.progressLabelAndroid : undefined} tone="secondary" variant="caption">
+    <AppText style={Platform.OS !== 'web' ? styles.progressLabelAndroid : undefined} tone="secondary" variant="caption">
       نسبة الإنجاز
     </AppText>
   );
   const progressValue = (
-    <AppText style={[styles.progressValue, Platform.OS === 'android' && styles.progressValueAndroid]} variant="caption">
+    <AppText style={[styles.progressValue, Platform.OS !== 'web' && styles.progressValueAndroid]} variant="caption">
       {progress}%
     </AppText>
   );
 
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={[styles.summaryHeader, Platform.OS === 'android' && styles.summaryHeaderAndroid]}>
-        {Platform.OS === 'android' ? (
+      <View style={[styles.summaryHeader, Platform.OS !== 'web' && styles.summaryHeaderAndroid]}>
+        {Platform.OS !== 'web' ? (
           <>
             {activeBadge}
             {summaryTitle}
@@ -171,13 +171,13 @@ function SummaryCard({
           </>
         )}
       </View>
-      <View style={[styles.summaryMetrics, Platform.OS === 'android' && styles.summaryMetricsAndroid]}>
+      <View style={[styles.summaryMetrics, Platform.OS !== 'web' && styles.summaryMetricsAndroid]}>
         <Metric label="إجمالي المستهدف" value={totalTarget} />
         <Metric label="المبلغ المحقق" tone="green" value={totalAchieved} />
         <Metric label="مكتملة" value={completedCount} />
       </View>
-      <View style={[styles.progressRow, Platform.OS === 'android' && styles.progressRowAndroid]}>
-        {Platform.OS === 'android' ? (
+      <View style={[styles.progressRow, Platform.OS !== 'web' && styles.progressRowAndroid]}>
+        {Platform.OS !== 'web' ? (
           <>
             {progressValue}
             {progressLabel}
@@ -213,38 +213,38 @@ function Metric({ label, value, tone }: { label: string; value: number; tone?: '
 function InsightCard() {
   const insightIcon = <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={17} />;
   const insightTitle = (
-    <AppText style={[styles.insightTitle, Platform.OS === 'android' && styles.insightTitleAndroid]} variant="cardTitle">
+    <AppText style={[styles.insightTitle, Platform.OS !== 'web' && styles.insightTitleAndroid]} variant="cardTitle">
       نصيحة من Capital
     </AppText>
   );
   const prototypeText = (
-    <AppText style={Platform.OS === 'android' ? styles.prototypeTextAndroid : undefined} tone="secondary" variant="caption">
+    <AppText style={Platform.OS !== 'web' ? styles.prototypeTextAndroid : undefined} tone="secondary" variant="caption">
       تقدير تجريبي
     </AppText>
   );
 
   return (
     <SolidCard style={styles.insightCard}>
-      <View style={[styles.insightHeader, Platform.OS === 'android' && styles.insightHeaderAndroid]}>
+      <View style={[styles.insightHeader, Platform.OS !== 'web' && styles.insightHeaderAndroid]}>
         {insightIcon}
         {insightTitle}
       </View>
-      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} variant="body">
+      <AppText style={Platform.OS !== 'web' ? styles.insightTextAndroid : undefined} variant="body">
         زيادة المساهمة الشهرية في هدف تجهيز الفرع بمقدار 1,500 ر.س قد تساعدك على الوصول في الموعد المحدد.
       </AppText>
-      {Platform.OS === 'android' ? <View style={styles.prototypeTextWrapperAndroid}>{prototypeText}</View> : prototypeText}
+      {Platform.OS !== 'web' ? <View style={styles.prototypeTextWrapperAndroid}>{prototypeText}</View> : prototypeText}
     </SolidCard>
   );
 }
 
 function SectionTitle({ children }: { children: string }) {
   const title = (
-    <AppText style={Platform.OS === 'android' ? styles.sectionTitleAndroid : undefined} variant="sectionTitle">
+    <AppText style={Platform.OS !== 'web' ? styles.sectionTitleAndroid : undefined} variant="sectionTitle">
       {children}
     </AppText>
   );
 
-  return Platform.OS === 'android' ? <View style={styles.sectionTitleWrapperAndroid}>{title}</View> : title;
+  return Platform.OS !== 'web' ? <View style={styles.sectionTitleWrapperAndroid}>{title}</View> : title;
 }
 
 function matchesFilter(status: string, filter: GoalFilter) {

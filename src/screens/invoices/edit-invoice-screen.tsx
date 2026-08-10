@@ -14,6 +14,7 @@ import {
   InvoiceHeader,
   InvoiceItemsEditor,
   InvoiceMiniCard,
+  InvoiceSectionHeading,
   invoiceStatusIdToName,
   invoiceStatusNameToId,
   InvoiceTotalsCard,
@@ -137,7 +138,7 @@ export function EditInvoiceScreen() {
             styles.content,
             {
               paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-              paddingTop: Math.max(insets.top + spacing.sm, 48),
+              paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top + spacing.sm, 48),
             },
           ]}
           contentInsetAdjustmentBehavior="automatic"
@@ -147,11 +148,11 @@ export function EditInvoiceScreen() {
           <InvoiceHeader rtl onBack={handleBack} subtitle="حدث بيانات الفاتورة ومواعيدها" title="تعديل الفاتورة" />
 
           {original.paid > 0 ? (
-            <SolidCard style={[styles.paymentInfoCard, Platform.OS === 'android' && styles.paymentInfoCardAndroid]}>
-              <AppText style={[styles.blueText, Platform.OS === 'android' && styles.paymentInfoTextAndroid]} variant="cardTitle">
+            <SolidCard style={[styles.paymentInfoCard, Platform.OS !== 'web' && styles.paymentInfoCardAndroid]}>
+              <AppText style={[styles.blueText, Platform.OS !== 'web' && styles.paymentInfoTextAndroid]} variant="cardTitle">
                 {directionSafeText(`الدفعات المسجلة: ${formatSar(original.paid)}`)}
               </AppText>
-              <AppText style={Platform.OS === 'android' ? styles.paymentInfoTextAndroid : undefined} variant="supporting">
+              <AppText style={Platform.OS !== 'web' ? styles.paymentInfoTextAndroid : undefined} variant="supporting">
                 تعديل الفاتورة لا يحذف الدفعات المسجلة مسبقًا.
               </AppText>
             </SolidCard>
@@ -195,9 +196,7 @@ export function EditInvoiceScreen() {
           <TextField label="ملاحظات" onChangeText={setNotes} placeholder="اختياري" value={notes} />
 
           <View style={styles.section}>
-            <AppText style={styles.sectionTitle} variant="cardTitle">
-              معاينة التعديلات
-            </AppText>
+            <InvoiceSectionHeading title="معاينة التعديلات" />
             <InvoiceMiniCard invoice={previewInvoice} />
           </View>
 
@@ -211,6 +210,7 @@ export function EditInvoiceScreen() {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        androidRtlLayout
         ltr
         onClose={() => setPicker(null)}
         onSelect={(value) => {
@@ -223,6 +223,7 @@ export function EditInvoiceScreen() {
         visible={picker === 'issue'}
       />
       <PickerSheet
+        androidRtlLayout
         ltr
         onClose={() => setPicker(null)}
         onSelect={(value) => {

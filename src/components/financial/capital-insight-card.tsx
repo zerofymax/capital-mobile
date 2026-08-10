@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { AppText } from '@/components/ui';
 import { colors } from '@/theme/colors';
@@ -9,12 +9,8 @@ import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { directionSafeText } from '@/utils/rtl';
 
-const androidPhysicalRtlRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
-  : {};
-const androidPhysicalRightAlignedColumn = Platform.OS === 'android'
-  ? { direction: 'ltr' as const }
-  : {};
+const androidPhysicalRtlRow: ViewStyle = { direction: 'ltr', flexDirection: 'row-reverse' };
+const androidPhysicalRightAlignedColumn: ViewStyle = { direction: 'ltr' };
 
 type CapitalInsightCardProps = {
   eyebrow: string;

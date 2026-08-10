@@ -11,6 +11,7 @@ import { directionSafeText, formatCurrency } from '@/utils/rtl';
 import {
   AmountField,
   BottomConfirmSheet,
+  getGoalScreenTopPadding,
   goalTypeIdToName,
   goalTypeNameToId,
   GoalHeader,
@@ -130,7 +131,7 @@ export function EditGoalScreen() {
             styles.content,
             {
               paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-              paddingTop: Math.max(insets.top + spacing.sm, 48),
+              paddingTop: getGoalScreenTopPadding(insets.top),
             },
           ]}
           contentInsetAdjustmentBehavior="automatic"
@@ -142,9 +143,9 @@ export function EditGoalScreen() {
           {dirty ? <NoticeBanner message="لديك تغييرات غير محفوظة" tone="warning" /> : null}
 
           <SolidCard style={styles.currentCard}>
-            <View style={[styles.currentHeader, Platform.OS === 'android' && styles.currentHeaderAndroid]}>
+            <View style={[styles.currentHeader, Platform.OS !== 'web' && styles.currentHeaderAndroid]}>
               <View style={styles.infoDot} />
-              <AppText style={Platform.OS === 'android' ? styles.currentTitleAndroid : undefined} variant="cardTitle">
+              <AppText style={Platform.OS !== 'web' ? styles.currentTitleAndroid : undefined} variant="cardTitle">
                 التقدم الحالي
               </AppText>
             </View>
@@ -167,7 +168,7 @@ export function EditGoalScreen() {
               </View>
             </View>
             <GoalProgressBar progress={previewSummary.progress} tone="green" />
-            <AppText style={Platform.OS === 'android' ? styles.currentNoteAndroid : undefined} tone="secondary" variant="supporting">
+            <AppText style={Platform.OS !== 'web' ? styles.currentNoteAndroid : undefined} tone="secondary" variant="supporting">
               تعديل الهدف لن يغير المساهمات المسجلة مسبقًا.
             </AppText>
           </SolidCard>
@@ -201,7 +202,7 @@ export function EditGoalScreen() {
           <ReminderCard androidRtlLayout enabled={reminderEnabled} day={reminderDay} onDayPress={() => setPicker('reminderDay')} onToggle={setReminderEnabled} />
 
           <View style={styles.section}>
-            {Platform.OS === 'android' ? (
+            {Platform.OS !== 'web' ? (
               <View style={styles.sectionTitleWrapperAndroid}>
                 <AppText style={styles.sectionTitleAndroid} variant="cardTitle">
                   معاينة التعديلات

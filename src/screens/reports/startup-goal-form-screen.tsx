@@ -31,7 +31,6 @@ type GoalFormDraft = Omit<StartupGoalDraft, 'allocatedBudget' | 'currentValue' |
 };
 type FormErrors = Partial<Record<keyof GoalFormDraft, string>>;
 
-const useAndroidRtlLayout = Platform.OS === 'android';
 const androidSystemNavigationClearance = 48;
 
 export function AddStartupGoalScreen() {
@@ -72,7 +71,7 @@ function StartupGoalFormScreen({ mode }: { mode: 'add' | 'edit' }) {
     draft.allocatedBudget !== null && draft.spentBudget !== null && draft.allocatedBudget >= 0 && draft.spentBudget > draft.allocatedBudget
       ? 'المصروف أعلى من الميزانية. يمكنك الحفظ إذا كان ذلك قرارًا مقصودًا.'
       : undefined;
-  const bottomPadding = useAndroidRtlLayout
+  const bottomPadding = Platform.OS === 'android'
     ? insets.bottom + androidSystemNavigationClearance + spacing.xl
     : Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
 

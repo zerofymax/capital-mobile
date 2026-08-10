@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -10,12 +10,12 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { directionSafeText, formatCurrency } from '@/utils/rtl';
-import { BottomConfirmSheet, GoalHeader, GoalProgressBar, GoalStatusBadge, NoticeBanner } from './components';
+import { BottomConfirmSheet, getGoalScreenTopPadding, GoalHeader, GoalProgressBar, GoalStatusBadge, NoticeBanner } from './components';
 import { deleteGoal, useGoalsStore } from './goals-store';
 import { getGoalSummary, goalToneColors } from './goal-utils';
 import { initialGoals } from './goals-data';
 
-const useAndroidRtlLayout = Platform.OS === 'android';
+const useAndroidRtlLayout = true;
 
 export function GoalDetailsScreen() {
   const insets = useSafeAreaInsets();
@@ -39,7 +39,7 @@ export function GoalDetailsScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top + spacing.sm, 48),
+            paddingTop: getGoalScreenTopPadding(insets.top),
           },
         ]}
         contentInsetAdjustmentBehavior="automatic"
@@ -512,12 +512,15 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     width: '100%',
   },
   sectionHeaderTitle: {
-    flexShrink: 1,
+    alignSelf: 'stretch',
+    flex: 1,
+    minWidth: 0,
     textAlign: 'right',
     writingDirection: 'rtl',
   },
@@ -525,19 +528,24 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   infoRow: {
-    width: '100%',
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     minHeight: 34,
+    width: '100%',
   },
   infoLabel: {
+    flex: 1,
+    minWidth: 0,
     textAlign: 'right',
     writingDirection: 'rtl',
   },
   infoValue: {
     color: colors.text.primary,
+    flexShrink: 0,
     fontWeight: '700',
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   infoValueRtl: {

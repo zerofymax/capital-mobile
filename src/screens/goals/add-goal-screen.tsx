@@ -8,6 +8,7 @@ import { routes } from '@/constants/routes';
 import { spacing } from '@/theme/spacing';
 import {
   AmountField,
+  getGoalScreenTopPadding,
   goalTypeIdToName,
   goalTypeNameToId,
   GoalHeader,
@@ -101,7 +102,7 @@ export function AddGoalScreen() {
             styles.content,
             {
               paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-              paddingTop: Math.max(insets.top + spacing.sm, 48),
+              paddingTop: getGoalScreenTopPadding(insets.top),
             },
           ]}
           contentInsetAdjustmentBehavior="automatic"

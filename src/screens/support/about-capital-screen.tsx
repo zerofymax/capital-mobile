@@ -295,7 +295,9 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   logoMark: {
     alignItems: 'center',
@@ -342,11 +344,13 @@ const styles = StyleSheet.create({
   },
   prototypeCard: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     backgroundColor: colors.semantic.warningTint,
     borderColor: 'rgba(232,163,61,0.28)',
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
+    width: '100%',
   },
   prototypeIcon: {
     alignItems: 'center',
@@ -366,9 +370,11 @@ const styles = StyleSheet.create({
   section: {
     alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   rowsCard: {
     padding: 0,
+    width: '100%',
   },
   infoRow: {
     alignItems: 'center',
@@ -396,12 +402,14 @@ const styles = StyleSheet.create({
   },
   releaseCard: {
     gap: spacing.md,
+    width: '100%',
   },
   releaseRow: {
     alignItems: 'center',
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
+    width: '100%',
   },
   releaseText: {
     flex: 1,
@@ -468,9 +476,11 @@ const styles = StyleSheet.create({
   },
   placeholderCard: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
+    width: '100%',
   },
   placeholderText: {
     flex: 1,

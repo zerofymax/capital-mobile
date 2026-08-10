@@ -15,7 +15,7 @@ type OnboardingInputProps = TextInputProps & {
 export function OnboardingInput({ label, error, ltr = false, style, ...props }: OnboardingInputProps) {
   return (
     <View style={styles.root}>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.label} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <TextInput
@@ -29,7 +29,7 @@ export function OnboardingInput({ label, error, ltr = false, style, ...props }: 
         ]}
       />
       {error ? (
-        <AppText tone="danger" variant="caption">
+        <AppText style={styles.label} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -39,7 +39,15 @@ export function OnboardingInput({ label, error, ltr = false, style, ...props }: 
 
 const styles = StyleSheet.create({
   root: {
+    alignItems: 'stretch',
     gap: spacing.sm,
+    width: '100%',
+  },
+  label: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   input: {
     backgroundColor: 'rgba(255,255,255,0.045)',

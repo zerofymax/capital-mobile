@@ -29,8 +29,8 @@ export function ConfirmationSheet({
   return (
     <GlassSurface radius={radii.sheet} style={styles.sheet}>
       <View style={styles.handle} />
-      <AppText variant="sectionTitle">{title}</AppText>
-      <AppText tone="secondary" variant="supporting">
+      <AppText style={styles.copyText} variant="sectionTitle">{title}</AppText>
+      <AppText style={styles.copyText} tone="secondary" variant="supporting">
         {message}
       </AppText>
       <View style={styles.actions}>
@@ -56,6 +56,12 @@ const styles = StyleSheet.create({
     height: 4,
     opacity: 0.55,
     width: 42,
+  },
+  copyText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   actions: {
     gap: spacing.sm,

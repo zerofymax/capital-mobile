@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { AppText } from '@/components/ui';
 import { colors } from '@/theme/colors';
@@ -6,15 +6,9 @@ import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { NumericText } from '@/utils/rtl';
 
-const androidPhysicalHealthRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
-  : {};
-const androidPhysicalRtlRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
-  : {};
-const androidPhysicalRightAlignedColumn = Platform.OS === 'android'
-  ? { direction: 'ltr' as const }
-  : {};
+const androidPhysicalHealthRow: ViewStyle = { direction: 'ltr', flexDirection: 'row' };
+const androidPhysicalRtlRow: ViewStyle = { direction: 'ltr', flexDirection: 'row-reverse' };
+const androidPhysicalRightAlignedColumn: ViewStyle = { direction: 'ltr' };
 
 type BusinessHealthCardProps = {
   label: string;

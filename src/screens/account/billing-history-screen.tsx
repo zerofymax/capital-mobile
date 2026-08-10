@@ -3,16 +3,17 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { LedgerFilterChip } from '@/components/financial';
+import { HorizontalFilterChips } from '@/components/financial';
 import { EmptyState, EmptyStateIcon } from '@/components/system';
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 import {
   formatSubscriptionAmount,
   getSubscriptionInvoices,
@@ -96,9 +97,10 @@ export function BillingHistoryScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <BillingHistoryHeader onBackPress={goBackToSubscription} />
@@ -185,23 +187,23 @@ function BillingSummaryCard({ invoiceCount, subscription }: { invoiceCount: numb
         </View>
       </View>
       <View style={styles.summaryGrid}>
-        <SummaryMetric label="عدد الفواتير" value={`${invoiceCount}`} />
-        <SummaryMetric label="إجمالي المدفوعات" value={totalPayments} />
+        <SummaryMetric label="عدد الفواتير" ltr value={`${invoiceCount}`} />
+        <SummaryMetric label="إجمالي المدفوعات" ltr value={totalPayments} />
         <SummaryMetric label="تاريخ آخر دفعة" value="15 يوليو 2026" />
-        <SummaryMetric label="آخر دفعة" value={lastPayment} />
+        <SummaryMetric label="آخر دفعة" ltr value={lastPayment} />
       </View>
     </SolidCard>
   );
 }
 
-function SummaryMetric({ label, value }: { label: string; value: string }) {
+function SummaryMetric({ label, value, ltr = false }: { label: string; value: string; ltr?: boolean }) {
   return (
     <View style={styles.summaryMetric}>
       <AppText style={styles.summaryMetricLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="right" numberOfLines={1} style={styles.summaryMetricValue} variant="body">
-        {value}
+      <AppText align="right" numberOfLines={1} style={[styles.summaryMetricValue, ltr && styles.ltrText]} variant="body">
+        {ltr ? value : directionSafeText(value)}
       </AppText>
     </View>
   );
@@ -214,23 +216,7 @@ function FilterChips({
   selectedFilter: InvoiceFilter;
   onFilterPress: (filter: InvoiceFilter) => void;
 }) {
-  return (
-    <ScrollView
-      contentContainerStyle={styles.filtersContent}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={styles.filtersScroller}
-    >
-      {invoiceFilters.map((filter) => (
-        <LedgerFilterChip
-          key={filter.id}
-          label={filter.label}
-          onPress={() => onFilterPress(filter.id)}
-          selected={selectedFilter === filter.id}
-        />
-      ))}
-    </ScrollView>
-  );
+  return <HorizontalFilterChips items={invoiceFilters} selectedValue={selectedFilter} onChange={onFilterPress} />;
 }
 
 function InvoiceCard({
@@ -287,7 +273,7 @@ function InvoiceCard({
 
         <View style={styles.periodRow}>
           <AppText style={styles.periodText} tone="secondary" variant="caption">
-            {invoice.period}
+            {directionSafeText(invoice.period)}
           </AppText>
           <Ionicons color={colors.text.tertiary} name={expanded ? 'chevron-up-outline' : 'chevron-down-outline'} size={16} />
         </View>
@@ -365,7 +351,7 @@ function InfoRow({ label, value, ltr = false }: { label: string; value: string; 
         {label}
       </AppText>
       <AppText align="left" style={[styles.infoValue, ltr ? styles.ltrText : styles.rtlValue]} variant="supporting">
-        {value}
+        {ltr ? value : directionSafeText(value)}
       </AppText>
     </View>
   );
@@ -475,17 +461,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     textAlign: 'right',
     width: '100%',
-    writingDirection: 'ltr',
-  },
-  filtersScroller: {
-    direction: 'rtl',
-    marginHorizontal: -16,
-  },
-  filtersContent: {
-    direction: 'rtl',
-    flexDirection: 'row',
-    gap: spacing.sm,
-    paddingHorizontal: 16,
+    writingDirection: 'rtl',
   },
   section: {
     alignItems: 'stretch',

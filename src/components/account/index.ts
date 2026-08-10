@@ -3,3 +3,5 @@ export * from './profile-card';
 export * from './settings-section';
 export * from './settings-row';
 export * from './subscription-card';
+export * from './subscription-price-line';
+export * from './subscription-section-heading';

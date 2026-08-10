@@ -26,7 +26,7 @@ export function SubscriptionCard({ subscription, onPress }: SubscriptionCardProp
             style={[styles.planTitle, Platform.OS === 'ios' && styles.planTitleIos]}
             variant="sectionTitle"
           >
-            {subscription.title}
+            {directionSafeText(subscription.title)}
           </AppText>
           <View style={styles.statusBadge}>
             <AppText align="center" style={styles.statusBadgeText} variant="caption">
@@ -105,19 +105,19 @@ const styles = StyleSheet.create({
   titleRowIos: {
     gap: spacing.md,
     maxWidth: '100%',
+    minWidth: 0,
   },
   planTitle: {
     color: colors.text.primary,
-    flexShrink: 0,
+    flexShrink: 1,
     fontSize: 20,
-    lineHeight: 17,
-    writingDirection: 'ltr',
+    lineHeight: 27,
+    minWidth: 0,
+    writingDirection: 'rtl',
   },
   planTitleIos: {
-    flexShrink: 1,
     fontFamily: 'System',
-    lineHeight: 25,
-    minHeight: 25,
+    minHeight: 27,
   },
   statusBadge: {
     backgroundColor: 'rgba(79,138,91,0.18)',
@@ -194,7 +194,6 @@ const styles = StyleSheet.create({
     maxWidth: 120,
     minWidth: 108,
     paddingHorizontal: spacing.md,
-    width: 120,
   },
   ctaText: {
     color: colors.brand.lightNeutral,

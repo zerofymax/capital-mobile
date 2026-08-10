@@ -39,7 +39,7 @@ import {
   useStartupReportsStore,
 } from './startup-report-store';
 
-const useAndroidRtlLayout = Platform.OS === 'android';
+const useAndroidRtlLayout = true;
 const androidSystemNavigationClearance = 48;
 
 export function StartupGoalDetailsScreen() {
@@ -50,7 +50,7 @@ export function StartupGoalDetailsScreen() {
   const [deleteVisible, setDeleteVisible] = useState(false);
   const [milestoneVisible, setMilestoneVisible] = useState(false);
   const [milestoneTitle, setMilestoneTitle] = useState('');
-  const bottomPadding = useAndroidRtlLayout
+  const bottomPadding = Platform.OS === 'android'
     ? insets.bottom + androidSystemNavigationClearance + spacing.xl
     : Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
 
@@ -368,7 +368,7 @@ function AddMilestoneSheet({
   onSave: () => void;
 }) {
   const insets = useSafeAreaInsets();
-  const bottomPadding = useAndroidRtlLayout
+  const bottomPadding = Platform.OS === 'android'
     ? insets.bottom + androidSystemNavigationClearance + spacing.xl
     : insets.bottom + spacing.xl;
 
@@ -377,10 +377,13 @@ function AddMilestoneSheet({
       <View style={styles.sheetRoot}>
         <Pressable accessibilityLabel="إغلاق" onPress={onClose} style={styles.sheetBackdrop} />
         <View style={[styles.sheetCard, { paddingBottom: bottomPadding }]}>
-          <View style={styles.sheetHandle} />
-          <AppText align="right" style={styles.sheetTitle} variant="sectionTitle">
-            إضافة مرحلة
-          </AppText>
+          <View style={styles.milestoneSheetHeader}>
+            <View style={styles.sheetHandle} />
+            <AppText align="right" style={styles.sheetTitle} variant="sectionTitle">
+              إضافة مرحلة
+            </AppText>
+          </View>
+          <View style={styles.sheetDivider} />
           <View style={styles.inputWrap}>
             <TextInput
               onChangeText={onChangeTitle}
@@ -424,9 +427,17 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: 'da
       <AppText align="center" tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="center" tone={tone ?? 'primary'} variant="caption">
-        {directionSafeText(value)}
-      </AppText>
+          <AppText
+            adjustsFontSizeToFit
+            align="center"
+            minimumFontScale={0.65}
+            numberOfLines={1}
+            style={styles.statValue}
+            tone={tone ?? 'primary'}
+            variant="caption"
+          >
+            {directionSafeText(value)}
+          </AppText>
     </View>
   );
 }
@@ -482,7 +493,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   goalTitleBlockAndroid: {
-    flex: 0,
+    flex: 1,
     flexShrink: 1,
   },
   goalHeroIdentity: {
@@ -567,6 +578,12 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xs,
     padding: spacing.sm,
+  },
+  statValue: {
+    flexShrink: 1,
+    minWidth: 0,
+    width: '100%',
+    writingDirection: 'ltr',
   },
   insightBox: {
     backgroundColor: colors.semantic.successTint,
@@ -680,7 +697,7 @@ const styles = StyleSheet.create({
   },
   milestoneCopyAndroid: {
     alignItems: 'flex-end',
-    flex: 0,
+    flex: 1,
     flexShrink: 1,
     minWidth: 0,
   },
@@ -731,11 +748,18 @@ const styles = StyleSheet.create({
     height: 4,
     width: 36,
   },
+  milestoneSheetHeader: {
+    gap: spacing.md,
+  },
   sheetTitle: {
     alignSelf: 'stretch',
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',
+  },
+  sheetDivider: {
+    backgroundColor: colors.surface.separator,
+    height: StyleSheet.hairlineWidth,
   },
   inputWrap: {
     backgroundColor: colors.surface.card,

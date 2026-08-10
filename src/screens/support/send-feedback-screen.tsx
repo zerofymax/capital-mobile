@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
   section: {
     alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   chipGrid: {
     alignSelf: 'stretch',
@@ -197,9 +198,10 @@ const styles = StyleSheet.create({
   },
   ratingRow: {
     alignSelf: 'stretch',
-    direction: 'rtl',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.sm,
+    width: '100%',
   },
   fieldLabel: {
     alignSelf: 'stretch',
@@ -214,17 +216,21 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   textArea: {
+    alignSelf: 'stretch',
     minHeight: 118,
     paddingVertical: spacing.md,
     textAlign: 'right',
+    width: '100%',
     writingDirection: 'rtl',
   },
   notice: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     paddingVertical: spacing.md,
+    width: '100%',
   },
   successNotice: {
     backgroundColor: colors.semantic.successTint,

@@ -25,7 +25,7 @@ const filters: readonly { id: GoalFilter; label: string }[] = [
   { id: 'not-started', label: 'لم تبدأ' },
 ];
 
-const useAndroidRtlLayout = Platform.OS === 'android';
+const useAndroidRtlLayout = true;
 const androidSystemNavigationClearance = 48;
 
 export function StartupGoalsScreen() {
@@ -36,7 +36,7 @@ export function StartupGoalsScreen() {
     () => goals.filter((goal) => filter === 'all' || resolveGoalStatus(goal) === filter),
     [filter, goals],
   );
-  const bottomPadding = useAndroidRtlLayout
+  const bottomPadding = Platform.OS === 'android'
     ? insets.bottom + androidSystemNavigationClearance + spacing.xl
     : Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
 
@@ -158,7 +158,14 @@ function SummaryItem({ label, value, tone }: { label: string; value: string; ton
       <AppText align="right" style={styles.rtlLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="right" style={[styles.summaryValue, tone === 'success' && styles.successText, tone === 'danger' && styles.dangerText]} variant="cardTitle">
+      <AppText
+        adjustsFontSizeToFit
+        align="right"
+        minimumFontScale={0.65}
+        numberOfLines={1}
+        style={[styles.summaryValue, tone === 'success' && styles.successText, tone === 'danger' && styles.dangerText]}
+        variant="cardTitle"
+      >
         {directionSafeText(value)}
       </AppText>
     </View>
@@ -237,7 +244,10 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   summaryValue: {
+    flexShrink: 1,
     fontSize: 15,
+    lineHeight: 22,
+    minWidth: 0,
     textAlign: 'right',
     width: '100%',
     writingDirection: 'ltr',
@@ -273,8 +283,8 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   filterRow: {
-    direction: 'rtl',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },

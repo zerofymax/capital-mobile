@@ -3,14 +3,16 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SubscriptionPriceLine, SubscriptionSectionHeading } from '@/components/account';
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 import {
   formatSubscriptionAmount,
   getPaymentMethodLabel,
@@ -183,10 +185,10 @@ export function CurrentSubscriptionScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <SubscriptionHeader onBackPress={goBackToAccount} />
@@ -262,9 +264,11 @@ function PlanHeroCard({ subscription }: { subscription: SubscriptionState }) {
           </View>
         </View>
 
-        <AppText align="right" numberOfLines={1} style={styles.priceText} variant="numericValue">
-          {`${formatSubscriptionAmount(subscription.monthlyPrice, subscription.currency)} / شهريًا`}
-        </AppText>
+        <SubscriptionPriceLine
+          amount={formatSubscriptionAmount(subscription.monthlyPrice, subscription.currency)}
+          period="شهريًا"
+          style={styles.priceText}
+        />
 
         <View style={styles.heroFooter}>
           <Ionicons color={colors.brand.calmGreen} name="calendar-outline" size={16} />
@@ -280,7 +284,7 @@ function PlanHeroCard({ subscription }: { subscription: SubscriptionState }) {
 function BillingSummaryCard({ subscription }: { subscription: SubscriptionState }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">تفاصيل الفاتورة</AppText>
+      <SubscriptionSectionHeading>تفاصيل الفاتورة</SubscriptionSectionHeading>
       <SolidCard style={styles.rowsCard}>
         <InfoRow label="دورة الفوترة" value="شهري" />
         <Divider />
@@ -303,7 +307,7 @@ function BillingSummaryCard({ subscription }: { subscription: SubscriptionState 
 function BenefitsCard() {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">مزايا خطتك</AppText>
+      <SubscriptionSectionHeading>مزايا خطتك</SubscriptionSectionHeading>
       <SolidCard style={styles.benefitsCard}>
         {planBenefits.map((benefit, index) => (
           <View key={benefit}>
@@ -326,7 +330,7 @@ function BenefitsCard() {
 function UsageSummaryCard({ usageItems }: { usageItems: SubscriptionUsage[] }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">استخدامك هذا الشهر</AppText>
+      <SubscriptionSectionHeading>استخدامك هذا الشهر</SubscriptionSectionHeading>
       <SolidCard style={styles.usageCard}>
         {usageItems.map((item, index) => (
           <View key={item.id}>
@@ -354,9 +358,15 @@ function UsageRow({ item }: { item: SubscriptionUsage }) {
         <AppText style={[styles.usageLabel, styles.rtlText]} variant="supporting">
           {item.label}
         </AppText>
-        <AppText align="left" style={styles.ltrText} tone="secondary" variant="caption">
-          {displayValue}
-        </AppText>
+        {item.limit ? (
+          <View style={styles.usageValue}>
+            <AppText style={styles.ltrText} tone="secondary" variant="caption">{item.used}</AppText>
+            <AppText style={styles.rtlText} tone="secondary" variant="caption">من</AppText>
+            <AppText style={styles.ltrText} tone="secondary" variant="caption">{item.limit}</AppText>
+          </View>
+        ) : (
+          <AppText align="left" style={styles.rtlText} tone="secondary" variant="caption">غير محدودة</AppText>
+        )}
       </View>
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${percent * 100}%` }]} />
@@ -374,7 +384,7 @@ function ManagementSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">إدارة الاشتراك</AppText>
+      <SubscriptionSectionHeading>إدارة الاشتراك</SubscriptionSectionHeading>
       <SolidCard style={styles.rowsCard}>
         {actions.map((action, index) => (
           <View key={action.id}>
@@ -432,7 +442,7 @@ function AutoRenewalCard({ subscription }: { subscription: SubscriptionState }) 
       <View style={styles.autoRenewCopy}>
         <AppText style={styles.fullWidthRtlText} variant="cardTitle">{title}</AppText>
         <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
-          {description}
+          {directionSafeText(description)}
         </AppText>
       </View>
     </SolidCard>
@@ -576,11 +586,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   priceText: {
-    alignSelf: 'stretch',
     color: colors.text.primary,
-    textAlign: 'right',
-    width: '100%',
-    writingDirection: 'ltr',
   },
   heroFooter: {
     alignItems: 'center',
@@ -674,6 +680,12 @@ const styles = StyleSheet.create({
   usageLabel: {
     flex: 1,
   },
+  usageValue: {
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row',
+    gap: spacing.xxs,
+  },
   progressTrack: {
     backgroundColor: 'rgba(255,255,255,0.07)',
     borderRadius: radii.pill,
@@ -718,7 +730,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   paymentStatus: {
-    maxWidth: 108,
+    flexShrink: 0,
     textAlign: 'left',
     writingDirection: 'ltr',
   },

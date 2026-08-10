@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Modal, Platform, Pressable, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, StyleSheet, Switch, TextInput, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CapitalBottomSheetHeaderSurface } from '@/components/navigation/capital-bottom-sheet-header-surface';
@@ -13,10 +13,8 @@ import { directionSafeText } from '@/utils/rtl';
 import { getBudgetSummary, toneColors, type BudgetTone } from './budget-utils';
 import { budgetCategories, type Budget, type BudgetCategoryId } from './budgets-data';
 
-const androidPhysicalLtrRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row' as const, width: '100%' as const }
-  : {};
-const androidHeaderSlot = Platform.OS === 'android' ? { display: 'none' as const } : {};
+const androidPhysicalLtrRow: ViewStyle = { direction: 'ltr', flexDirection: 'row', width: '100%' };
+const androidHeaderSlot: ViewStyle = { display: 'none' };
 
 export function BudgetHeader({ title, subtitle, onBack }: { title: string; subtitle?: string; onBack: () => void }) {
   return (
@@ -25,7 +23,7 @@ export function BudgetHeader({ title, subtitle, onBack }: { title: string; subti
         accessibilityLabel="رجوع"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+        iconName="chevron-back-outline"
         iconSize={21}
         onPress={onBack}
         pressedStyle={styles.pressed}
@@ -73,7 +71,7 @@ export function BudgetProgressBar({
   const clampedUsage = Math.max(0, Math.min(usage, 100));
   const clampedMarker = typeof marker === 'number' ? Math.max(0, Math.min(marker, 100)) : null;
   const toneStyle = toneColors[tone];
-  const useAndroidPhysicalLeft = Platform.OS === 'android' && androidPhysicalLeft;
+  const useAndroidPhysicalLeft = androidPhysicalLeft;
 
   return (
     <View style={[styles.progressTrack, useAndroidPhysicalLeft && styles.progressTrackAndroid]}>
@@ -86,7 +84,7 @@ export function BudgetProgressBar({
 export function BudgetCategoryCard({ budget, onPress }: { budget: Budget; onPress: (id: string) => void }) {
   const summary = getBudgetSummary(budget);
   const toneStyle = toneColors[summary.status.tone];
-  const useAndroidRtlLayout = Platform.OS === 'android';
+  const useAndroidRtlLayout = true;
   const categoryIcon = (
     <View style={[styles.categoryIcon, { backgroundColor: toneStyle.tint }]}>
       <Ionicons color={toneStyle.accent} name={summary.category.icon} size={19} />
@@ -176,7 +174,7 @@ export function BudgetCategoryCard({ budget, onPress }: { budget: Budget; onPres
 
 export function SummaryMiniCard({ budget, androidRtlLayout = false }: { budget: Budget; androidRtlLayout?: boolean }) {
   const summary = getBudgetSummary(budget);
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
   const categoryIcon = (
     <View style={[styles.categoryIcon, { backgroundColor: toneColors[summary.status.tone].tint }]}>
       <Ionicons color={toneColors[summary.status.tone].accent} name={summary.category.icon} size={18} />
@@ -270,7 +268,7 @@ export function SelectField({
   androidRtlLayout?: boolean;
   onPress: () => void;
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
   const valueText = (
     <AppText style={[styles.selectValue, useAndroidRtlLayout && styles.selectValueAndroid]} variant="cardTitle">
       {value || 'اختر'}
@@ -359,8 +357,8 @@ export function ThresholdSelector({
   onChange: (value: number) => void;
 }) {
   const options = [70, 80, 90] as const;
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
-  const useAndroidFirstOptionOnLeft = Platform.OS === 'android' && androidFirstOptionOnLeft;
+  const useAndroidRtlLayout = androidRtlLayout;
+  const useAndroidFirstOptionOnLeft = androidFirstOptionOnLeft;
 
   return (
     <View
@@ -397,7 +395,7 @@ export function ToggleRow({
   androidRtlLayout?: boolean;
   onValueChange: (value: boolean) => void;
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
   const label = (
     <AppText style={useAndroidRtlLayout ? styles.toggleLabelAndroid : undefined} variant="cardTitle">
       تفعيل التنبيه
@@ -436,7 +434,7 @@ export function PickerSheet({
   visible,
   options,
   selectedValue,
-  androidRtlLayout = false,
+  androidRtlLayout = true,
   onSelect,
   onClose,
 }: {
@@ -449,7 +447,7 @@ export function PickerSheet({
   onClose: () => void;
 }) {
   const insets = useSafeAreaInsets();
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
   const titleText = (
     <AppText style={useAndroidRtlLayout ? styles.sheetTitleAndroid : undefined} variant="sectionTitle">
       {title}
@@ -462,41 +460,46 @@ export function PickerSheet({
         <Pressable accessibilityLabel="إغلاق القائمة" onPress={onClose} style={styles.sheetBackdrop} />
         <View style={[styles.sheetCard, { paddingBottom: insets.bottom + spacing.xl }]}>
           <CapitalBottomSheetHeaderSurface />
-          <View style={styles.sheetHandle} />
-          {useAndroidRtlLayout ? <View style={styles.sheetTitleWrapperAndroid}>{titleText}</View> : titleText}
-          {options.map((option) => {
-            const selected = option === selectedValue;
-            const optionText = (
-              <AppText style={[useAndroidRtlLayout && styles.optionTextAndroid, selected && styles.optionTextSelected]} variant="body">
-                {option}
-              </AppText>
-            );
-            const selectedIcon = selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={18} /> : null;
+          <View style={styles.sheetHeader}>
+            <View style={styles.sheetHandle} />
+            {useAndroidRtlLayout ? <View style={styles.sheetTitleWrapperAndroid}>{titleText}</View> : titleText}
+            <View style={styles.sheetDivider} />
+          </View>
+          <View style={styles.optionsContainer}>
+            {options.map((option) => {
+              const selected = option === selectedValue;
+              const optionText = (
+                <AppText style={[useAndroidRtlLayout && styles.optionTextAndroid, selected && styles.optionTextSelected]} variant="body">
+                  {option}
+                </AppText>
+              );
+              const selectedIcon = selected ? <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={18} /> : null;
 
-            return (
-              <Pressable
-                accessibilityLabel={option}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                key={option}
-                onPress={() => onSelect(option)}
-                style={({ pressed }) => [styles.optionRow, useAndroidRtlLayout && styles.optionRowAndroid, selected && styles.optionRowSelected, pressed && styles.pressed]}
-              >
-                {useAndroidRtlLayout ? (
-                  <>
-                    {selectedIcon}
-                    <View style={styles.optionSpacerAndroid} />
-                    <View style={styles.optionTextSlotAndroid}>{optionText}</View>
-                  </>
-                ) : (
-                  <>
-                    {optionText}
-                    {selectedIcon}
-                  </>
-                )}
-              </Pressable>
-            );
-          })}
+              return (
+                <Pressable
+                  accessibilityLabel={option}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  key={option}
+                  onPress={() => onSelect(option)}
+                  style={({ pressed }) => [styles.optionRow, useAndroidRtlLayout && styles.optionRowAndroid, selected && styles.optionRowSelected, pressed && styles.pressed]}
+                >
+                  {useAndroidRtlLayout ? (
+                    <>
+                      {selectedIcon}
+                      <View style={styles.optionSpacerAndroid} />
+                      <View style={styles.optionTextSlotAndroid}>{optionText}</View>
+                    </>
+                  ) : (
+                    <>
+                      {optionText}
+                      {selectedIcon}
+                    </>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
       </View>
     </Modal>
@@ -537,10 +540,15 @@ export function BottomConfirmSheet({
         <View style={[styles.confirmSheet, { paddingBottom: insets.bottom + spacing.xl }]}>
           <CapitalBottomSheetHeaderSurface />
           <View style={styles.sheetHandle} />
-          <AppText variant="sectionTitle">{title}</AppText>
-          <AppText tone="secondary" variant="body">
-            {description}
-          </AppText>
+          <View style={styles.confirmHeader}>
+            <AppText style={styles.confirmTitle} variant="sectionTitle">{title}</AppText>
+          </View>
+          <View style={styles.sheetDivider} />
+          <View style={styles.confirmBody}>
+            <AppText style={styles.confirmDescription} tone="secondary" variant="body">
+              {description}
+            </AppText>
+          </View>
           <View style={styles.confirmActions}>
             <AppButton onPress={onSecondaryPress} variant={resolvedSecondaryVariant}>
               {secondaryLabel}
@@ -558,14 +566,14 @@ export function BottomConfirmSheet({
 export function NoticeBanner({
   message,
   tone = 'success',
-  androidRtlLayout = false,
+  androidRtlLayout = true,
 }: {
   message: string;
   tone?: 'success' | 'warning';
   androidRtlLayout?: boolean;
 }) {
   const isWarning = tone === 'warning';
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
 
   return (
     <View style={[styles.notice, useAndroidRtlLayout && styles.noticeAndroid, isWarning ? styles.warningNotice : styles.successNotice]}>
@@ -823,7 +831,9 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   formField: {
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
   },
   formLabel: {
     alignSelf: 'stretch',
@@ -851,6 +861,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surface.muted,
     borderRadius: radii.control,
+    flexShrink: 0,
     height: 34,
     justifyContent: 'center',
     width: 34,
@@ -890,7 +901,8 @@ const styles = StyleSheet.create({
     fontSize: 23,
     fontWeight: '700',
     padding: 0,
-    textAlign: 'left',
+    minWidth: 0,
+    textAlign: 'right',
     writingDirection: 'ltr',
   },
   fieldError: {
@@ -985,8 +997,12 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radii.sheet,
     borderTopRightRadius: radii.sheet,
     borderWidth: 1,
-    gap: spacing.md,
     padding: spacing.xl,
+  },
+  sheetHeader: {
+    alignSelf: 'stretch',
+    gap: spacing.md,
+    width: '100%',
   },
   sheetHandle: {
     alignSelf: 'center',
@@ -995,6 +1011,12 @@ const styles = StyleSheet.create({
     height: 4,
     opacity: 0.55,
     width: 42,
+  },
+  sheetDivider: {
+    alignSelf: 'stretch',
+    backgroundColor: colors.surface.separator,
+    height: StyleSheet.hairlineWidth,
+    width: '100%',
   },
   sheetTitleWrapperAndroid: {
     alignItems: 'flex-end',
@@ -1006,6 +1028,12 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',
+  },
+  optionsContainer: {
+    alignSelf: 'stretch',
+    gap: spacing.md,
+    paddingTop: spacing.lg,
+    width: '100%',
   },
   optionRow: {
     alignItems: 'center',
@@ -1051,6 +1079,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: spacing.lg,
     padding: spacing.xl,
+  },
+  confirmHeader: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    width: '100%',
+  },
+  confirmTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  confirmBody: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    paddingTop: spacing.xs,
+    width: '100%',
+  },
+  confirmDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   confirmActions: {
     gap: spacing.sm,

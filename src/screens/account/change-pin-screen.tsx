@@ -306,10 +306,10 @@ export function ChangePinScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <ChangePinHeader onBackPress={handleHeaderBack} />
@@ -317,14 +317,14 @@ export function ChangePinScreen() {
 
         <SolidCard style={styles.pinCard}>
           <View style={styles.copy}>
-            <AppText align="center" variant="sectionTitle">
+            <AppText align="right" style={styles.copyText} variant="sectionTitle">
               {activeMeta.title}
             </AppText>
-            <AppText align="center" style={styles.description} tone="secondary" variant="supporting">
+            <AppText align="right" style={[styles.copyText, styles.description]} tone="secondary" variant="supporting">
               {activeMeta.description}
             </AppText>
             {state.step === 'current' ? (
-              <AppText align="center" tone="tertiary" variant="caption">
+              <AppText align="right" style={styles.copyText} tone="tertiary" variant="caption">
                 لن يتم التحقق من رمز حقيقي في هذا النموذج التجريبي.
               </AppText>
             ) : null}
@@ -685,6 +685,7 @@ const styles = StyleSheet.create({
   },
   stepHeader: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
   },
@@ -699,6 +700,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   stepPills: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
@@ -783,6 +785,13 @@ const styles = StyleSheet.create({
   copy: {
     alignItems: 'flex-end',
     gap: Platform.select({ ios: spacing.md, default: spacing.sm }),
+    width: '100%',
+  },
+  copyText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   description: {
     alignSelf: 'stretch',

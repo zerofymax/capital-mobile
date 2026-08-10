@@ -309,7 +309,7 @@ function HomeCustomizationHeader({
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <AppText align="right" numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
         تخصيص الصفحة الرئيسية
@@ -509,6 +509,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 42,

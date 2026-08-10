@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { formatFinancialAmount } from '@/components/financial/financial-amount';
@@ -14,19 +14,29 @@ import { directionSafeText, isolateLtr, NumericText } from '@/utils/rtl';
 import { getGoalSummary, goalToneColors, type GoalStatus, type GoalTone } from './goal-utils';
 import { goalTypes, type FinancialGoal, type GoalTypeId } from './goals-data';
 
-const androidPhysicalLtrRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row' as const, width: '100%' as const }
-  : {};
-const androidHeaderSlot = Platform.OS === 'android' ? { display: 'none' as const } : {};
+const androidPhysicalLtrRow: ViewStyle = { direction: 'ltr', flexDirection: 'row', width: '100%' };
+const androidHeaderSlot: ViewStyle = { display: 'none' };
 
-export function GoalHeader({ title, subtitle, onBack }: { title: string; subtitle?: string; onBack: () => void }) {
+export function getGoalScreenTopPadding(topInset: number) {
+  return Platform.OS === 'ios' ? spacing.sm : Math.max(topInset + spacing.sm, 48);
+}
+
+export function GoalHeader({
+  title,
+  subtitle,
+  onBack,
+}: {
+  title: string;
+  subtitle?: string;
+  onBack: () => void;
+}) {
   return (
     <View style={styles.header}>
       <CapitalGlassIconButton
         accessibilityLabel="رجوع"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+        iconName="chevron-back-outline"
         iconSize={21}
         onPress={onBack}
         pressedStyle={styles.pressed}
@@ -72,8 +82,8 @@ export function GoalProgressBar({
   androidPhysicalRight?: boolean;
 }) {
   const clamped = Math.max(0, Math.min(progress, 100));
-  const useAndroidPhysicalLeft = Platform.OS === 'android' && androidPhysicalLeft;
-  const useAndroidPhysicalRight = Platform.OS === 'android' && androidPhysicalRight;
+  const useAndroidPhysicalLeft = androidPhysicalLeft;
+  const useAndroidPhysicalRight = androidPhysicalRight;
 
   return (
     <View style={[styles.progressTrack, useAndroidPhysicalLeft && styles.progressTrackAndroid, useAndroidPhysicalRight && styles.progressTrackAndroidRight]}>
@@ -85,7 +95,7 @@ export function GoalProgressBar({
 export function GoalCard({ goal, onPress }: { goal: FinancialGoal; onPress: (id: string) => void }) {
   const summary = getGoalSummary(goal);
   const toneStyle = goalToneColors[summary.displayStatus.tone];
-  const useAndroidRtlLayout = Platform.OS === 'android';
+  const useAndroidRtlLayout = true;
   const goalChevron = <Ionicons color={colors.text.tertiary} name="chevron-back-outline" size={17} />;
   const goalIcon = (
     <View style={[styles.goalIcon, { backgroundColor: toneStyle.tint }]}>
@@ -167,7 +177,7 @@ export function SelectField({
   androidRtlLayout?: boolean;
   onPress: () => void;
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
   const valueText = (
     <AppText style={[styles.selectValue, useAndroidRtlLayout && styles.selectValueAndroid]} variant="cardTitle">
       {useAndroidRtlLayout ? directionSafeText(value || 'اختر') : value || 'اختر'}
@@ -223,7 +233,7 @@ export function TextField({
   androidRtlLayout?: boolean;
   onChangeText: (value: string) => void;
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
 
   return (
     <View style={styles.formField}>
@@ -260,7 +270,7 @@ export function AmountField({
   androidRtlLayout?: boolean;
   onChangeText: (value: string) => void;
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
   const helperText = helper ? (
     <AppText style={useAndroidRtlLayout ? styles.helperTextAndroid : undefined} tone="secondary" variant="caption">
       {helper}
@@ -304,7 +314,7 @@ export function ReminderCard({
   onToggle: (value: boolean) => void;
   onDayPress: () => void;
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
   const reminderTitle = (
     <AppText style={useAndroidRtlLayout ? styles.reminderTextAndroid : undefined} variant="cardTitle">
       تذكير الهدف
@@ -409,8 +419,8 @@ export function PreviewGoalCard({
   const summary = getGoalSummary(goal);
   const status = statusOverride ?? summary.displayStatus;
   const toneStyle = goalToneColors[status.tone];
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
-  const useAndroidRtlHeader = Platform.OS === 'android' && (androidRtlLayout || androidRtlHeader);
+  const useAndroidRtlLayout = androidRtlLayout;
+  const useAndroidRtlHeader = androidRtlLayout || androidRtlHeader;
   const goalIcon = (
     <View style={[styles.goalIcon, { backgroundColor: toneStyle.tint }]}>
       <Ionicons color={toneStyle.accent} name={summary.type.icon} size={19} />
@@ -498,7 +508,7 @@ export function PickerSheet({
   onClose: () => void;
 }) {
   const insets = useSafeAreaInsets();
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
   const titleText = (
     <AppText style={useAndroidRtlLayout ? styles.sheetTitleAndroid : undefined} variant="sectionTitle">
       {title}
@@ -511,8 +521,11 @@ export function PickerSheet({
         <Pressable accessibilityLabel="إغلاق القائمة" onPress={onClose} style={styles.sheetBackdrop} />
         <View style={styles.sheetCard}>
           <CapitalBottomSheetHeaderSurface />
-          <View style={styles.sheetHandle} />
-          {useAndroidRtlLayout ? <View style={styles.sheetTitleWrapperAndroid}>{titleText}</View> : titleText}
+          <View style={styles.sheetHeader}>
+            <View style={styles.sheetHandle} />
+            <View style={styles.sheetTitleWrapper}>{titleText}</View>
+          </View>
+          <View style={styles.sheetDivider} />
           <ScrollView
             contentContainerStyle={[
               styles.optionsContent,
@@ -654,7 +667,7 @@ export function BottomConfirmSheet({
   const insets = useSafeAreaInsets();
   const resolvedPrimaryVariant = primaryVariant ?? (danger ? 'danger' : 'secondary');
   const resolvedSecondaryVariant = secondaryVariant ?? (danger ? 'secondary' : 'primary');
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
   const titleText = (
     <AppText style={useAndroidRtlLayout ? styles.confirmTitleAndroid : undefined} variant="sectionTitle">
       {title}
@@ -708,7 +721,7 @@ export function NoticeBanner({
   androidRtlLayout?: boolean;
 }) {
   const isWarning = tone === 'warning';
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
 
   return (
     <View style={[styles.notice, useAndroidRtlLayout && styles.noticeAndroid, isWarning ? styles.warningNotice : styles.successNotice]}>
@@ -1157,10 +1170,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radii.sheet,
     borderTopRightRadius: radii.sheet,
     borderWidth: 1,
-    gap: spacing.md,
     maxHeight: '82%',
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xl,
+  },
+  sheetHeader: {
+    gap: spacing.md,
+    minHeight: 60,
+    paddingBottom: spacing.md,
   },
   sheetHandle: {
     alignSelf: 'center',
@@ -1170,7 +1187,7 @@ const styles = StyleSheet.create({
     opacity: 0.55,
     width: 42,
   },
-  sheetTitleWrapperAndroid: {
+  sheetTitleWrapper: {
     alignItems: 'flex-end',
     alignSelf: 'stretch',
     direction: 'ltr',
@@ -1181,6 +1198,10 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',
+  },
+  sheetDivider: {
+    backgroundColor: colors.surface.separator,
+    height: StyleSheet.hairlineWidth,
   },
   optionRow: {
     alignItems: 'center',
@@ -1218,6 +1239,7 @@ const styles = StyleSheet.create({
   },
   optionsContent: {
     gap: spacing.md,
+    paddingTop: spacing.md,
   },
   optionRowSelected: {
     backgroundColor: colors.semantic.successTint,

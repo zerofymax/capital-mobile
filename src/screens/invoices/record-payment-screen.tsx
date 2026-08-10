@@ -9,7 +9,7 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { directionSafeText } from '@/utils/rtl';
-import { AmountField, InvoiceHeader, InvoiceMiniCard, InvoiceProgressBar, NoticeBanner, PickerSheet, SelectField, TextField } from './components';
+import { AmountField, InvoiceHeader, InvoiceMiniCard, InvoiceProgressBar, InvoiceSectionHeading, NoticeBanner, PickerSheet, SelectField, TextField } from './components';
 import { formatAmountInput, formatSar, formatSignedSar, getInvoiceSummary, getRecentPaymentDateOptions, parseAmount } from './invoice-utils';
 import { findPaymentReference, recordPayment, useInvoicesStore } from './invoices-store';
 import { initialInvoices, paymentMethodOptions, type Invoice } from './invoices-data';
@@ -89,7 +89,7 @@ export function RecordPaymentScreen() {
             styles.content,
             {
               paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-              paddingTop: Math.max(insets.top + spacing.sm, 48),
+              paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top + spacing.sm, 48),
             },
           ]}
           contentInsetAdjustmentBehavior="automatic"
@@ -121,9 +121,7 @@ export function RecordPaymentScreen() {
           <TextField label="ملاحظة" onChangeText={setNote} placeholder="اختياري" value={note} />
 
           <View style={styles.section}>
-            <AppText style={styles.sectionTitle} variant="cardTitle">
-              معاينة التحصيل
-            </AppText>
+            <InvoiceSectionHeading title="معاينة التحصيل" />
             <PaymentPreview after={nextPaid} before={summary.paid} invoice={previewInvoice} payment={Math.max(parsedAmount, 0)} remaining={nextRemaining} />
           </View>
 
@@ -149,6 +147,7 @@ export function RecordPaymentScreen() {
         visible={picker === 'method'}
       />
       <PickerSheet
+        androidRtlLayout
         ltr
         onClose={() => setPicker(null)}
         onSelect={(value) => {
@@ -183,22 +182,22 @@ function QuickAmount({ label, selected, onPress }: { label: string; selected: bo
 function PaymentPreview({ before, payment, after, remaining, invoice }: { before: number; payment: number; after: number; remaining: number; invoice: Invoice }) {
   const preview = getInvoiceSummary(invoice);
   const collectionLabel = (
-    <AppText style={Platform.OS === 'android' ? styles.previewRowLabelAndroid : undefined} tone="secondary" variant="caption">
+    <AppText style={Platform.OS !== 'web' ? styles.previewRowLabelAndroid : undefined} tone="secondary" variant="caption">
       نسبة التحصيل
     </AppText>
   );
   const collectionValue = (
-    <AppText style={[styles.blueText, Platform.OS === 'android' && styles.previewRowValueAndroid]} variant="caption">
+    <AppText style={[styles.blueText, Platform.OS !== 'web' && styles.previewRowValueAndroid]} variant="caption">
       {preview.progress}%
     </AppText>
   );
   const remainingLabel = (
-    <AppText style={Platform.OS === 'android' ? styles.previewRowLabelAndroid : undefined} tone="secondary" variant="caption">
+    <AppText style={Platform.OS !== 'web' ? styles.previewRowLabelAndroid : undefined} tone="secondary" variant="caption">
       المتبقي بعد الدفعة
     </AppText>
   );
   const remainingValue = (
-    <AppText align="left" style={[styles.previewValue, Platform.OS === 'android' && styles.previewRowValueAndroid]} variant="caption">
+    <AppText align="left" style={[styles.previewValue, Platform.OS !== 'web' && styles.previewRowValueAndroid]} variant="caption">
       {formatSar(remaining)}
     </AppText>
   );
@@ -210,16 +209,16 @@ function PaymentPreview({ before, payment, after, remaining, invoice }: { before
         <PreviewMetric label="الدفعة" tone="green" value={payment} />
         <PreviewMetric label="بعد" tone="green" value={after} />
       </View>
-      <View style={[styles.progressRow, Platform.OS === 'android' && styles.progressRowAndroid]}>
-        {Platform.OS === 'android' ? collectionValue : collectionLabel}
-        {Platform.OS === 'android' ? collectionLabel : collectionValue}
+      <View style={[styles.progressRow, Platform.OS !== 'web' && styles.progressRowAndroid]}>
+        {Platform.OS !== 'web' ? collectionValue : collectionLabel}
+        {Platform.OS !== 'web' ? collectionLabel : collectionValue}
       </View>
       <InvoiceProgressBar progress={preview.progress} tone={preview.paidInFull ? 'green' : 'blue'} />
-      <View style={[styles.progressRow, Platform.OS === 'android' && styles.progressRowAndroid]}>
-        {Platform.OS === 'android' ? remainingValue : remainingLabel}
-        {Platform.OS === 'android' ? remainingLabel : remainingValue}
+      <View style={[styles.progressRow, Platform.OS !== 'web' && styles.progressRowAndroid]}>
+        {Platform.OS !== 'web' ? remainingValue : remainingLabel}
+        {Platform.OS !== 'web' ? remainingLabel : remainingValue}
       </View>
-      <AppText align={Platform.OS === 'android' ? 'right' : 'center'} style={Platform.OS === 'android' ? styles.previewDescriptionAndroid : undefined} variant="supporting">
+      <AppText align={Platform.OS !== 'web' ? 'right' : 'center'} style={Platform.OS !== 'web' ? styles.previewDescriptionAndroid : undefined} variant="supporting">
         {preview.paidInFull
           ? 'تم سداد كامل قيمة الفاتورة.'
           : directionSafeText(`بعد تسجيل الدفعة، سيتبقى ${remaining.toLocaleString('en-US')} ر.س على الفاتورة.`)}
@@ -230,11 +229,11 @@ function PaymentPreview({ before, payment, after, remaining, invoice }: { before
 
 function PreviewMetric({ label, value, tone }: { label: string; value: number; tone?: 'green' }) {
   return (
-    <View style={[styles.previewMetric, Platform.OS === 'android' && styles.previewMetricAndroid]}>
-      <AppText align={Platform.OS === 'android' ? 'right' : 'center'} style={Platform.OS === 'android' ? styles.previewMetricLabelAndroid : undefined} tone="secondary" variant="caption">
+    <View style={[styles.previewMetric, Platform.OS !== 'web' && styles.previewMetricAndroid]}>
+      <AppText align={Platform.OS !== 'web' ? 'right' : 'center'} style={Platform.OS !== 'web' ? styles.previewMetricLabelAndroid : undefined} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align={Platform.OS === 'android' ? 'left' : 'center'} style={[styles.previewValue, Platform.OS === 'android' && styles.previewMetricValueAndroid, tone === 'green' && styles.greenText]} variant="caption">
+      <AppText align={Platform.OS !== 'web' ? 'left' : 'center'} style={[styles.previewValue, Platform.OS !== 'web' && styles.previewMetricValueAndroid, tone === 'green' && styles.greenText]} variant="caption">
         {tone === 'green' ? formatSignedSar(value) : formatSar(value)}
       </AppText>
     </View>

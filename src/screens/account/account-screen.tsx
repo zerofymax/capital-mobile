@@ -243,6 +243,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(232,163,61,0.24)',
     borderRadius: radii.button,
     borderWidth: 1,
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
@@ -251,5 +252,8 @@ const styles = StyleSheet.create({
   noticeText: {
     color: colors.semantic.warning,
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
 });

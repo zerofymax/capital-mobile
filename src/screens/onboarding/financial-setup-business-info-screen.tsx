@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AuthInput, RegisterSelectField } from '@/components/auth';
 import { FinancialSetupProgressHeader } from '@/components/onboarding/financial-setup-progress-header';
+import { getFinancialSetupTopPadding } from '@/components/onboarding/financial-setup-layout';
 import { AppButton, AppText } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { businessSectorOptions, countryOptions, currencyOptions } from '@/screens/onboarding/onboarding-data';
@@ -65,10 +66,10 @@ export function FinancialSetupBusinessInfoScreen() {
             styles.content,
             {
               paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-              paddingTop: Math.max(insets.top + spacing.xl, spacing.safeTop),
+              paddingTop: getFinancialSetupTopPadding(insets.top),
             },
           ]}
-          contentInsetAdjustmentBehavior="automatic"
+          contentInsetAdjustmentBehavior="never"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >

@@ -102,7 +102,7 @@ export function EditBudgetScreen() {
     alertEnabled,
   };
   const currentSpendTitle = (
-    <AppText style={Platform.OS === 'android' ? styles.currentSpendTextAndroid : undefined} tone="secondary" variant="caption">
+    <AppText style={Platform.OS !== 'web' ? styles.currentSpendTextAndroid : undefined} tone="secondary" variant="caption">
       المصروف الحالي
     </AppText>
   );
@@ -112,7 +112,7 @@ export function EditBudgetScreen() {
     </AppText>
   );
   const currentSpendDescription = (
-    <AppText style={Platform.OS === 'android' ? styles.currentSpendTextAndroid : undefined} tone="secondary" variant="supporting">
+    <AppText style={Platform.OS !== 'web' ? styles.currentSpendTextAndroid : undefined} tone="secondary" variant="supporting">
       تعديل الميزانية لن يغيّر المصروفات المسجلة مسبقًا.
     </AppText>
   );
@@ -125,10 +125,10 @@ export function EditBudgetScreen() {
             styles.content,
             {
               paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-              paddingTop: Math.max(insets.top + spacing.sm, 48),
+              paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top + spacing.sm, 48),
             },
           ]}
-          contentInsetAdjustmentBehavior="automatic"
+          contentInsetAdjustmentBehavior="never"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -136,8 +136,8 @@ export function EditBudgetScreen() {
 
           {dirty ? <NoticeBanner message="لديك تغييرات غير محفوظة" tone="warning" /> : null}
 
-          <SolidCard style={[styles.currentSpendCard, Platform.OS === 'android' && styles.currentSpendCardAndroid]}>
-            {Platform.OS === 'android' ? (
+          <SolidCard style={[styles.currentSpendCard, Platform.OS !== 'web' && styles.currentSpendCardAndroid]}>
+            {Platform.OS !== 'web' ? (
               <>
                 <View style={styles.currentSpendIcon} />
                 <View style={styles.currentSpendAmountSlotAndroid}>{currentSpendAmount}</View>
@@ -173,26 +173,26 @@ export function EditBudgetScreen() {
             value={amount}
             warning={warning}
           />
-          <AppText style={Platform.OS === 'android' ? styles.supportingTextAndroid : undefined} tone="secondary" variant="caption">
+          <AppText style={Platform.OS !== 'web' ? styles.supportingTextAndroid : undefined} tone="secondary" variant="caption">
             {directionSafeText(`المصروف الحالي لهذه الفئة هو ${original.spent.toLocaleString('en-US')} ر.س`)}
           </AppText>
 
           <SelectField androidRtlLayout iconName="calendar-outline" label="الشهر" onPress={() => setPicker('month')} value={month} />
 
           <View style={styles.section}>
-            <AppText style={Platform.OS === 'android' ? styles.sectionTextAndroid : undefined} variant="cardTitle">
+            <AppText style={Platform.OS !== 'web' ? styles.sectionTextAndroid : undefined} variant="cardTitle">
               تنبيه الاقتراب من الحد
             </AppText>
-            <AppText style={Platform.OS === 'android' ? styles.sectionTextAndroid : undefined} tone="secondary" variant="supporting">
+            <AppText style={Platform.OS !== 'web' ? styles.sectionTextAndroid : undefined} tone="secondary" variant="supporting">
               ينبّه عند وصول الإنفاق إلى نسبة محددة من الميزانية.
             </AppText>
-            <ThresholdSelector androidFirstOptionOnLeft androidRtlLayout onChange={setThreshold} value={threshold} />
+            <ThresholdSelector androidRtlLayout onChange={setThreshold} value={threshold} />
           </View>
 
           <ToggleRow androidRtlLayout enabled={alertEnabled} onValueChange={setAlertEnabled} />
 
           <View style={styles.section}>
-            <AppText style={Platform.OS === 'android' ? styles.sectionTextAndroid : undefined} variant="cardTitle">
+            <AppText style={Platform.OS !== 'web' ? styles.sectionTextAndroid : undefined} variant="cardTitle">
               معاينة التعديلات
             </AppText>
             <EditPreviewCard budget={previewBudget} />
@@ -254,7 +254,7 @@ function EditPreviewCard({ budget }: { budget: Budget }) {
   const status = getEditBudgetStatus(usage, budget.alertThreshold);
   const remaining = budget.budget - budget.spent;
   const previewName = (
-    <AppText style={Platform.OS === 'android' ? styles.previewNameAndroid : undefined} variant="cardTitle">
+    <AppText style={Platform.OS !== 'web' ? styles.previewNameAndroid : undefined} variant="cardTitle">
       {categoryIdToName(budget.categoryId)}
     </AppText>
   );
@@ -272,8 +272,8 @@ function EditPreviewCard({ budget }: { budget: Budget }) {
 
   return (
     <SolidCard style={[styles.previewCard, status.tone === 'danger' && styles.dangerPreviewCard]}>
-      <View style={[styles.previewHeader, Platform.OS === 'android' && styles.previewHeaderAndroid]}>
-        {Platform.OS === 'android' ? (
+      <View style={[styles.previewHeader, Platform.OS !== 'web' && styles.previewHeaderAndroid]}>
+        {Platform.OS !== 'web' ? (
           <>
             {previewAmount}
             <View style={styles.previewSpacerAndroid} />
@@ -290,13 +290,13 @@ function EditPreviewCard({ budget }: { budget: Budget }) {
           </>
         )}
       </View>
-      <AppText style={Platform.OS === 'android' ? styles.previewSupportingTextAndroid : undefined} tone="secondary" variant="caption">
+      <AppText style={Platform.OS !== 'web' ? styles.previewSupportingTextAndroid : undefined} tone="secondary" variant="caption">
         {directionSafeText(`من ${budget.budget.toLocaleString('en-US')} ر.س، ${budget.spent.toLocaleString('en-US')} ر.س`)}
       </AppText>
       <BudgetProgressBar tone={status.tone} usage={usage} />
       <AppText
-        align={Platform.OS === 'android' ? 'right' : 'left'}
-        style={[{ color: toneColors[status.tone].text }, Platform.OS === 'android' && styles.previewSupportingTextAndroid]}
+        align={Platform.OS !== 'web' ? 'right' : 'left'}
+        style={[{ color: toneColors[status.tone].text }, Platform.OS !== 'web' && styles.previewSupportingTextAndroid]}
         variant="caption"
       >
         {directionSafeText(`تنبيه عند ${budget.alertThreshold}% — نسبة الاستخدام ${usage}%`)}

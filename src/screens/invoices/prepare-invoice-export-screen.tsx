@@ -10,7 +10,7 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { directionSafeText } from '@/utils/rtl';
-import { InvoiceHeader, InvoiceStatusBadge } from './components';
+import { InvoiceHeader, InvoiceSectionHeading, InvoiceStatusBadge } from './components';
 import {
   buildExportSummary,
   exportFieldOptions,
@@ -159,7 +159,7 @@ export function PrepareInvoiceExportScreen() {
 function PreparationStatusCard({ fileFormat }: { fileFormat: ExportFileFormat | null }) {
   const isPdf = fileFormat === 'pdf';
   const statusTitle = (
-    <AppText style={Platform.OS === 'android' ? styles.statusTitleAndroid : undefined} variant="sectionTitle">
+    <AppText style={Platform.OS !== 'web' ? styles.statusTitleAndroid : undefined} variant="sectionTitle">
       ملف التصدير جاهز للمراجعة
     </AppText>
   );
@@ -167,16 +167,16 @@ function PreparationStatusCard({ fileFormat }: { fileFormat: ExportFileFormat | 
 
   return (
     <SolidCard style={styles.statusCard}>
-      <View style={[styles.statusHeader, Platform.OS === 'android' && styles.statusHeaderAndroid]}>
+      <View style={[styles.statusHeader, Platform.OS !== 'web' && styles.statusHeaderAndroid]}>
         <View style={styles.statusIcon}>
           <Ionicons color="#9DD5FF" name={isPdf ? 'document-text-outline' : 'download-outline'} size={22} />
         </View>
-        <View style={[styles.statusCopy, Platform.OS === 'android' && styles.statusCopyAndroid]}>
-          <View style={[styles.titleRow, Platform.OS === 'android' && styles.titleRowAndroid]}>
-            {Platform.OS === 'android' ? previewBadge : statusTitle}
-            {Platform.OS === 'android' ? statusTitle : previewBadge}
+        <View style={[styles.statusCopy, Platform.OS !== 'web' && styles.statusCopyAndroid]}>
+          <View style={[styles.titleRow, Platform.OS !== 'web' && styles.titleRowAndroid]}>
+            {Platform.OS !== 'web' ? previewBadge : statusTitle}
+            {Platform.OS !== 'web' ? statusTitle : previewBadge}
           </View>
-          <AppText style={Platform.OS === 'android' ? styles.statusDescriptionAndroid : undefined} tone="secondary" variant="body">
+          <AppText style={Platform.OS !== 'web' ? styles.statusDescriptionAndroid : undefined} tone="secondary" variant="body">
             {isPdf ? 'سيتم تجهيز ملف PDF منسق يتضمن بيانات الفواتير المحددة.' : 'سيتم تجهيز ملف CSV يتضمن بيانات الفواتير المحددة.'}
           </AppText>
         </View>
@@ -215,7 +215,7 @@ function FileSummaryCard({
 }) {
   return (
     <SolidCard style={styles.sectionCard}>
-      <AppText style={Platform.OS === 'android' ? styles.sectionTitleAndroid : undefined} variant="sectionTitle">ملخص الملف</AppText>
+      <InvoiceSectionHeading title="ملخص الملف" variant="sectionTitle" />
       <View style={styles.rows}>
         <TextRow label="صيغة الملف" ltrValue value={fileFormat ? fileFormat.toUpperCase() : 'غير صالحة'} />
         <TextRow label="عدد الفواتير" value={`${invoiceCount}`} />
@@ -245,7 +245,7 @@ function FinancialSummaryCard({
 }) {
   return (
     <SolidCard style={styles.sectionCard}>
-      <AppText style={Platform.OS === 'android' ? styles.sectionTitleAndroid : undefined} variant="sectionTitle">ملخص الفواتير المحددة</AppText>
+      <InvoiceSectionHeading title="ملخص الفواتير المحددة" variant="sectionTitle" />
       <View style={styles.rows}>
         <AmountRow label="إجمالي قيمة الفواتير" value={summary.totalValue} />
         <AmountRow label="المبلغ المحصل" tone="success" value={summary.collected} />
@@ -263,7 +263,7 @@ function IncludedFieldsCard({ fields }: { fields: { id: ExportFieldId; label: st
   return (
     <SolidCard style={styles.sectionCard}>
       <View style={styles.sectionHeader}>
-        <AppText style={Platform.OS === 'android' ? styles.sectionHeaderTitleAndroid : undefined} variant="sectionTitle">الحقول المضمنة</AppText>
+        <AppText style={Platform.OS !== 'web' ? styles.sectionHeaderTitleAndroid : undefined} variant="sectionTitle">الحقول المضمنة</AppText>
         <Pressable accessibilityLabel="تعديل الاختيارات" accessibilityRole="button" hitSlop={8} onPress={() => router.back()} style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}>
           <AppText style={styles.linkText} variant="caption">
             تعديل الاختيارات
@@ -292,7 +292,7 @@ function FilePreviewCard({ invoices, fields, fileFormat }: { invoices: InvoiceSu
 
   return (
     <SolidCard style={styles.sectionCard}>
-      <AppText style={Platform.OS === 'android' ? styles.sectionTitleAndroid : undefined} variant="sectionTitle">معاينة الملف</AppText>
+      <InvoiceSectionHeading title="معاينة الملف" variant="sectionTitle" />
       <FormatNote fileFormat={fileFormat} fields={fields} />
       {invoices.length === 0 ? (
         <View style={styles.emptyPreview}>
@@ -352,7 +352,7 @@ function CsvPreviewTable({ fields, invoice }: { fields: { id: ExportFieldId; lab
           </View>
         </View>
       </ScrollView>
-      <AppText style={Platform.OS === 'android' ? styles.previewDescriptionAndroid : undefined} tone="secondary" variant="caption">
+      <AppText style={Platform.OS !== 'web' ? styles.previewDescriptionAndroid : undefined} tone="secondary" variant="caption">
         اسحب أفقيًا لمشاهدة بقية الأعمدة.
       </AppText>
     </View>
@@ -365,7 +365,7 @@ function FormatNote({ fileFormat, fields }: { fileFormat: ExportFileFormat | nul
       <View style={styles.pdfPreview}>
         <View style={styles.pdfLineWide} />
         <View style={styles.pdfLine} />
-        <AppText style={Platform.OS === 'android' ? styles.previewDescriptionAndroid : undefined} tone="secondary" variant="supporting">
+        <AppText style={Platform.OS !== 'web' ? styles.previewDescriptionAndroid : undefined} tone="secondary" variant="supporting">
           سيتم تنسيق الفواتير في مستند مناسب للحفظ والطباعة.
         </AppText>
       </View>
@@ -374,7 +374,7 @@ function FormatNote({ fileFormat, fields }: { fileFormat: ExportFileFormat | nul
 
   return (
     <View style={styles.csvNote}>
-      <AppText style={Platform.OS === 'android' ? styles.previewDescriptionAndroid : undefined} tone="secondary" variant="supporting">
+      <AppText style={Platform.OS !== 'web' ? styles.previewDescriptionAndroid : undefined} tone="secondary" variant="supporting">
         سيتم ترتيب كل فاتورة في صف مستقل، مع تضمين الحقول المختارة كأعمدة.
       </AppText>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -395,14 +395,14 @@ function FormatNote({ fileFormat, fields }: { fileFormat: ExportFileFormat | nul
 function InvoicePreviewRow({ invoice }: { invoice: InvoiceSummary }) {
   const statusBadge = <InvoiceStatusBadge status={invoice.displayStatus} />;
   const identity = (
-    <View style={[styles.previewIdentity, Platform.OS === 'android' && styles.previewIdentityAndroid]}>
-      <AppText style={Platform.OS === 'android' ? styles.previewIdentityTextAndroid : undefined} variant="cardTitle">
+    <View style={[styles.previewIdentity, Platform.OS !== 'web' && styles.previewIdentityAndroid]}>
+      <AppText style={Platform.OS !== 'web' ? styles.previewIdentityTextAndroid : undefined} variant="cardTitle">
         {invoice.clientName}
       </AppText>
       <AppText
-        align={Platform.OS === 'android' ? 'right' : 'left'}
-        numberOfLines={Platform.OS === 'android' ? 1 : undefined}
-        style={[styles.ltrText, Platform.OS === 'android' && styles.previewIdentityTextAndroid]}
+        align={Platform.OS !== 'web' ? 'right' : 'left'}
+        numberOfLines={Platform.OS !== 'web' ? 1 : undefined}
+        style={[styles.ltrText, Platform.OS !== 'web' && styles.previewIdentityTextAndroid]}
         tone="secondary"
         variant="caption"
       >
@@ -413,9 +413,9 @@ function InvoicePreviewRow({ invoice }: { invoice: InvoiceSummary }) {
 
   return (
     <View style={styles.invoicePreviewRow}>
-      <View style={[styles.previewTop, Platform.OS === 'android' && styles.previewTopAndroid]}>
-        {Platform.OS === 'android' ? statusBadge : identity}
-        {Platform.OS === 'android' ? identity : statusBadge}
+      <View style={[styles.previewTop, Platform.OS !== 'web' && styles.previewTopAndroid]}>
+        {Platform.OS !== 'web' ? statusBadge : identity}
+        {Platform.OS !== 'web' ? identity : statusBadge}
       </View>
       <View style={styles.rows}>
         <AmountRow label="الإجمالي" value={invoice.total} />
@@ -428,7 +428,7 @@ function InvoicePreviewRow({ invoice }: { invoice: InvoiceSummary }) {
 
 function AmountRow({ label, value, tone }: { label: string; value: number; tone?: 'success' }) {
   const labelText = (
-    <AppText style={Platform.OS === 'android' ? styles.summaryLabelTextAndroid : undefined} tone="secondary" variant="supporting">
+    <AppText style={Platform.OS !== 'web' ? styles.summaryLabelTextAndroid : undefined} tone="secondary" variant="supporting">
       {label}
     </AppText>
   );
@@ -438,7 +438,7 @@ function AmountRow({ label, value, tone }: { label: string; value: number; tone?
     </AppText>
   );
 
-  if (Platform.OS === 'android') {
+  if (Platform.OS !== 'web') {
     return (
       <View style={[styles.textRow, styles.textRowAndroid]}>
         <View style={styles.summaryValueSlotAndroid}>{valueText}</View>
@@ -460,23 +460,23 @@ function AmountRow({ label, value, tone }: { label: string; value: number; tone?
 }
 
 function TextRow({ label, value, ltrValue }: { label: string; value: string; ltrValue?: boolean }) {
-  const usesLtrValue = ltrValue || (Platform.OS === 'android' && /^\d[\d.,]*$/.test(value));
+  const usesLtrValue = ltrValue || (Platform.OS !== 'web' && /^\d[\d.,]*$/.test(value));
   const labelText = (
-    <AppText style={Platform.OS === 'android' ? styles.summaryLabelTextAndroid : undefined} tone="secondary" variant="supporting">
+    <AppText style={Platform.OS !== 'web' ? styles.summaryLabelTextAndroid : undefined} tone="secondary" variant="supporting">
       {label}
     </AppText>
   );
   const valueText = (
     <AppText
-      align={Platform.OS === 'android' || ltrValue ? 'left' : 'right'}
-      style={[styles.textRowValue, usesLtrValue && styles.ltrText, Platform.OS === 'android' && !usesLtrValue && styles.summaryRtlValueAndroid]}
+      align={Platform.OS !== 'web' || ltrValue ? 'left' : 'right'}
+      style={[styles.textRowValue, usesLtrValue && styles.ltrText, Platform.OS !== 'web' && !usesLtrValue && styles.summaryRtlValueAndroid]}
       variant="cardTitle"
     >
       {value}
     </AppText>
   );
 
-  if (Platform.OS === 'android') {
+  if (Platform.OS !== 'web') {
     return (
       <View style={[styles.textRow, styles.textRowAndroid]}>
         <View style={styles.summaryValueSlotAndroid}>{valueText}</View>
@@ -495,19 +495,19 @@ function TextRow({ label, value, ltrValue }: { label: string; value: string; ltr
 
 function FileNameRow({ value }: { value: string }) {
   const labelText = (
-    <AppText style={Platform.OS === 'android' ? styles.summaryLabelTextAndroid : undefined} tone="secondary" variant="supporting">
+    <AppText style={Platform.OS !== 'web' ? styles.summaryLabelTextAndroid : undefined} tone="secondary" variant="supporting">
       اسم ملف مقترح
     </AppText>
   );
   const valueText = (
-    <View style={[styles.fileNameValueWrap, Platform.OS === 'android' && styles.fileNameValueWrapAndroid]}>
+    <View style={[styles.fileNameValueWrap, Platform.OS !== 'web' && styles.fileNameValueWrapAndroid]}>
       <AppText align="left" ellipsizeMode="middle" numberOfLines={1} style={styles.fileNameValue} variant="cardTitle">
         {value}
       </AppText>
     </View>
   );
 
-  if (Platform.OS === 'android') {
+  if (Platform.OS !== 'web') {
     return (
       <View style={[styles.textRow, styles.textRowAndroid]}>
         <View style={styles.summaryValueSlotAndroid}>{valueText}</View>

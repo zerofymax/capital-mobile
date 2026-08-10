@@ -48,6 +48,7 @@ export function LedgerTransactionRow({ transaction, isLast = false, onPress }: L
           </AppText>
         </View>
       </View>
+      <FinancialAmount signed size="row" tone={isIncome ? 'success' : 'danger'} value={displayAmount} />
       <View style={[styles.icon, isIncome ? styles.incomeIcon : styles.expenseIcon]}>
         <Ionicons
           color={isIncome ? colors.semantic.success : colors.semantic.danger}
@@ -55,7 +56,6 @@ export function LedgerTransactionRow({ transaction, isLast = false, onPress }: L
           size={17}
         />
       </View>
-      <FinancialAmount signed size="row" tone={isIncome ? 'success' : 'danger'} value={displayAmount} />
     </Pressable>
   );
 }
@@ -63,7 +63,8 @@ export function LedgerTransactionRow({ transaction, isLast = false, onPress }: L
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 72,
     paddingHorizontal: 14,
@@ -95,7 +96,8 @@ const styles = StyleSheet.create({
   titleRow: {
     alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.sm,
   },
   titleText: {
@@ -107,7 +109,8 @@ const styles = StyleSheet.create({
   metaRow: {
     alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.xs,
   },
   metaText: {

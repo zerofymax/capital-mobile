@@ -14,6 +14,7 @@ import {
   TextInput,
   type TextInputProps,
   View,
+  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -46,14 +47,10 @@ type FinancialAccountErrors = Partial<Record<keyof FinancialAccountFormState, st
 
 const addSuccessMessage = 'تمت إضافة الحساب في النسخة التجريبية.';
 const updateSuccessMessage = 'تم تحديث الحساب في النسخة التجريبية.';
-const androidPhysicalLtrRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
-  : {};
-const androidPhysicalRtlRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
-  : {};
-const androidLtrDirection = Platform.OS === 'android' ? { direction: 'ltr' as const } : {};
-const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
+const androidPhysicalLtrRow: ViewStyle = { direction: 'ltr', flexDirection: 'row' };
+const androidPhysicalRtlRow: ViewStyle = { direction: 'ltr', flexDirection: 'row-reverse' };
+const androidLtrDirection: ViewStyle = { direction: 'ltr' };
+const androidHeaderSlot: ViewStyle = { width: 0 };
 
 export function FinancialAccountFormScreen() {
   const insets = useSafeAreaInsets();
@@ -384,11 +381,7 @@ function Header({ isEditing, onBackPress }: { isEditing: boolean; onBackPress: (
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        {Platform.OS === 'android' ? (
-          <Feather color={colors.text.muted} name="chevron-left" size={22} />
-        ) : (
-          <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
-        )}
+        <Feather color={colors.text.muted} name="chevron-left" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
         <AppText style={styles.headerText} variant="screenTitle">

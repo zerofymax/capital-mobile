@@ -18,7 +18,7 @@ import { MiniTrend, NoticeBanner, ReportModalHeader } from './startup-report-com
 import { getSaaSMetric, saasPeriods, type GrowthMetricsSourceData } from './saas-metrics-data';
 import type { GrowthMetricDefinition, MetricStatus, SaaSPeriod } from './saas-metrics-types';
 
-const useAndroidRtlLayout = Platform.OS === 'android';
+const useAndroidRtlLayout = true;
 const androidSystemNavigationClearance = 48;
 
 export function MetricDetailsScreen() {
@@ -35,7 +35,7 @@ export function MetricDetailsScreen() {
     [businessInfo, goals, invoices, recurringExpenses, transactions],
   );
   const metric = useMemo(() => getSaaSMetric(metricId, activePeriod, sourceData), [activePeriod, metricId, sourceData]);
-  const bottomPadding = useAndroidRtlLayout
+  const bottomPadding = Platform.OS === 'android'
     ? insets.bottom + androidSystemNavigationClearance + spacing.xxl
     : insets.bottom + spacing.xxl;
   const hasTrendData = metric.rawValue !== null && metric.history.length > 0;
@@ -68,7 +68,10 @@ export function MetricDetailsScreen() {
                 القيمة الحالية
               </AppText>
               <AppText
+                adjustsFontSizeToFit
                 align="right"
+                minimumFontScale={0.65}
+                numberOfLines={1}
                 style={[styles.value, metric.rawValue === null ? styles.rtlValue : styles.ltrValue]}
                 variant="screenTitle"
               >
@@ -234,9 +237,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
   },
   value: {
+    flexShrink: 1,
     fontSize: 31,
+    lineHeight: 40,
+    minWidth: 0,
     textAlign: 'right',
     width: '100%',
   },

@@ -100,7 +100,7 @@ export function LanguageAppearanceScreen() {
         {notice ? <Notice message={notice} /> : null}
 
         <View style={styles.section}>
-          <AppText style={styles.sectionTitle} variant="sectionTitle">المظهر</AppText>
+          <AppearanceSectionHeading title="المظهر" />
           <View style={styles.optionList}>
             {appearanceOptions.map((option) => (
               <AppearanceCard
@@ -114,7 +114,7 @@ export function LanguageAppearanceScreen() {
         </View>
 
         <View style={styles.section}>
-          <AppText style={styles.sectionTitle} variant="sectionTitle">اللغة</AppText>
+          <AppearanceSectionHeading title="اللغة" />
           <View style={styles.optionList}>
             <LanguageCard
               description="اللغة الحالية للتطبيق."
@@ -143,6 +143,14 @@ export function LanguageAppearanceScreen() {
         </SolidCard>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function AppearanceSectionHeading({ title }: { title: string }) {
+  return (
+    <View style={styles.sectionHeading}>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
+    </View>
   );
 }
 
@@ -353,6 +361,11 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',
+  },
+  sectionHeading: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
+    width: '100%',
   },
   optionList: {
     alignSelf: 'stretch',

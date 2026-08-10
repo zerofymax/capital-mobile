@@ -9,12 +9,12 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { directionSafeText, formatCurrency } from '@/utils/rtl';
-import { AmountField, GoalHeader, GoalProgressBar, NoticeBanner, PickerSheet, PreviewGoalCard, SelectField, TextField } from './components';
+import { AmountField, getGoalScreenTopPadding, GoalHeader, GoalProgressBar, NoticeBanner, PickerSheet, PreviewGoalCard, SelectField, TextField } from './components';
 import { addContribution, useGoalsStore } from './goals-store';
 import { formatAmountInput, getContributionPreviewStatus, getGoalSummary, getLocalTodayContributionLabel, parseAmount } from './goal-utils';
 import { contributionDateOptions, contributionSourceOptions, initialGoals, type FinancialGoal, type GoalContribution } from './goals-data';
 
-const useAndroidRtlLayout = Platform.OS === 'android';
+const useAndroidRtlLayout = true;
 
 type PickerType = 'source' | 'date' | null;
 
@@ -107,7 +107,7 @@ export function AddContributionScreen() {
             styles.content,
             {
               paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-              paddingTop: Math.max(insets.top + spacing.sm, 48),
+              paddingTop: getGoalScreenTopPadding(insets.top),
             },
           ]}
           contentInsetAdjustmentBehavior="automatic"

@@ -135,6 +135,7 @@ export function CompanyUpdateScreen() {
           style={styles.scrollArea}
         >
           <ReportModalHeader
+            androidRtlLayout
             onBack={() => router.back()}
             subtitle="جهّز ملخصًا شهريًا واضحًا عن أداء شركتك وما تحتاجه خلال الفترة القادمة."
             title="تحديث الشركة"
@@ -201,7 +202,7 @@ function PeriodSelector({
             الفترة
           </AppText>
           <AppText align="right" style={styles.periodValue} variant="cardTitle">
-            {period.label}
+            {directionSafeText(period.label)}
           </AppText>
         </View>
         <View style={styles.statusBadgeGroup}>
@@ -366,11 +367,11 @@ function PreviewDocument({ preview }: { preview: ReturnType<typeof buildCompanyU
   return (
     <SolidCard style={styles.previewCard}>
       <View style={styles.previewHeader}>
-        <AppText align="center" variant="screenTitle">
+        <AppText align="right" style={styles.previewHeaderText} variant="screenTitle">
           {preview.title}
         </AppText>
-        <AppText align="center" tone="secondary" variant="supporting">
-          {preview.periodLabel}
+        <AppText align="right" style={styles.previewHeaderText} tone="secondary" variant="supporting">
+          {directionSafeText(preview.periodLabel)}
         </AppText>
       </View>
 
@@ -454,7 +455,7 @@ function UpdateSectionField({
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor={colors.text.tertiary}
-          scrollEnabled
+          scrollEnabled={false}
           style={styles.textArea}
           textAlign="right"
           textAlignVertical="top"
@@ -540,7 +541,8 @@ const styles = StyleSheet.create({
   periodTop: {
     alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
     width: '100%',
@@ -554,7 +556,7 @@ const styles = StyleSheet.create({
   periodValue: {
     textAlign: 'right',
     width: '100%',
-    writingDirection: 'ltr',
+    writingDirection: 'rtl',
   },
   statusBadge: {
     backgroundColor: colors.semantic.successTint,
@@ -585,7 +587,8 @@ const styles = StyleSheet.create({
   },
   manualNoticeHeader: {
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
@@ -658,6 +661,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   metricsGrid: {
+    direction: 'ltr',
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
@@ -672,6 +676,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: spacing.xs,
     minHeight: 72,
+    minWidth: 0,
     justifyContent: 'center',
     padding: spacing.sm,
   },
@@ -701,12 +706,15 @@ const styles = StyleSheet.create({
     width: 42,
   },
   fieldWrap: {
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
   },
   fieldHeader: {
     alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
     width: '100%',
@@ -740,7 +748,6 @@ const styles = StyleSheet.create({
     borderRadius: radii.input,
     borderWidth: 1,
     minHeight: 124,
-    maxHeight: 190,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
@@ -749,7 +756,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.medium,
     fontSize: 15,
     lineHeight: 23,
-    maxHeight: 168,
     minHeight: 96,
     writingDirection: 'rtl',
   },
@@ -760,7 +766,15 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   previewHeader: {
+    alignItems: 'flex-end',
     gap: spacing.xs,
+    width: '100%',
+  },
+  previewHeaderText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   previewSection: {
     alignSelf: 'stretch',
@@ -770,7 +784,8 @@ const styles = StyleSheet.create({
   previewSectionHeader: {
     alignSelf: 'stretch',
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.md,
     justifyContent: 'space-between',
     width: '100%',
@@ -778,7 +793,8 @@ const styles = StyleSheet.create({
   bulletRow: {
     alignSelf: 'stretch',
     alignItems: 'flex-start',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.sm,
     width: '100%',
   },
@@ -798,10 +814,14 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   metricValue: {
+    alignSelf: 'stretch',
+    minWidth: 0,
     textAlign: 'right',
     width: '100%',
+    writingDirection: 'rtl',
   },
   sectionTitle: {
+    alignSelf: 'stretch',
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',

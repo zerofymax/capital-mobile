@@ -10,7 +10,7 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { directionSafeText } from '@/utils/rtl';
-import { BottomConfirmSheet, InvoiceHeader, InvoiceMetric, InvoiceProgressBar, InvoiceStatusBadge, NoticeBanner } from './components';
+import { BottomConfirmSheet, InvoiceHeader, InvoiceMetric, InvoiceProgressBar, InvoiceSectionHeading, InvoiceStatusBadge, NoticeBanner } from './components';
 import { deleteInvoice, markInvoiceAsPaid, useInvoicesStore } from './invoices-store';
 import { formatSar, getInvoiceSummary, invoiceToneColors } from './invoice-utils';
 import { initialInvoices } from './invoices-data';
@@ -43,7 +43,7 @@ export function InvoiceDetailsScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top + spacing.sm, 48),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top + spacing.sm, 48),
           },
         ]}
         contentInsetAdjustmentBehavior="automatic"
@@ -53,8 +53,8 @@ export function InvoiceDetailsScreen() {
 
         {notice ? <NoticeBanner message={notice} /> : null}
 
-        <SolidCard style={[styles.identityCard, Platform.OS === 'android' && styles.identityCardAndroid, summary.displayStatus.tone === 'danger' && styles.dangerCard]}>
-          {Platform.OS === 'android' ? (
+        <SolidCard style={[styles.identityCard, Platform.OS !== 'web' && styles.identityCardAndroid, summary.displayStatus.tone === 'danger' && styles.dangerCard]}>
+          {Platform.OS !== 'web' ? (
             <>
               <View style={[styles.invoiceIcon, { backgroundColor: tone.tint }]}>
                 <Ionicons color={tone.accent} name={summary.displayStatus.icon} size={22} />
@@ -89,9 +89,7 @@ export function InvoiceDetailsScreen() {
         {summary.status === 'overdue' ? <NoticeBanner message="تجاوزت هذه الفاتورة تاريخ الاستحقاق" tone="danger" /> : null}
 
         <SolidCard style={styles.summaryCard}>
-          <AppText style={styles.sectionTitle} variant="cardTitle">
-            ملخص التحصيل
-          </AppText>
+          <InvoiceSectionHeading title="ملخص التحصيل" />
           <View style={styles.summaryMetrics}>
             <InvoiceMetric label="إجمالي الفاتورة" value={summary.total} />
             <InvoiceMetric label="المبلغ المدفوع" tone="green" value={summary.paid} />
@@ -170,9 +168,7 @@ function InfoCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary> }
 
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="cardTitle">
-        معلومات الفاتورة
-      </AppText>
+      <InvoiceSectionHeading title="معلومات الفاتورة" />
       <SolidCard style={styles.infoCard}>
         {rows.map((row, index) => (
           <View key={row.label}>
@@ -188,27 +184,25 @@ function InfoCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary> }
 function ItemsCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary> }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="cardTitle">
-        بنود الفاتورة
-      </AppText>
+      <InvoiceSectionHeading title="بنود الفاتورة" />
       <SolidCard style={styles.infoCard}>
         {summary.items.map((item, index) => (
           <View key={item.id}>
-            <View style={[styles.itemRow, Platform.OS === 'android' && styles.itemRowAndroid]}>
-              {Platform.OS === 'android' ? (
+            <View style={[styles.itemRow, Platform.OS !== 'web' && styles.itemRowAndroid]}>
+              {Platform.OS !== 'web' ? (
                 <AppText align="left" style={[styles.infoValue, styles.ltrValue]} variant="caption">
                   {formatSar(item.quantity * item.unitPrice)}
                 </AppText>
               ) : null}
-              <View style={[styles.itemCopy, Platform.OS === 'android' && styles.itemCopyAndroid]}>
-                <AppText style={Platform.OS === 'android' ? styles.itemTextAndroid : undefined} variant="cardTitle">
+              <View style={[styles.itemCopy, Platform.OS !== 'web' && styles.itemCopyAndroid]}>
+                <AppText style={Platform.OS !== 'web' ? styles.itemTextAndroid : undefined} variant="cardTitle">
                   {item.description}
                 </AppText>
-                <AppText style={Platform.OS === 'android' ? styles.itemTextAndroid : undefined} tone="secondary" variant="caption">
+                <AppText style={Platform.OS !== 'web' ? styles.itemTextAndroid : undefined} tone="secondary" variant="caption">
                   {directionSafeText(`الكمية: ${item.quantity} · السعر: ${item.unitPrice.toLocaleString('en-US')} ر.س`)}
                 </AppText>
               </View>
-              {Platform.OS === 'android' ? null : (
+              {Platform.OS !== 'web' ? null : (
                 <AppText align="left" style={[styles.infoValue, styles.ltrValue]} variant="caption">
                   {formatSar(item.quantity * item.unitPrice)}
                 </AppText>
@@ -231,9 +225,7 @@ function ItemsCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary> 
 function PaymentHistory({ summary }: { summary: ReturnType<typeof getInvoiceSummary> }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="cardTitle">
-        سجل الدفعات
-      </AppText>
+      <InvoiceSectionHeading title="سجل الدفعات" />
       {summary.payments.length ? (
         <SolidCard style={styles.infoCard}>
           {summary.payments.map((payment, index) => {
@@ -288,13 +280,13 @@ function InsightCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary
 
   return (
     <SolidCard style={[styles.insightCard, isOverdue && styles.warningInsight]}>
-      <View style={[styles.insightHeader, Platform.OS === 'android' && styles.insightHeaderAndroid]}>
+      <View style={[styles.insightHeader, Platform.OS !== 'web' && styles.insightHeaderAndroid]}>
         <Ionicons color={isOverdue ? colors.semantic.danger : '#F3B744'} name="sparkles-outline" size={17} />
-        <AppText style={[isOverdue ? styles.dangerText : styles.amberText, Platform.OS === 'android' && styles.insightTitleAndroid]} variant="cardTitle">
+        <AppText style={[isOverdue ? styles.dangerText : styles.amberText, Platform.OS !== 'web' && styles.insightTitleAndroid]} variant="cardTitle">
           {isOverdue ? 'فاتورة متأخرة' : 'موعد الاستحقاق قريب'}
         </AppText>
       </View>
-      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} variant="body">
+      <AppText style={Platform.OS !== 'web' ? styles.insightTextAndroid : undefined} variant="body">
         {summary.paidInFull
           ? 'تم تحصيل هذه الفاتورة بالكامل ولا توجد مبالغ متبقية.'
           : isOverdue
@@ -303,7 +295,7 @@ function InsightCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary
               ? `تم تسجيل دفعة جزئية، ولا يزال موعد الفاتورة ${summary.dueText}.`
               : `لم يتم تسجيل أي دفعة لهذه الفاتورة حتى الآن، والموعد ${summary.dueText}.`}
       </AppText>
-      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} tone="secondary" variant="caption">
+      <AppText style={Platform.OS !== 'web' ? styles.insightTextAndroid : undefined} tone="secondary" variant="caption">
         تقدير تجريبي
       </AppText>
     </SolidCard>
@@ -312,20 +304,20 @@ function InsightCard({ summary }: { summary: ReturnType<typeof getInvoiceSummary
 
 function InfoRow({ label, value, tone, ltr = false }: { label: string; value: string; tone?: 'green'; ltr?: boolean }) {
   const labelText = (
-    <AppText style={Platform.OS === 'android' ? styles.infoLabelAndroid : undefined} tone="secondary" variant="caption">
+    <AppText style={Platform.OS !== 'web' ? styles.infoLabelAndroid : undefined} tone="secondary" variant="caption">
       {label}
     </AppText>
   );
   const valueText = (
-    <AppText align="left" style={[styles.infoValue, ltr && styles.ltrValue, Platform.OS === 'android' && styles.infoValueAndroid, tone === 'green' && styles.greenText]} variant="caption">
+    <AppText align="left" style={[styles.infoValue, ltr && styles.ltrValue, Platform.OS !== 'web' && styles.infoValueAndroid, tone === 'green' && styles.greenText]} variant="caption">
       {directionSafeText(value)}
     </AppText>
   );
 
   return (
-    <View style={[styles.infoRow, Platform.OS === 'android' && styles.infoRowAndroid]}>
-      {Platform.OS === 'android' ? valueText : labelText}
-      {Platform.OS === 'android' ? labelText : valueText}
+    <View style={[styles.infoRow, Platform.OS !== 'web' && styles.infoRowAndroid]}>
+      {Platform.OS !== 'web' ? valueText : labelText}
+      {Platform.OS !== 'web' ? labelText : valueText}
     </View>
   );
 }

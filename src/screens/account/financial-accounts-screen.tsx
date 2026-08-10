@@ -1,7 +1,7 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -22,11 +22,9 @@ import {
   type FinancialAccount,
 } from './financial-accounts-data';
 
-const androidPhysicalLtrRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
-  : {};
-const androidLtrDirection = Platform.OS === 'android' ? { direction: 'ltr' as const } : {};
-const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
+const androidPhysicalLtrRow: ViewStyle = { direction: 'ltr', flexDirection: 'row' };
+const androidLtrDirection: ViewStyle = { direction: 'ltr' };
+const androidHeaderSlot: ViewStyle = { width: 0 };
 
 export function FinancialAccountsScreen() {
   const insets = useSafeAreaInsets();
@@ -140,11 +138,7 @@ function Header() {
         onPress={() => (router.canGoBack() ? router.back() : router.replace(routes.account))}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        {Platform.OS === 'android' ? (
-          <Feather color={colors.text.muted} name="chevron-left" size={22} />
-        ) : (
-          <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
-        )}
+        <Feather color={colors.text.muted} name="chevron-left" size={22} />
       </Pressable>
       <View style={styles.titleWrap}>
         <AppText style={styles.titleText} variant="screenTitle">

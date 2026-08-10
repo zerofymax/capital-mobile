@@ -122,8 +122,8 @@ export function AddTransactionScreen({ initialType }: AddTransactionScreenProps)
   const isDirty = useMemo(() => !formValuesAreEqual(currentValues, initialValues), [currentValues, initialValues]);
   const validation = useMemo(() => validateForm(currentValues, validCategoryIds), [currentValues, validCategoryIds]);
   const isSaveDisabled = saving || Object.keys(validation).length > 0 || (editing && !isDirty);
-  const incomeRtlLayout = Platform.OS === 'android' && !editing;
-  const editRtlLayout = Platform.OS === 'android' && editing;
+  const incomeRtlLayout = !editing;
+  const editRtlLayout = editing;
   const formRtlLayout = incomeRtlLayout || editRtlLayout;
 
   const requestNavigation = useCallback(

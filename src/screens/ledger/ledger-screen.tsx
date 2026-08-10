@@ -2,16 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   FinancialAmount,
+  HorizontalFilterChips,
   LedgerDateGroup,
   LedgerFab,
   LedgerFilterChip,
   LedgerSearchField,
+  TimeRangeSelector,
 } from '@/components/financial';
 import { EmptyState } from '@/components/feedback';
 import {
@@ -53,7 +55,6 @@ export function LedgerScreen() {
   const [filters, setFilters] = useState<TransactionFilters>(() => resetTransactionFilters());
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
   const [addSheetVisible, setAddSheetVisible] = useState(false);
-  const periodScrollRef = useRef<ScrollView>(null);
   const addNavigationPendingRef = useRef(false);
 
   const visibleTransactions = useMemo(() => filterTransactions(transactions, filters), [filters, transactions]);
@@ -65,16 +66,6 @@ export function LedgerScreen() {
   const hasTransactions = transactions.length > 0;
   const hasResults = visibleTransactions.length > 0;
   const activeFilters = hasActiveTransactionFilters(filters);
-
-  const scrollPeriodFilterToStart = useCallback((animated = false) => {
-    requestAnimationFrame(() => {
-      periodScrollRef.current?.scrollTo({ animated, x: 0 });
-    });
-  }, []);
-
-  useEffect(() => {
-    scrollPeriodFilterToStart(false);
-  }, [scrollPeriodFilterToStart]);
 
   function updateFilters(updater: (current: TransactionFilters) => TransactionFilters) {
     setFilters((current) => updater(current));
@@ -177,40 +168,17 @@ export function LedgerScreen() {
           value={filters.query}
         />
 
-        <ScrollView
-          ref={periodScrollRef}
-          contentContainerStyle={styles.filtersContent}
-          horizontal
-          onContentSizeChange={() => scrollPeriodFilterToStart(false)}
-          onLayout={() => scrollPeriodFilterToStart(false)}
-          showsHorizontalScrollIndicator={false}
-          style={styles.filtersScroller}
-        >
-          {transactionPeriodOptions.map((period) => (
-            <LedgerFilterChip
-              key={period.key}
-              label={period.label}
-              onPress={() => updateFilters((current) => ({ ...current, period: period.key }))}
-              selected={filters.period === period.key}
-            />
-          ))}
-        </ScrollView>
+        <TimeRangeSelector
+          options={transactionPeriodOptions.map((period) => ({ id: period.key, label: period.label }))}
+          selectedValue={filters.period}
+          onSelect={(period) => updateFilters((current) => ({ ...current, period }))}
+        />
 
-        <ScrollView
-          contentContainerStyle={styles.filtersContent}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filtersScroller}
-        >
-          {transactionTypeFilters.map((filter) => (
-            <LedgerFilterChip
-              key={filter.key}
-              label={filter.label}
-              onPress={() => updateFilters((current) => ({ ...current, type: filter.key, categoryIds: [] }))}
-              selected={filters.type === filter.key}
-            />
-          ))}
-        </ScrollView>
+        <HorizontalFilterChips
+          items={transactionTypeFilters.map((filter) => ({ id: filter.key, label: filter.label }))}
+          selectedValue={filters.type}
+          onChange={(type) => updateFilters((current) => ({ ...current, type, categoryIds: [] }))}
+        />
 
         <View style={styles.groups}>
           {hasResults ? (
@@ -498,16 +466,11 @@ function TransactionFilterSheet({
           </View>
           <ScrollView contentContainerStyle={styles.filterContent} showsVerticalScrollIndicator={false}>
             <FilterSection title="نوع العملية">
-              <View style={styles.optionWrap}>
-                {transactionTypeFilters.map((option) => (
-                  <LedgerFilterChip
-                    key={option.key}
-                    label={option.label}
-                    onPress={() => update({ ...filters, type: option.key, categoryIds: [] })}
-                    selected={filters.type === option.key}
-                  />
-                ))}
-              </View>
+              <HorizontalFilterChips
+                items={transactionTypeFilters.map((option) => ({ id: option.key, label: option.label }))}
+                selectedValue={filters.type}
+                onChange={(type) => update({ ...filters, type, categoryIds: [] })}
+              />
             </FilterSection>
 
             <FilterSection title="التصنيف">
@@ -621,6 +584,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.md,
     minHeight: 48,
+    width: '100%',
   },
   headerCopy: {
     alignItems: 'flex-end',
@@ -680,6 +644,7 @@ const styles = StyleSheet.create({
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
+    width: '100%',
   },
   summaryIcon: {
     alignItems: 'center',
@@ -743,12 +708,14 @@ const styles = StyleSheet.create({
     color: colors.semantic.danger,
   },
   filtersScroller: {
+    direction: 'ltr',
     marginHorizontal: -16,
   },
   filtersContent: {
     alignItems: 'center',
-    direction: 'rtl',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    flexGrow: 1,
     gap: spacing.sm,
     paddingLeft: 16,
     paddingRight: 16,

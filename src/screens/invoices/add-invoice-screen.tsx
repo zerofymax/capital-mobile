@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppButton, AppText } from '@/components/ui';
+import { AppButton } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { spacing } from '@/theme/spacing';
 import {
@@ -11,6 +11,7 @@ import {
   InvoiceHeader,
   InvoiceItemsEditor,
   InvoiceMiniCard,
+  InvoiceSectionHeading,
   invoiceStatusIdToName,
   invoiceStatusNameToId,
   InvoiceTotalsCard,
@@ -127,7 +128,7 @@ export function AddInvoiceScreen() {
             styles.content,
             {
               paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-              paddingTop: Math.max(insets.top + spacing.sm, 48),
+              paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top + spacing.sm, 48),
             },
           ]}
           contentInsetAdjustmentBehavior="automatic"
@@ -143,14 +144,14 @@ export function AddInvoiceScreen() {
 
           <View style={styles.twoColumns}>
             <View style={styles.flexField}>
-              <SelectField error={submitted ? errors.issueDate : undefined} iconName="calendar-outline" label="تاريخ الإصدار" ltr onPress={() => setPicker('issue')} value={issueDate} />
+              <SelectField androidRtlLayout error={submitted ? errors.issueDate : undefined} iconName="calendar-outline" label="تاريخ الإصدار" ltr onPress={() => setPicker('issue')} value={issueDate} />
             </View>
             <View style={styles.flexField}>
-              <SelectField error={submitted ? errors.dueDate : undefined} iconName="calendar-outline" label="تاريخ الاستحقاق" ltr onPress={() => setPicker('due')} value={dueDate} />
+              <SelectField androidRtlLayout error={submitted ? errors.dueDate : undefined} iconName="calendar-outline" label="تاريخ الاستحقاق" ltr onPress={() => setPicker('due')} value={dueDate} />
             </View>
           </View>
 
-          <InvoiceItemsEditor itemError={submitted ? errors.items : undefined} items={items} onAddItem={addItem} onChangeItem={updateItem} onRemoveItem={removeItem} />
+          <InvoiceItemsEditor androidRtlLayout itemError={submitted ? errors.items : undefined} items={items} onAddItem={addItem} onChangeItem={updateItem} onRemoveItem={removeItem} />
 
           <View style={styles.twoColumns}>
             <View style={styles.flexField}>
@@ -160,7 +161,7 @@ export function AddInvoiceScreen() {
               <AmountField label="الضريبة" onChangeText={(value) => setTax(formatAmountInput(value))} value={tax} />
             </View>
           </View>
-          <InvoiceTotalsCard discount={parsedDiscount} subtotal={subtotal} tax={parsedTax} total={total} />
+          <InvoiceTotalsCard androidRtlLayout discount={parsedDiscount} subtotal={subtotal} tax={parsedTax} total={total} />
 
           <SelectField androidCenterValue androidRtlLayout iconName="time-outline" label="حالة الدفع" onPress={() => setPicker('status')} value={invoiceStatusIdToName(status)} />
           {(status === 'paid' || status === 'partially-paid') && (
@@ -169,9 +170,7 @@ export function AddInvoiceScreen() {
           <TextField label="ملاحظات" onChangeText={setNotes} placeholder="اختياري" value={notes} />
 
           <View style={styles.section}>
-            <AppText style={styles.sectionTitle} variant="cardTitle">
-              معاينة الفاتورة
-            </AppText>
+            <InvoiceSectionHeading title="معاينة الفاتورة" />
             <InvoiceMiniCard invoice={previewInvoice} />
           </View>
 
@@ -185,6 +184,7 @@ export function AddInvoiceScreen() {
       </KeyboardAvoidingView>
 
       <PickerSheet
+        androidRtlLayout
         ltr
         onClose={() => setPicker(null)}
         onSelect={(value) => {
@@ -197,6 +197,7 @@ export function AddInvoiceScreen() {
         visible={picker === 'issue'}
       />
       <PickerSheet
+        androidRtlLayout
         ltr
         onClose={() => setPicker(null)}
         onSelect={(value) => {

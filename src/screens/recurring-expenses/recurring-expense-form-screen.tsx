@@ -71,13 +71,13 @@ export function RecurringExpenseFormScreen({ mode }: { mode: FormMode }) {
   const bottomPadding = Math.max(insets.bottom + spacing.xxxl + spacing.xl, spacing.screenBottom);
   const title = mode === 'add' ? 'إضافة مصروف متكرر' : 'تعديل مصروف متكرر';
   const subtitle = mode === 'add' ? 'سجّل الاشتراك أو الالتزام وحدد موعده ودورية دفعه.' : 'حدّث بيانات الالتزام وتذكيراته.';
-  const formRtlLayout = Platform.OS === 'android';
+  const formRtlLayout = true;
 
   if (mode === 'edit' && !existingExpense) {
     return (
       <SafeAreaView edges={['top']} style={styles.root}>
         <View style={[styles.missingWrap, { paddingBottom: bottomPadding }]}>
-          <ModalHeader subtitle="قد يكون المصروف حُذف من بيانات النموذج." title="تعذر العثور على المصروف" />
+          <ModalHeader rtlLayout subtitle="قد يكون المصروف حُذف من بيانات النموذج." title="تعذر العثور على المصروف" />
           <AppButton onPress={() => router.replace(routes.recurringExpenses)}>العودة للمصروفات</AppButton>
         </View>
       </SafeAreaView>
@@ -540,7 +540,7 @@ function ModalHeader({
       >
         <Ionicons
           color={colors.text.primary}
-          name={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+          name="chevron-back-outline"
           size={21}
         />
       </Pressable>
@@ -944,13 +944,17 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(54,154,255,0.24)',
     borderRadius: radii.card,
     borderWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     padding: spacing.md,
   },
   infoText: {
+    alignSelf: 'stretch',
     flex: 1,
     lineHeight: 23,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   fieldWrap: {
     gap: spacing.sm,

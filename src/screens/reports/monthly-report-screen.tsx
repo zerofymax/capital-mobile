@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ReportExportSheet } from '@/components/reports/report-export-sheet';
@@ -22,7 +22,7 @@ import {
 
 const chartHeight = 130;
 const bottomActionsMinHeight = 50;
-const useAndroidRtlLayout = Platform.OS === 'android';
+const useAndroidRtlLayout = true;
 
 export function MonthlyReportScreen() {
   const insets = useSafeAreaInsets();
@@ -125,7 +125,7 @@ function ReportHeader() {
       >
         <Ionicons
           color={colors.text.muted}
-          name={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+          name="chevron-back-outline"
           size={22}
         />
       </Pressable>
@@ -414,10 +414,11 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'space-between',
-    ...Platform.select({ android: { direction: 'ltr', width: '100%' } }),
+    width: '100%',
   },
   headerButton: {
     alignItems: 'center',
@@ -430,7 +431,7 @@ const styles = StyleSheet.create({
     width: 40,
   },
   headerCopy: {
-    ...Platform.select({ android: { alignItems: 'flex-end' } }),
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
@@ -441,13 +442,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headerPeriod: {
-    ...Platform.select({ android: { textAlign: 'right', width: '100%' } }),
+    textAlign: 'right',
+    width: '100%',
     writingDirection: 'rtl',
   },
   headerSlot: {
-    height: 40,
-    width: 40,
-    ...Platform.select({ android: { display: 'none' } }),
+    display: 'none',
   },
   summaryCard: {
     gap: spacing.md,
@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
   legendAndroid: {
     alignItems: 'flex-end',
     direction: 'ltr',
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     width: '100%',
   },
   legendItem: {

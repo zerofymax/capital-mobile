@@ -264,7 +264,7 @@ function IntroCard() {
 function SecurityAccessSection({ onItemPress }: { onItemPress: (item: SecuritySettingItem) => void }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">حماية الدخول</AppText>
+      <SecuritySectionHeading title="حماية الدخول" />
       <SolidCard style={styles.rowsCard}>
         {securitySettings.map((item, index) => (
           <View key={item.id}>
@@ -315,7 +315,7 @@ function AccountSessionsSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">الحساب والجلسات</AppText>
+      <SecuritySectionHeading title="الحساب والجلسات" />
       <SolidCard style={styles.rowsCard}>
         {accountSessionActions.map((action, index) => (
           <View key={action.id}>
@@ -373,7 +373,7 @@ function PrivacyPreferencesSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">خصوصية البيانات</AppText>
+      <SecuritySectionHeading title="خصوصية البيانات" />
       <SolidCard style={styles.rowsCard}>
         {privacySettings.map((item, index) => (
           <View key={item.id}>
@@ -435,7 +435,7 @@ function ToggleRow({
 function DataPrivacySection({ onActionPress }: { onActionPress: (action: SecurityPrivacyActionItem) => void }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">البيانات والخصوصية</AppText>
+      <SecuritySectionHeading title="البيانات والخصوصية" />
       <SolidCard style={styles.rowsCard}>
         {dataPrivacyActions.map((action, index) => (
           <View key={action.id}>
@@ -444,6 +444,14 @@ function DataPrivacySection({ onActionPress }: { onActionPress: (action: Securit
           </View>
         ))}
       </SolidCard>
+    </View>
+  );
+}
+
+function SecuritySectionHeading({ title }: { title: string }) {
+  return (
+    <View style={styles.sectionHeading}>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
     </View>
   );
 }
@@ -567,13 +575,20 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   sectionTitle: {
     alignSelf: 'stretch',
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',
+  },
+  sectionHeading: {
+    alignItems: 'flex-end',
+    direction: 'ltr',
+    width: '100%',
   },
   rowsCard: {
     padding: 0,

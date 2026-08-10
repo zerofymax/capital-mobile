@@ -248,10 +248,10 @@ export function ChangePasswordScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -364,7 +364,7 @@ function SecurityInfoCard() {
         <Ionicons color={colors.brand.calmGreen} name="lock-closed-outline" size={22} />
       </View>
       <View style={styles.infoCopy}>
-        <AppText variant="cardTitle">حافظ على أمان حسابك</AppText>
+        <AppText style={styles.infoTitle} variant="cardTitle">حافظ على أمان حسابك</AppText>
         <AppText style={styles.description} tone="secondary" variant="supporting">
           استخدم كلمة مرور قوية ومختلفة عن كلمات المرور التي تستخدمها في الخدمات الأخرى.
         </AppText>
@@ -613,6 +613,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minWidth: 0,
   },
+  infoTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   description: {
     alignSelf: 'stretch',
     lineHeight: 22,
@@ -657,6 +663,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: typography.fontFamily.regular,
     fontSize: 14,
+    minWidth: 0,
     minHeight: 52,
     paddingVertical: 0,
     textAlign: 'right',
@@ -687,6 +694,8 @@ const styles = StyleSheet.create({
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.xs,
+    maxWidth: '100%',
+    minWidth: 0,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },

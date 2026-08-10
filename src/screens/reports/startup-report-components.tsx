@@ -38,7 +38,7 @@ export function ReportModalHeader({
   androidRtlLayout?: boolean;
   subtitleWritingDirection?: 'ltr' | 'rtl';
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
 
   return (
     <View style={[styles.header, useAndroidRtlLayout && styles.headerAndroid]}>
@@ -46,7 +46,7 @@ export function ReportModalHeader({
         accessibilityLabel="رجوع"
         hitSlop={8}
         iconColor={colors.text.muted}
-        iconName={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+        iconName="chevron-back-outline"
         iconSize={21}
         onPress={onBack}
         pressedStyle={styles.pressed}
@@ -83,7 +83,7 @@ export function NoticeBanner({
   androidRtlLayout?: boolean;
 }) {
   const toneStyle = getToneStyle(tone);
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
 
   return (
     <View
@@ -135,7 +135,7 @@ export function MiniTrend({ values, tone = 'good' }: { values: readonly number[]
 }
 
 export function StartupGoalCard({ goal, onPress }: { goal: StartupGoal; onPress: (id: string) => void }) {
-  const useAndroidRtlLayout = Platform.OS === 'android';
+  const useAndroidRtlLayout = true;
   const progress = calculateDisplayProgress(goal);
   const budgetUsage = calculateBudgetUsage(goal);
   const remainingBudget = calculateRemainingBudget(goal);
@@ -255,7 +255,7 @@ export function TextField({
   onChangeText: (value: string) => void;
   androidRtlLayout?: boolean;
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
 
   return (
     <View style={[styles.fieldWrap, useAndroidRtlLayout && styles.fieldWrapAndroid]}>
@@ -296,7 +296,7 @@ export function AmountField({
   onChangeText: (value: string) => void;
   androidRtlLayout?: boolean;
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
 
   return (
     <View style={[styles.fieldWrap, useAndroidRtlLayout && styles.fieldWrapAndroid]}>
@@ -340,7 +340,7 @@ export function SelectField({
   onPress: () => void;
   androidRtlLayout?: boolean;
 }) {
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
+  const useAndroidRtlLayout = androidRtlLayout;
 
   return (
     <View style={[styles.fieldWrap, useAndroidRtlLayout && styles.fieldWrapAndroid]}>
@@ -416,8 +416,8 @@ export function PickerSheet({
   androidRtlLayout?: boolean;
 }) {
   const insets = useSafeAreaInsets();
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
-  const bottomPadding = useAndroidRtlLayout
+  const useAndroidRtlLayout = androidRtlLayout;
+  const bottomPadding = Platform.OS === 'android'
     ? insets.bottom + 48 + spacing.xl
     : insets.bottom + spacing.xl;
   const optionRows = options.map((option) => {
@@ -459,24 +459,23 @@ export function PickerSheet({
     <Modal animationType={Platform.OS === 'ios' ? 'slide' : 'fade'} onRequestClose={onClose} statusBarTranslucent transparent visible={visible}>
       <View style={styles.sheetRoot}>
         <Pressable accessibilityLabel="إغلاق القائمة" onPress={onClose} style={styles.sheetBackdrop} />
-        <View style={[styles.sheetCard, useAndroidRtlLayout && styles.sheetCardAndroid, { paddingBottom: bottomPadding }]}>
+        <View style={[styles.sheetCard, styles.pickerSheetCard, useAndroidRtlLayout && styles.sheetCardAndroid, { paddingBottom: bottomPadding }]}>
           <CapitalBottomSheetHeaderSurface />
-          <View style={styles.sheetHandle} />
-          <AppText align="right" style={useAndroidRtlLayout && styles.sheetTitleAndroid} variant="sectionTitle">
-            {title}
-          </AppText>
-          {useAndroidRtlLayout ? (
-            <ScrollView
-              contentContainerStyle={styles.optionList}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-              style={styles.optionScroll}
-            >
-              {optionRows}
-            </ScrollView>
-          ) : (
-            optionRows
-          )}
+          <View style={styles.pickerHeader}>
+            <View style={styles.sheetHandle} />
+            <AppText align="right" style={useAndroidRtlLayout && styles.sheetTitleAndroid} variant="sectionTitle">
+              {title}
+            </AppText>
+          </View>
+          <View style={styles.sheetDivider} />
+          <ScrollView
+            contentContainerStyle={styles.optionList}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            style={styles.optionScroll}
+          >
+            {optionRows}
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -505,8 +504,8 @@ export function ConfirmSheet({
   androidRtlLayout?: boolean;
 }) {
   const insets = useSafeAreaInsets();
-  const useAndroidRtlLayout = Platform.OS === 'android' && androidRtlLayout;
-  const bottomPadding = useAndroidRtlLayout
+  const useAndroidRtlLayout = androidRtlLayout;
+  const bottomPadding = Platform.OS === 'android'
     ? insets.bottom + 48 + spacing.xl
     : insets.bottom + spacing.xl;
 
@@ -514,15 +513,20 @@ export function ConfirmSheet({
     <Modal animationType={Platform.OS === 'ios' ? 'slide' : 'fade'} onRequestClose={onSecondaryPress} statusBarTranslucent transparent visible={visible}>
       <View style={styles.sheetRoot}>
         <Pressable accessibilityLabel={secondaryLabel} onPress={onSecondaryPress} style={styles.sheetBackdrop} />
-        <View style={[styles.sheetCard, { paddingBottom: bottomPadding }]}>
+        <View style={[styles.sheetCard, styles.confirmSheetCard, { paddingBottom: bottomPadding }]}>
           <CapitalBottomSheetHeaderSurface />
-          <View style={styles.sheetHandle} />
-          <AppText align="right" style={useAndroidRtlLayout && styles.confirmTitleAndroid} variant="sectionTitle">
-            {title}
-          </AppText>
-          <AppText align="right" style={useAndroidRtlLayout && styles.confirmDescriptionAndroid} tone="secondary" variant="body">
-            {description}
-          </AppText>
+          <View style={styles.confirmHeader}>
+            <View style={styles.sheetHandle} />
+            <AppText align="right" style={useAndroidRtlLayout && styles.confirmTitleAndroid} variant="sectionTitle">
+              {title}
+            </AppText>
+          </View>
+          <View style={styles.sheetDivider} />
+          <View style={styles.confirmContent}>
+            <AppText align="right" style={useAndroidRtlLayout && styles.confirmDescriptionAndroid} tone="secondary" variant="body">
+              {description}
+            </AppText>
+          </View>
           <View style={styles.confirmActions}>
             <AppButton onPress={onSecondaryPress} variant="secondary">
               {secondaryLabel}
@@ -717,7 +721,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   goalTitleBoxAndroid: {
-    flex: 0,
+    flex: 1,
     flexShrink: 1,
   },
   goalIdentityArea: {
@@ -916,6 +920,14 @@ const styles = StyleSheet.create({
   sheetCardAndroid: {
     maxHeight: '92%',
   },
+  pickerSheetCard: {
+    gap: 0,
+  },
+  pickerHeader: {
+    gap: spacing.md,
+    minHeight: 60,
+    paddingBottom: spacing.md,
+  },
   sheetHandle: {
     alignSelf: 'center',
     backgroundColor: 'rgba(255,255,255,0.18)',
@@ -928,6 +940,10 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',
+  },
+  sheetDivider: {
+    backgroundColor: colors.surface.separator,
+    height: StyleSheet.hairlineWidth,
   },
   optionRow: {
     alignItems: 'center',
@@ -958,6 +974,7 @@ const styles = StyleSheet.create({
   },
   optionList: {
     gap: spacing.md,
+    paddingTop: spacing.md,
   },
   optionScroll: {
     flexGrow: 0,
@@ -969,6 +986,17 @@ const styles = StyleSheet.create({
   },
   optionSelectedText: {
     color: colors.brand.calmGreen,
+  },
+  confirmSheetCard: {
+    gap: 0,
+  },
+  confirmHeader: {
+    gap: spacing.md,
+    minHeight: 60,
+    paddingBottom: spacing.md,
+  },
+  confirmContent: {
+    paddingVertical: spacing.md,
   },
   confirmActions: {
     gap: spacing.md,

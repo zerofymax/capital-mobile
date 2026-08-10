@@ -2,9 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { HorizontalFilterChips } from '@/components/financial';
 import { CapitalGlassIconButton } from '@/components/navigation/capital-glass-icon-button';
 import { AppButton, AppText, SolidCard } from '@/components/ui';
 import {
@@ -116,26 +117,11 @@ export function InvoicesScreen() {
           />
         </View>
 
-        <ScrollView contentContainerStyle={styles.filterRow} horizontal showsHorizontalScrollIndicator={false}>
-          {filters.map((item) => (
-            <Pressable
-              accessibilityLabel={item.label}
-              accessibilityRole="button"
-              accessibilityState={{ selected: item.id === filter }}
-              key={item.id}
-              onPress={() => setFilter(item.id)}
-              style={({ pressed }) => [styles.filterChip, item.id === filter && styles.filterChipActive, pressed && styles.pressed]}
-            >
-              <AppText align="center" style={item.id === filter && styles.filterTextActive} variant="caption">
-                {item.label}
-              </AppText>
-            </Pressable>
-          ))}
-        </ScrollView>
+        <HorizontalFilterChips items={filters} selectedValue={filter} onChange={setFilter} />
 
         {visibleOpen.length ? (
           <View style={styles.section}>
-            <AppText style={styles.sectionTitle} variant="sectionTitle">الفواتير المفتوحة</AppText>
+            <SectionHeading title="الفواتير المفتوحة" />
             <View style={styles.invoiceList}>
               {visibleOpen.map((invoice) => (
                 <InvoiceCard invoice={invoice} key={invoice.id} layoutVariant="invoicesListRtl" onPress={openDetails} />
@@ -146,7 +132,7 @@ export function InvoicesScreen() {
 
         {visiblePaid.length ? (
           <View style={styles.section}>
-            <AppText style={styles.sectionTitle} variant="sectionTitle">الفواتير المدفوعة</AppText>
+            <SectionHeading title="الفواتير المدفوعة" />
             <View style={styles.invoiceList}>
               {visiblePaid.map((invoice) => (
                 <InvoiceCard invoice={invoice} key={invoice.id} layoutVariant="invoicesListRtl" onPress={openDetails} />
@@ -172,7 +158,7 @@ function InvoicesHeader({ onBack, onExport }: { onBack: () => void; onExport: ()
       accessibilityLabel="رجوع"
       hitSlop={8}
       iconColor={colors.text.muted}
-      iconName={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+      iconName="chevron-back-outline"
       iconSize={21}
       onPress={onBack}
       pressedStyle={styles.pressed}
@@ -181,7 +167,7 @@ function InvoicesHeader({ onBack, onExport }: { onBack: () => void; onExport: ()
     />
   );
   const headerCopy = (
-    <View style={[styles.headerCopy, Platform.OS === 'android' && styles.androidHeaderCopy]}>
+    <View style={[styles.headerCopy, Platform.OS !== 'web' && styles.androidHeaderCopy]}>
       <AppText align="right" style={styles.headerTitle} variant="screenTitle">
         الفواتير المستحقة
       </AppText>
@@ -204,7 +190,7 @@ function InvoicesHeader({ onBack, onExport }: { onBack: () => void; onExport: ()
     />
   );
 
-  if (Platform.OS === 'android') {
+  if (Platform.OS !== 'web') {
     return (
       <View style={[styles.header, styles.androidHeader]}>
         <View style={styles.androidHeaderActions}>
@@ -243,9 +229,11 @@ function SummaryCard({
   progress: number;
 }) {
   const summaryTitle = (
-    <AppText style={Platform.OS === 'android' ? styles.summaryTitle : undefined} variant="sectionTitle">
-      ملخص الفواتير
-    </AppText>
+    <View style={styles.summaryTitleSlot}>
+      <AppText style={styles.summaryTitle} variant="sectionTitle">
+        ملخص الفواتير
+      </AppText>
+    </View>
   );
   const alertBadge = (
     <View style={styles.alertBadge}>
@@ -255,21 +243,21 @@ function SummaryCard({
     </View>
   );
   const progressLabel = (
-    <AppText style={Platform.OS === 'android' ? styles.progressLabel : undefined} tone="secondary" variant="caption">
+    <AppText style={Platform.OS !== 'web' ? styles.progressLabel : undefined} tone="secondary" variant="caption">
       نسبة التحصيل
     </AppText>
   );
   const progressValue = (
-    <AppText style={[styles.progressValue, Platform.OS === 'android' && styles.progressValueAndroid]} variant="caption">
+    <AppText style={[styles.progressValue, Platform.OS !== 'web' && styles.progressValueAndroid]} variant="caption">
       {progress}%
     </AppText>
   );
 
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={[styles.summaryHeader, Platform.OS === 'android' && styles.summaryHeaderAndroid]}>
-        {Platform.OS === 'android' ? alertBadge : summaryTitle}
-        {Platform.OS === 'android' ? summaryTitle : alertBadge}
+      <View style={[styles.summaryHeader, Platform.OS !== 'web' && styles.summaryHeaderAndroid]}>
+        {Platform.OS !== 'web' ? alertBadge : summaryTitle}
+        {Platform.OS !== 'web' ? summaryTitle : alertBadge}
       </View>
       <View style={styles.summaryMain}>
         <InvoiceMetric label="إجمالي المستحق" value={total} />
@@ -281,15 +269,25 @@ function SummaryCard({
         <CountMetric label="متأخرة" tone="danger" value={overdueCount} />
         <CountMetric label="مستحقة قريبًا" tone="amber" value={dueSoonCount} />
       </View>
-      <View style={[styles.progressRow, Platform.OS === 'android' && styles.progressRowAndroid]}>
-        {Platform.OS === 'android' ? progressValue : progressLabel}
-        {Platform.OS === 'android' ? progressLabel : progressValue}
+      <View style={[styles.progressRow, Platform.OS !== 'web' && styles.progressRowAndroid]}>
+        {Platform.OS !== 'web' ? progressValue : progressLabel}
+        {Platform.OS !== 'web' ? progressLabel : progressValue}
       </View>
       <InvoiceProgressBar progress={progress} startFromLeftOnAndroid tone="green" />
       <AppText align="center" variant="supporting">
         {directionSafeText(`تم تحصيل ${progress}% من قيمة الفواتير الحالية`)}
       </AppText>
     </SolidCard>
+  );
+}
+
+function SectionHeading({ title }: { title: string }) {
+  return (
+    <View style={styles.sectionTitleWrapper}>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">
+        {title}
+      </AppText>
+    </View>
   );
 }
 
@@ -307,24 +305,22 @@ function CountMetric({ label, value, tone }: { label: string; value: number; ton
 }
 
 function InsightCard() {
-  const experimentalCaption = (
-    <AppText style={styles.insightCaption} tone="secondary" variant="caption">
-      تقدير تجريبي
-    </AppText>
-  );
-
   return (
     <SolidCard style={styles.insightCard}>
-      <View style={styles.insightHeader}>
+      <View style={styles.insightLayout}>
         <Ionicons color="#9DD5FF" name="sparkles-outline" size={17} />
-        <AppText style={[styles.linkText, Platform.OS === 'android' && styles.linkTextAndroid]} variant="cardTitle">
-          تحصيل الفواتير
-        </AppText>
+        <View style={styles.insightCopy}>
+          <AppText style={styles.linkText} variant="cardTitle">
+            تحصيل الفواتير
+          </AppText>
+          <AppText style={styles.insightText} variant="body">
+            لديك فاتورة متأخرة بقيمة 6,500 ر.س وفاتورتان مستحقتان خلال الأسبوع القادم.
+          </AppText>
+          <AppText style={styles.insightCaption} tone="secondary" variant="caption">
+            تقدير تجريبي
+          </AppText>
+        </View>
       </View>
-      <AppText style={styles.insightText} variant="body">
-        لديك فاتورة متأخرة بقيمة 6,500 ر.س وفاتورتان مستحقتان خلال الأسبوع القادم.
-      </AppText>
-      {Platform.OS === 'android' ? <View style={styles.insightCaptionRow}>{experimentalCaption}</View> : experimentalCaption}
     </SolidCard>
   );
 }
@@ -416,10 +412,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   summaryTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  summaryTitleSlot: {
+    alignItems: 'flex-end',
     flex: 1,
     minWidth: 0,
-    textAlign: 'right',
-    writingDirection: 'rtl',
   },
   alertBadge: {
     backgroundColor: colors.semantic.dangerTint,
@@ -504,34 +505,20 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     writingDirection: 'rtl',
   },
-  filterRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.xs,
-  },
-  filterChip: {
-    alignItems: 'center',
-    backgroundColor: colors.surface.card,
-    borderColor: colors.surface.border,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    justifyContent: 'center',
-    minHeight: 34,
-    paddingHorizontal: spacing.md,
-  },
-  filterChipActive: {
-    backgroundColor: colors.brand.green,
-    borderColor: colors.brand.mediumGreen,
-  },
-  filterTextActive: {
-    color: colors.text.primary,
-  },
   section: {
+    alignItems: 'stretch',
+    alignSelf: 'stretch',
     gap: spacing.md,
-    ...Platform.select({ android: { alignItems: 'flex-end', alignSelf: 'stretch', width: '100%' } }),
+    width: '100%',
+  },
+  sectionTitleWrapper: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    direction: 'ltr',
+    width: '100%',
   },
   sectionTitle: {
-    ...Platform.select({ android: { alignSelf: 'stretch' } }),
+    alignSelf: 'stretch',
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',
@@ -541,37 +528,37 @@ const styles = StyleSheet.create({
     ...Platform.select({ android: { alignSelf: 'stretch', width: '100%' } }),
   },
   insightCard: {
-    ...Platform.select({ android: { alignItems: 'flex-end' } }),
     backgroundColor: 'rgba(2,25,42,0.92)',
     borderColor: 'rgba(46,168,255,0.22)',
-    gap: spacing.sm,
   },
-  insightHeader: {
-    alignItems: 'center',
+  insightLayout: {
+    alignItems: 'flex-start',
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
-    ...Platform.select({ android: { direction: 'ltr', width: '100%' } }),
-  },
-  insightCaption: {
-    textAlign: 'right',
     width: '100%',
-    writingDirection: 'rtl',
   },
-  insightCaptionRow: {
+  insightCopy: {
     alignItems: 'flex-end',
-    alignSelf: 'stretch',
-    width: '100%',
-  },
-  linkText: {
-    color: '#9DD5FF',
-    textAlign: 'right',
-    writingDirection: 'rtl',
-  },
-  linkTextAndroid: {
     flex: 1,
+    gap: spacing.sm,
     minWidth: 0,
   },
+  insightCaption: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
+  linkText: {
+    alignSelf: 'stretch',
+    color: '#9DD5FF',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   insightText: {
+    alignSelf: 'stretch',
     textAlign: 'right',
     width: '100%',
     writingDirection: 'rtl',

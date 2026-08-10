@@ -199,6 +199,7 @@ function FinancialTrendReport({ report }: { report: ResolvedFinancialReportData 
         </View>
       </SolidCard>
       <ResultCard
+        compact
         items={[
           { label: 'نمو الإيرادات', value: formatPercent(revenueGrowth) },
           { label: 'نمو المصروفات', value: formatPercent(expenseGrowth) },
@@ -251,7 +252,7 @@ function LineSection({
                 {`${line.transactionCount.toLocaleString('en-US')} عملية · ${formatComparison(line.comparison)}`}
               </AppText>
             </View>
-            <AppText style={styles.lineValue} variant="cardTitle">
+            <AppText adjustsFontSizeToFit minimumFontScale={0.82} numberOfLines={1} style={styles.lineValue} variant="cardTitle">
               {formatSar(line.amount)}
             </AppText>
           </View>
@@ -259,7 +260,7 @@ function LineSection({
       )}
       <View style={styles.totalRow}>
         <AppText style={styles.rowLabel} variant="cardTitle">{totalLabel}</AppText>
-        <AppText style={styles.totalValue} variant="sectionTitle">
+        <AppText adjustsFontSizeToFit minimumFontScale={0.82} numberOfLines={1} style={styles.totalValue} variant="sectionTitle">
           {formatSar(totalValue)}
         </AppText>
       </View>
@@ -282,7 +283,7 @@ function CashFlowLineSection({ title, lines, danger }: { title: string; lines: C
                 {`${line.transactionCount.toLocaleString('en-US')} عملية · ${formatComparison(line.comparison)}`}
               </AppText>
             </View>
-            <AppText style={[styles.lineValue, danger && styles.warningValue]} variant="cardTitle">
+            <AppText adjustsFontSizeToFit minimumFontScale={0.82} numberOfLines={1} style={[styles.lineValue, danger && styles.warningValue]} variant="cardTitle">
               {formatSar(line.amount)}
             </AppText>
           </View>
@@ -292,15 +293,23 @@ function CashFlowLineSection({ title, lines, danger }: { title: string; lines: C
   );
 }
 
-function ResultCard({ items, highlight }: { items: readonly { label: string; value: string }[]; highlight?: boolean }) {
+function ResultCard({
+  items,
+  highlight,
+  compact = false,
+}: {
+  items: readonly { label: string; value: string }[];
+  highlight?: boolean;
+  compact?: boolean;
+}) {
   return (
-    <SolidCard style={[styles.resultCard, highlight && styles.highlightCard]}>
+    <SolidCard style={[styles.resultCard, compact && styles.compactResultCard, highlight && styles.highlightCard]}>
       {items.map((item) => (
-        <View key={item.label} style={styles.resultRow}>
+        <View key={item.label} style={[styles.resultRow, compact && styles.compactResultRow]}>
           <AppText style={styles.rowLabel} tone="secondary" variant="supporting">
             {item.label}
           </AppText>
-          <AppText style={styles.resultValue} variant="cardTitle">
+          <AppText adjustsFontSizeToFit minimumFontScale={0.82} numberOfLines={1} style={styles.resultValue} variant="cardTitle">
             {directionSafeText(item.value)}
           </AppText>
         </View>
@@ -322,7 +331,7 @@ function ExpenseCategoryRow({ category }: { category: ExpenseCategorySummary }) 
           </AppText>
         </View>
         <View style={styles.categoryAmount}>
-          <AppText style={styles.lineValue} variant="cardTitle">
+          <AppText adjustsFontSizeToFit minimumFontScale={0.82} numberOfLines={1} style={styles.lineValue} variant="cardTitle">
             {formatSar(category.amount)}
           </AppText>
           <AppText style={styles.numericText} tone="secondary" variant="caption">
@@ -408,13 +417,14 @@ function calculateTrendNetProfitChange(trend: ResolvedFinancialReportData['month
 function barHeight(value: number, maxValue: number) {
   const ratio = Math.max(0, Math.min(Math.abs(value) / Math.max(maxValue, 1), 1));
 
-  return 18 + ratio * 90;
+  return 12 + ratio * 60;
 }
 
 const styles = StyleSheet.create({
   root: {
     backgroundColor: colors.background.base,
     flex: 1,
+    overflow: 'hidden',
   },
   headerWrap: {
     paddingHorizontal: spacing.screenX,
@@ -470,6 +480,9 @@ const styles = StyleSheet.create({
   },
   lineValue: {
     color: colors.brand.lightNeutral,
+    flexShrink: 1,
+    maxWidth: '48%',
+    minWidth: 0,
     textAlign: 'left',
     writingDirection: 'ltr',
   },
@@ -488,10 +501,17 @@ const styles = StyleSheet.create({
   },
   totalValue: {
     color: colors.brand.calmGreen,
+    flexShrink: 1,
+    maxWidth: '48%',
+    minWidth: 0,
+    textAlign: 'left',
     writingDirection: 'ltr',
   },
   resultCard: {
     gap: spacing.md,
+  },
+  compactResultCard: {
+    gap: spacing.sm,
   },
   highlightCard: {
     backgroundColor: colors.semantic.successTint,
@@ -504,13 +524,21 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     justifyContent: 'space-between',
   },
+  compactResultRow: {
+    minHeight: 32,
+    paddingVertical: spacing.xxs,
+  },
   resultValue: {
     color: colors.text.primary,
+    flexShrink: 1,
+    maxWidth: '48%',
+    minWidth: 0,
     textAlign: 'left',
     writingDirection: 'ltr',
   },
   rowLabel: {
     flex: 1,
+    minWidth: 0,
     textAlign: 'right',
     writingDirection: 'rtl',
   },
@@ -529,7 +557,10 @@ const styles = StyleSheet.create({
   },
   categoryAmount: {
     alignItems: 'flex-start',
+    flexShrink: 1,
     gap: spacing.xs,
+    maxWidth: '48%',
+    minWidth: 0,
   },
   progressTrack: {
     backgroundColor: 'rgba(255,255,255,0.08)',
@@ -547,6 +578,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.md,
+    justifyContent: 'flex-start',
   },
   legendItem: {
     alignItems: 'center',
@@ -569,7 +601,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'space-between',
-    minHeight: 168,
+    minHeight: 104,
   },
   trendColumn: {
     alignItems: 'center',
@@ -580,8 +612,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     direction: 'ltr',
     flexDirection: 'row',
-    gap: 3,
-    height: 124,
+    gap: spacing.xs,
+    height: 78,
+    justifyContent: 'center',
   },
   trendBar: {
     borderRadius: radii.pill,

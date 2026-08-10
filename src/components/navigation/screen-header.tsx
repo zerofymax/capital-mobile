@@ -22,7 +22,7 @@ export function ScreenHeader({ title, subtitle, showBack = false, rightAction }:
           accessibilityLabel="رجوع"
           hitSlop={8}
           iconColor={colors.text.muted}
-          iconName="chevron-forward"
+          iconName="chevron-back"
           iconSize={18}
           onPress={() => router.back()}
           pressedStyle={styles.pressed}
@@ -54,6 +54,7 @@ export function DeepScreenHeader(props: ScreenHeaderProps) {
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'space-between',

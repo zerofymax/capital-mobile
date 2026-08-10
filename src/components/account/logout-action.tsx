@@ -24,7 +24,7 @@ export function LogoutAction({ confirming, onRequest, onCancel, onConfirm }: Log
             تسجيل الخروج؟
           </AppText>
         </View>
-        <AppText tone="secondary" variant="body">
+        <AppText style={styles.confirmDescription} tone="secondary" variant="body">
           {directionSafeText('سيتم إنهاء الجلسة الحالية التجريبية فقط.')}
         </AppText>
         <View style={styles.actions}>
@@ -76,8 +76,15 @@ const styles = StyleSheet.create({
   },
   confirmHeader: {
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.sm,
+  },
+  confirmDescription: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   actions: {
     flexDirection: 'row-reverse',
@@ -89,6 +96,8 @@ const styles = StyleSheet.create({
   },
   dangerText: {
     color: colors.semantic.danger,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   pressed: {
     opacity: 0.78,

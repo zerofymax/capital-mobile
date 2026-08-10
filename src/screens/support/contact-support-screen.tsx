@@ -689,11 +689,13 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     alignItems: 'flex-start',
+    alignSelf: 'stretch',
     backgroundColor: colors.semantic.successTint,
     borderColor: 'rgba(79,138,91,0.30)',
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
+    width: '100%',
   },
   infoIcon: {
     alignItems: 'center',
@@ -719,9 +721,9 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   section: {
-    alignItems: 'flex-end',
     alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
   },
   fieldLabel: {
     alignSelf: 'stretch',
@@ -743,6 +745,7 @@ const styles = StyleSheet.create({
   },
   selectField: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     backgroundColor: colors.surface.card,
     borderColor: colors.surface.inputBorder,
     borderRadius: radii.input,
@@ -752,6 +755,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     minHeight: 52,
     paddingHorizontal: spacing.lg,
+    width: '100%',
   },
   selectValue: {
     flex: 1,
@@ -793,11 +797,14 @@ const styles = StyleSheet.create({
   detailsInput: {
     minHeight: 132,
     paddingVertical: spacing.md,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   helperText: {
     alignSelf: 'stretch',
     marginTop: -spacing.md,
     textAlign: 'right',
+    width: '100%',
     writingDirection: 'rtl',
   },
   emailInput: {
@@ -809,6 +816,7 @@ const styles = StyleSheet.create({
   },
   attachmentCard: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     backgroundColor: colors.surface.card,
     borderColor: colors.surface.border,
     borderRadius: radii.input,
@@ -819,6 +827,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     minHeight: 72,
     padding: spacing.lg,
+    width: '100%',
   },
   attachmentIcon: {
     alignItems: 'center',
@@ -864,13 +873,19 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   noticeText: {
+    alignSelf: 'stretch',
     flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   responseCard: {
     alignItems: 'center',
+    alignSelf: 'stretch',
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
+    width: '100%',
   },
   urgentResponseCard: {
     backgroundColor: colors.semantic.warningTint,
@@ -891,7 +906,9 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   actions: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   pickerRoot: {
     flex: 1,

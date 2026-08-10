@@ -37,10 +37,10 @@ export function BudgetDetailsScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top + spacing.sm, 48),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top + spacing.sm, 48),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <BudgetHeader onBack={() => router.back()} title="تفاصيل الميزانية" />
@@ -50,8 +50,8 @@ export function BudgetDetailsScreen() {
             <Ionicons color={toneColors[summary.status.tone].accent} name={summary.category.icon} size={22} />
           </View>
           <View style={styles.identityCopy}>
-            <AppText variant="sectionTitle">{summary.category.name}</AppText>
-            <AppText tone="secondary" variant="caption">
+            <AppText style={styles.identityTitle} variant="sectionTitle">{summary.category.name}</AppText>
+            <AppText style={styles.identityTitle} tone="secondary" variant="caption">
               {summary.month}
             </AppText>
           </View>
@@ -64,8 +64,8 @@ export function BudgetDetailsScreen() {
             <Metric label="المصروف" value={summary.spent} />
             <Metric label="المتبقي" tone={summary.status.tone} value={summary.remaining} />
           </View>
-          <View style={[styles.usageRow, Platform.OS === 'android' && styles.usageRowAndroid]}>
-            {Platform.OS === 'android' ? (
+          <View style={[styles.usageRow, Platform.OS !== 'web' && styles.usageRowAndroid]}>
+            {Platform.OS !== 'web' ? (
               <>
                 <AppText style={[styles.usageValueAndroid, { color: toneColors[summary.status.tone].text }]} variant="caption">
                   {summary.usage}%
@@ -85,7 +85,7 @@ export function BudgetDetailsScreen() {
               </>
             )}
           </View>
-          <BudgetProgressBar marker={summary.alertThreshold} tone={summary.status.tone} usage={summary.usage} />
+          <BudgetProgressBar androidPhysicalLeft marker={summary.alertThreshold} tone={summary.status.tone} usage={summary.usage} />
         </SolidCard>
 
         <SolidCard style={styles.progressDetailCard}>
@@ -100,7 +100,7 @@ export function BudgetDetailsScreen() {
               المصروف الحالي
             </AppText>
           </View>
-          <BudgetProgressBar marker={summary.alertThreshold} tone={summary.status.tone} usage={summary.usage} />
+          <BudgetProgressBar androidPhysicalLeft marker={summary.alertThreshold} tone={summary.status.tone} usage={summary.usage} />
           <AppText align="center" variant="caption">
             {directionSafeText(`متبقي ${beforeAlert.toLocaleString('en-US')} ر.س قبل الوصول إلى حد التنبيه`)}
           </AppText>
@@ -138,7 +138,14 @@ function Metric({ label, value, tone }: { label: string; value: number; tone?: k
       <AppText align="center" tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="center" style={[styles.metricValue, tone && { color: toneColors[tone].text }]} variant="caption">
+      <AppText
+        adjustsFontSizeToFit
+        align="center"
+        minimumFontScale={0.82}
+        numberOfLines={1}
+        style={[styles.metricValue, tone && { color: toneColors[tone].text }]}
+        variant="caption"
+      >
         {directionSafeText(`${value.toLocaleString('en-US')} ر.س`)}
       </AppText>
     </View>
@@ -157,12 +164,12 @@ function InfoCard({ summary }: { summary: ReturnType<typeof getBudgetSummary> })
 
   return (
     <View style={styles.section}>
-      <AppText variant="cardTitle">معلومات الميزانية</AppText>
+      <AppText style={styles.sectionTitle} variant="cardTitle">معلومات الميزانية</AppText>
       <SolidCard style={styles.infoCard}>
         {rows.map(([label, value], index) => (
           <View key={label}>
             <View style={styles.infoRow}>
-              <AppText tone="secondary" variant="caption">
+              <AppText style={styles.infoLabel} tone="secondary" variant="caption">
                 {label}
               </AppText>
               <AppText align="left" style={styles.infoValue} variant="caption">
@@ -181,7 +188,7 @@ function ExpensesCard() {
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <AppText variant="cardTitle">المصروفات الأخيرة</AppText>
+        <AppText style={styles.sectionHeaderTitle} variant="cardTitle">المصروفات الأخيرة</AppText>
         <AppText style={styles.linkText} variant="caption">
           عرض كل المصروفات
         </AppText>
@@ -189,8 +196,8 @@ function ExpensesCard() {
       <SolidCard style={styles.expensesCard}>
         {recentMarketingExpenses.map((expense, index) => (
           <View key={expense.id}>
-            <View style={[styles.expenseRow, Platform.OS === 'android' && styles.expenseRowAndroid]}>
-              {Platform.OS === 'android' ? (
+            <View style={[styles.expenseRow, Platform.OS !== 'web' && styles.expenseRowAndroid]}>
+              {Platform.OS !== 'web' ? (
                 <>
                   <View style={styles.expenseIcon}>
                     <Ionicons color={colors.text.tertiary} name="megaphone-outline" size={16} />
@@ -236,13 +243,13 @@ function ExpensesCard() {
 function InsightCard({ summary }: { summary: ReturnType<typeof getBudgetSummary> }) {
   const insightIcon = <Ionicons color={colors.brand.calmGreen} name="sparkles-outline" size={17} />;
   const insightTitle = (
-    <AppText style={Platform.OS === 'android' ? styles.insightTitleAndroid : undefined} variant="cardTitle">
+    <AppText style={Platform.OS !== 'web' ? styles.insightTitleAndroid : undefined} variant="cardTitle">
       معدل إنفاقك الحالي
     </AppText>
   );
   const prototypeBadge = (
-    <View style={[styles.prototypeBadge, Platform.OS === 'android' && styles.prototypeBadgeAndroid]}>
-      <AppText align={Platform.OS === 'android' ? 'right' : 'center'} style={Platform.OS === 'android' ? styles.prototypeTextAndroid : undefined} variant="caption">
+    <View style={[styles.prototypeBadge, Platform.OS !== 'web' && styles.prototypeBadgeAndroid]}>
+      <AppText align={Platform.OS !== 'web' ? 'right' : 'center'} style={Platform.OS !== 'web' ? styles.prototypeTextAndroid : undefined} variant="caption">
         تقدير تجريبي
       </AppText>
     </View>
@@ -250,8 +257,8 @@ function InsightCard({ summary }: { summary: ReturnType<typeof getBudgetSummary>
 
   return (
     <SolidCard style={styles.insightCard}>
-      <View style={[styles.insightHeader, Platform.OS === 'android' && styles.insightHeaderAndroid]}>
-        {Platform.OS === 'android' ? (
+      <View style={[styles.insightHeader, Platform.OS !== 'web' && styles.insightHeaderAndroid]}>
+        {Platform.OS !== 'web' ? (
           <>
             {insightIcon}
             <View style={styles.insightHeaderCopyAndroid}>
@@ -269,14 +276,14 @@ function InsightCard({ summary }: { summary: ReturnType<typeof getBudgetSummary>
           </>
         )}
       </View>
-      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} variant="body">
+      <AppText style={Platform.OS !== 'web' ? styles.insightTextAndroid : undefined} variant="body">
         {directionSafeText(`أنفقت ${summary.usage}% من ميزانية ${summary.category.name}، ويتبقى ${summary.remaining.toLocaleString('en-US')} ر.س حتى نهاية الشهر.`)}
       </AppText>
-      <AppText style={Platform.OS === 'android' ? styles.insightTextAndroid : undefined} variant="body">
+      <AppText style={Platform.OS !== 'web' ? styles.insightTextAndroid : undefined} variant="body">
         بناءً على وتيرة الإنفاق الحالية، قد تصل إلى 92% من الميزانية بنهاية يوليو.
       </AppText>
-      <View style={[styles.recommendationBox, Platform.OS === 'android' && styles.recommendationBoxAndroid]}>
-        <AppText style={[styles.linkText, Platform.OS === 'android' && styles.insightTextAndroid]} variant="supporting">
+      <View style={[styles.recommendationBox, Platform.OS !== 'web' && styles.recommendationBoxAndroid]}>
+        <AppText style={[styles.linkText, Platform.OS !== 'web' && styles.insightTextAndroid]} variant="supporting">
           خفّض الإنفاق اليومي المتبقي إلى 150 ر.س للحفاظ على الميزانية.
         </AppText>
       </View>
@@ -295,6 +302,7 @@ const styles = StyleSheet.create({
   },
   identityCard: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     gap: spacing.md,
   },
@@ -306,14 +314,22 @@ const styles = StyleSheet.create({
     width: 44,
   },
   identityCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xs,
     minWidth: 0,
+  },
+  identityTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   summaryCard: {
     gap: spacing.md,
   },
   summaryMetrics: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
   },
   metric: {
@@ -322,9 +338,12 @@ const styles = StyleSheet.create({
     borderLeftWidth: StyleSheet.hairlineWidth,
     flex: 1,
     gap: spacing.xs,
+    minWidth: 0,
+    paddingHorizontal: 2,
   },
   metricValue: {
     color: colors.text.primary,
+    flexShrink: 1,
     fontSize: 14,
     fontWeight: '700',
     lineHeight: 20,
@@ -355,30 +374,61 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   progressLabels: {
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   section: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   sectionHeader: {
-    flexDirection: 'row',
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
     justifyContent: 'space-between',
     width: '100%',
+  },
+  sectionHeaderTitle: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoCard: {
     gap: spacing.md,
   },
   infoRow: {
-    width: '100%',
-    flexDirection: 'row',
+    alignItems: 'center',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
     justifyContent: 'space-between',
     minHeight: 34,
+    width: '100%',
+  },
+  infoLabel: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   infoValue: {
     color: colors.text.primary,
+    flexShrink: 1,
     fontWeight: '700',
-    writingDirection: 'ltr',
+    maxWidth: '58%',
+    minWidth: 0,
+    textAlign: 'left',
+    writingDirection: 'rtl',
   },
   expensesCard: {
     gap: spacing.md,

@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -52,9 +52,7 @@ import { directionSafeText } from '@/utils/rtl';
 import { homeQuickActions, type QuickActionItem, type TransactionItem } from './home-data';
 
 const quickActionRtlOrder = ['accounts', 'invoices', 'expense', 'income', 'ask', 'goals', 'recurring', 'report'] as const;
-const androidPhysicalRtlRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
-  : {};
+const androidPhysicalRtlRow: ViewStyle = { direction: 'ltr', flexDirection: 'row-reverse' };
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();

@@ -3,15 +3,17 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SubscriptionPriceLine, SubscriptionSectionHeading } from '@/components/account';
 import { ConfirmationDialog } from '@/components/system';
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 import {
   annualBillingMessage,
   businessUpgradeMessage,
@@ -104,10 +106,10 @@ export function ComparePlansScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <ComparePlansHeader onBackPress={goBackToSubscription} />
@@ -242,7 +244,7 @@ function AnnualSavingsCard() {
       <View style={styles.savingsCopy}>
         <AppText style={styles.fullWidthRtlText} variant="cardTitle">وفّر عند الدفع السنوي</AppText>
         <AppText style={[styles.description, styles.fullWidthRtlText]} tone="secondary" variant="supporting">
-          470 ر.س سنويًا بدلًا من 588 ر.س. توفير 118 ر.س سنويًا.
+          {directionSafeText('470 ر.س سنويًا بدلًا من 588 ر.س. توفير 118 ر.س سنويًا.')}
         </AppText>
         <AppText style={styles.fullWidthRtlText} tone="tertiary" variant="caption">
           الفوترة السنوية قادمة لاحقًا ولا تغيّر الاشتراك الحالي.
@@ -304,9 +306,7 @@ function PlanCard({
       </AppText>
 
       <View style={styles.priceBlock}>
-        <AppText align="right" numberOfLines={1} style={styles.priceText} variant="numericValue">
-          {`${price} ${plan.currency} / ${period}`}
-        </AppText>
+        <SubscriptionPriceLine amount={`${price} ${plan.currency}`} period={period} style={styles.priceText} />
         {billingCycle === 'annual' && plan.annualMonthlyEquivalent ? (
           <AppText style={styles.fullWidthRtlText} tone="tertiary" variant="caption">
             يعادل نحو {plan.annualMonthlyEquivalent} ر.س شهريًا
@@ -358,7 +358,7 @@ function RecommendationCard() {
 function ComparisonSection() {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">مقارنة المزايا</AppText>
+      <SubscriptionSectionHeading>مقارنة المزايا</SubscriptionSectionHeading>
       <SolidCard style={styles.comparisonCard}>
         <View style={styles.comparisonHeader}>
           <AppText style={styles.comparisonFeatureHeader} tone="secondary" variant="caption">
@@ -516,9 +516,11 @@ const styles = StyleSheet.create({
   },
   planStack: {
     gap: spacing.lg,
+    width: '100%',
   },
   planCard: {
     gap: spacing.lg,
+    width: '100%',
   },
   currentPlanCard: {
     backgroundColor: 'rgba(17,26,23,0.96)',
@@ -573,20 +575,18 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   priceText: {
-    alignSelf: 'stretch',
     color: colors.text.primary,
-    textAlign: 'right',
-    width: '100%',
-    writingDirection: 'ltr',
   },
   featureList: {
     gap: spacing.sm,
+    width: '100%',
   },
   featureRow: {
     alignItems: 'center',
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
+    width: '100%',
   },
   featureIcon: {
     alignItems: 'center',

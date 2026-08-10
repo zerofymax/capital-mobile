@@ -25,7 +25,7 @@ type FormFieldProps = TextInputProps & {
 export function FormField({ label, error, containerStyle, errorStyle, labelStyle, style, ...props }: FormFieldProps) {
   return (
     <View style={[styles.root, containerStyle]}>
-      <AppText style={labelStyle} tone="secondary" variant="supporting">
+      <AppText style={[styles.label, labelStyle]} tone="secondary" variant="supporting">
         {label}
       </AppText>
       <TextInput
@@ -34,7 +34,7 @@ export function FormField({ label, error, containerStyle, errorStyle, labelStyle
         style={[styles.input, error ? styles.inputError : null, style]}
       />
       {error ? (
-        <AppText style={errorStyle} tone="danger" variant="caption">
+        <AppText style={[styles.error, errorStyle]} tone="danger" variant="caption">
           {error}
         </AppText>
       ) : null}
@@ -44,7 +44,15 @@ export function FormField({ label, error, containerStyle, errorStyle, labelStyle
 
 const styles = StyleSheet.create({
   root: {
+    alignItems: 'stretch',
     gap: spacing.sm,
+    width: '100%',
+  },
+  label: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   input: {
     backgroundColor: colors.surface.card,
@@ -61,5 +69,11 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: colors.semantic.danger,
+  },
+  error: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
 });

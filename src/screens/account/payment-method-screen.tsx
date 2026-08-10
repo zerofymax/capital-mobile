@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SubscriptionSectionHeading } from '@/components/account';
 import { ConfirmationDialog, EmptyState, EmptyStateIcon } from '@/components/system';
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
@@ -394,10 +395,11 @@ export function PaymentMethodScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
         keyboardShouldPersistTaps="handled"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <PaymentHeader onBackPress={requestBack} />
@@ -509,7 +511,7 @@ function CurrentPaymentSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionTitle} variant="sectionTitle">وسيلة الدفع الحالية</AppText>
+      <SubscriptionSectionHeading>وسيلة الدفع الحالية</SubscriptionSectionHeading>
       {card ? (
         <>
           <MaskedCard card={card} />
@@ -671,9 +673,7 @@ function PaymentForm({
 }) {
   return (
     <View style={styles.section}>
-      <View style={styles.rtlTextWrapper}>
-        <AppText style={styles.sectionTitle} variant="sectionTitle">{title}</AppText>
-      </View>
+      <SubscriptionSectionHeading>{title}</SubscriptionSectionHeading>
       <SolidCard style={styles.formCard}>
         <View style={styles.detectedBrandRow}>
           <View style={styles.infoIcon}>
@@ -944,6 +944,7 @@ const styles = StyleSheet.create({
   },
   rowsCard: {
     padding: 0,
+    width: '100%',
   },
   actionRow: {
     alignItems: 'center',
@@ -953,6 +954,7 @@ const styles = StyleSheet.create({
     minHeight: 64,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+    width: '100%',
   },
   actionIcon: {
     alignItems: 'center',
@@ -1003,6 +1005,7 @@ const styles = StyleSheet.create({
   },
   formCard: {
     gap: spacing.lg,
+    width: '100%',
   },
   detectedBrandRow: {
     alignItems: 'center',
@@ -1043,6 +1046,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     minHeight: 52,
     paddingHorizontal: spacing.lg,
+    width: '100%',
     writingDirection: 'ltr',
   },
   formSplitRow: {

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, SolidCard } from '@/components/ui';
@@ -176,7 +176,7 @@ function RecurringHeader({ title, subtitle }: { title: string; subtitle: string 
       <Pressable accessibilityLabel="رجوع" accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
         <Ionicons
           color={colors.text.primary}
-          name={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+          name="chevron-back-outline"
           size={21}
         />
       </Pressable>
@@ -424,9 +424,10 @@ const styles = StyleSheet.create({
   },
   headerCopy: {
     alignItems: 'flex-end',
-    direction: 'rtl',
+    alignSelf: 'stretch',
     flex: 1,
     gap: spacing.xs,
+    justifyContent: 'flex-start',
     minWidth: 0,
   },
   headerText: {
@@ -510,7 +511,7 @@ const styles = StyleSheet.create({
   },
   insightCopy: {
     alignItems: 'flex-end',
-    direction: 'rtl',
+    alignSelf: 'stretch',
     flex: 1,
     gap: spacing.sm,
     minWidth: 0,

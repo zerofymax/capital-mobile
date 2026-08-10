@@ -41,10 +41,10 @@ export function SettingsRow({ row, isLast = false, onPress }: SettingsRowProps) 
           <Ionicons color={colors.brand.green} name={row.icon} size={18} />
         </View>
         <View style={styles.copy}>
-          <AppText numberOfLines={1} style={styles.copyText} variant="body">
+          <AppText style={styles.copyText} variant="body">
             {directionSafeText(row.title)}
           </AppText>
-          <AppText numberOfLines={2} style={styles.copyText} tone="secondary" variant="caption">
+          <AppText style={styles.copyText} tone="secondary" variant="caption">
             {directionSafeText(row.description)}
           </AppText>
         </View>
@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(79,138,91,0.10)',
     borderRadius: radii.control,
     borderWidth: 1,
+    flexShrink: 0,
     height: 36,
     justifyContent: 'center',
     width: 36,
@@ -77,6 +78,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     direction: 'ltr',
     flex: 1,
+    flexShrink: 1,
     gap: spacing.xs,
     minWidth: 0,
   },
@@ -97,5 +99,6 @@ const styles = StyleSheet.create({
   soonText: {
     fontSize: 11,
     lineHeight: 16,
+    writingDirection: 'rtl',
   },
 });

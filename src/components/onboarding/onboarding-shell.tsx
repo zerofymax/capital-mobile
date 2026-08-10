@@ -63,8 +63,8 @@ export function OnboardingShell({
           </AppText>
           <OnboardingProgress currentStep={currentStep} totalSteps={totalSteps} />
           <View style={styles.copy}>
-            <AppText variant="screenTitle">{title}</AppText>
-            <AppText tone="secondary" variant="supporting">
+            <AppText style={styles.copyText} variant="screenTitle">{title}</AppText>
+            <AppText style={styles.copyText} tone="secondary" variant="supporting">
               {subtitle}
             </AppText>
           </View>
@@ -96,14 +96,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   header: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     gap: spacing.lg,
+    width: '100%',
   },
   label: {
+    alignSelf: 'stretch',
     color: colors.brand.link,
     fontWeight: '700',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   copy: {
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
     gap: spacing.sm,
+    width: '100%',
+  },
+  copyText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   body: {
     gap: spacing.lg,

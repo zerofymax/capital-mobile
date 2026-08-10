@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { AppText } from '@/components/ui';
 import type { CapitalNotification } from '@/screens/operations/notification-data';
@@ -9,12 +9,8 @@ import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { NotificationStatusDot, getNotificationAccent } from './notification-status-dot';
 
-const androidPhysicalRtlRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
-  : {};
-const androidPhysicalRightAlignedColumn = Platform.OS === 'android'
-  ? { direction: 'ltr' as const }
-  : {};
+const androidPhysicalRtlRow: ViewStyle = { direction: 'ltr', flexDirection: 'row-reverse' };
+const androidPhysicalRightAlignedColumn: ViewStyle = { direction: 'ltr' };
 
 type NotificationCardProps = {
   notification: CapitalNotification;

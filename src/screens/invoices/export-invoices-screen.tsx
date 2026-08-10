@@ -11,7 +11,7 @@ import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
 import { directionSafeText } from '@/utils/rtl';
-import { InvoiceHeader, InvoiceStatusBadge } from './components';
+import { InvoiceHeader, InvoiceSectionHeading, InvoiceStatusBadge } from './components';
 import type { Invoice } from './invoices-data';
 import { useInvoicesStore } from './invoices-store';
 import { formatSar, getInvoiceSummary, type InvoiceSummary } from './invoice-utils';
@@ -217,7 +217,7 @@ function ExportSummaryCard({
 }) {
   return (
     <SolidCard style={styles.summaryCard}>
-      <View style={[styles.summaryHeader, Platform.OS === 'android' && styles.summaryHeaderAndroid]}>
+      <View style={[styles.summaryHeader, Platform.OS !== 'web' && styles.summaryHeaderAndroid]}>
         <View style={styles.summaryIcon}>
           <Ionicons color="#9DD5FF" name="download-outline" size={20} />
         </View>
@@ -250,9 +250,7 @@ function ExportSummaryCard({
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <SolidCard style={styles.sectionCard}>
-      <AppText align="right" style={styles.sectionTitle} variant="sectionTitle">
-        {title}
-      </AppText>
+      <InvoiceSectionHeading title={title} variant="sectionTitle" />
       <View style={styles.optionList}>{children}</View>
     </SolidCard>
   );
@@ -279,7 +277,7 @@ function ChoiceRow({
     </View>
   );
   const optionLabel = (
-    <AppText align="right" style={[styles.optionLabel, Platform.OS === 'android' && styles.optionLabelAndroid, ltrLabel ? styles.ltrText : styles.rtlText]} variant="body">
+    <AppText align="right" style={[styles.optionLabel, Platform.OS !== 'web' && styles.optionLabelAndroid, ltrLabel ? styles.ltrText : styles.rtlText]} variant="body">
       {label}
     </AppText>
   );
@@ -294,13 +292,13 @@ function ChoiceRow({
       onPress={onPress}
       style={({ pressed }) => [
         styles.optionRow,
-        Platform.OS === 'android' && styles.optionRowAndroid,
+        Platform.OS !== 'web' && styles.optionRowAndroid,
         selected && styles.optionRowSelected,
         disabled && styles.optionRowDisabled,
         pressed && !disabled && styles.pressed,
       ]}
     >
-      {Platform.OS === 'android' ? (
+      {Platform.OS !== 'web' ? (
         <>
           {radio}
           <View style={styles.optionSpacerAndroid} />
@@ -327,7 +325,7 @@ function FieldRow({ label, helper, checked, onPress }: { label: string; helper?:
     </View>
   );
   const fieldLabel = (
-    <AppText align="right" style={[styles.optionLabel, Platform.OS === 'android' && styles.optionLabelAndroid, styles.rtlText]} variant="body">
+    <AppText align="right" style={[styles.optionLabel, Platform.OS !== 'web' && styles.optionLabelAndroid, styles.rtlText]} variant="body">
       {label}
     </AppText>
   );
@@ -339,9 +337,9 @@ function FieldRow({ label, helper, checked, onPress }: { label: string; helper?:
       accessibilityRole="checkbox"
       accessibilityState={{ checked }}
       onPress={onPress}
-      style={({ pressed }) => [styles.optionRow, Platform.OS === 'android' && styles.optionRowAndroid, checked && styles.optionRowSelected, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.optionRow, Platform.OS !== 'web' && styles.optionRowAndroid, checked && styles.optionRowSelected, pressed && styles.pressed]}
     >
-      {Platform.OS === 'android' ? (
+      {Platform.OS !== 'web' ? (
         <>
           {checkbox}
           <View style={styles.optionSpacerAndroid} />
@@ -392,27 +390,27 @@ function PreviewCard({ invoices }: { invoices: InvoiceSummary[] }) {
 
   return (
     <SolidCard style={styles.sectionCard}>
-      <View style={[styles.previewHeader, Platform.OS === 'android' && styles.previewHeaderAndroid]}>
-        {Platform.OS === 'android' ? <Badge label={`${Math.min(invoices.length, 5)} من ${invoices.length}`} /> : null}
+      <View style={[styles.previewHeader, Platform.OS !== 'web' && styles.previewHeaderAndroid]}>
+        {Platform.OS !== 'web' ? <Badge label={`${Math.min(invoices.length, 5)} من ${invoices.length}`} /> : null}
         <AppText align="right" style={styles.previewTitle} variant="sectionTitle">
           معاينة البيانات
         </AppText>
-        {Platform.OS === 'android' ? null : <Badge label={`${Math.min(invoices.length, 5)} من ${invoices.length}`} />}
+        {Platform.OS !== 'web' ? null : <Badge label={`${Math.min(invoices.length, 5)} من ${invoices.length}`} />}
       </View>
       <View style={styles.previewList}>
         {invoices.slice(0, 5).map((invoice) => (
           <View key={invoice.id} style={styles.previewRow}>
-            <View style={[styles.previewTopRow, Platform.OS === 'android' && styles.previewTopRowAndroid]}>
-              {Platform.OS === 'android' ? <InvoiceStatusBadge status={invoice.displayStatus} /> : null}
-              <View style={[styles.previewIdentity, Platform.OS === 'android' && styles.previewIdentityAndroid]}>
-                <AppText align="right" style={[styles.rtlText, Platform.OS === 'android' && styles.previewIdentityTextAndroid]} variant="cardTitle">
+            <View style={[styles.previewTopRow, Platform.OS !== 'web' && styles.previewTopRowAndroid]}>
+              {Platform.OS !== 'web' ? <InvoiceStatusBadge status={invoice.displayStatus} /> : null}
+              <View style={[styles.previewIdentity, Platform.OS !== 'web' && styles.previewIdentityAndroid]}>
+                <AppText align="right" style={[styles.rtlText, Platform.OS !== 'web' && styles.previewIdentityTextAndroid]} variant="cardTitle">
                   {invoice.clientName}
                 </AppText>
-                <AppText align="right" numberOfLines={Platform.OS === 'android' ? 1 : undefined} style={[styles.ltrText, Platform.OS === 'android' && styles.previewIdentityTextAndroid]} tone="secondary" variant="caption">
+                <AppText align="right" numberOfLines={Platform.OS !== 'web' ? 1 : undefined} style={[styles.ltrText, Platform.OS !== 'web' && styles.previewIdentityTextAndroid]} tone="secondary" variant="caption">
                   {directionSafeText(invoice.invoiceNumber)}
                 </AppText>
               </View>
-              {Platform.OS === 'android' ? null : <InvoiceStatusBadge status={invoice.displayStatus} />}
+              {Platform.OS !== 'web' ? null : <InvoiceStatusBadge status={invoice.displayStatus} />}
             </View>
             <View style={styles.previewAmounts}>
               <PreviewAmount label="الإجمالي" value={invoice.total} />
@@ -438,9 +436,9 @@ function PreviewAmount({ label, value }: { label: string; value: number }) {
   );
 
   return (
-    <View style={[styles.previewAmountRow, Platform.OS === 'android' && styles.previewAmountRowAndroid]}>
-      {Platform.OS === 'android' ? valueText : labelText}
-      {Platform.OS === 'android' ? labelText : valueText}
+    <View style={[styles.previewAmountRow, Platform.OS !== 'web' && styles.previewAmountRowAndroid]}>
+      {Platform.OS !== 'web' ? valueText : labelText}
+      {Platform.OS !== 'web' ? labelText : valueText}
     </View>
   );
 }

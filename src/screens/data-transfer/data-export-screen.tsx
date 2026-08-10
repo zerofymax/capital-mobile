@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import { Platform, Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { TimeRangeSelector } from '@/components/financial';
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
 import { useBudgetsStore } from '@/screens/budgets/budgets-store';
 import { useGoalsStore } from '@/screens/goals/goals-store';
@@ -139,22 +140,7 @@ export function DataExportScreen() {
 
         <View style={styles.section}>
           <AppText variant="sectionTitle">الفترة</AppText>
-          <ScrollView contentContainerStyle={styles.periodStrip} horizontal showsHorizontalScrollIndicator={false}>
-            {periodOptions.map((option) => (
-              <Pressable
-                accessibilityLabel={option.label}
-                accessibilityRole="button"
-                accessibilityState={{ selected: period === option.id }}
-                key={option.id}
-                onPress={() => selectPeriod(option.id)}
-                style={({ pressed }) => [styles.periodChip, period === option.id && styles.periodChipActive, pressed && styles.pressed]}
-              >
-                <AppText align="center" tone={period === option.id ? 'success' : 'primary'} variant="caption">
-                  {option.label}
-                </AppText>
-              </Pressable>
-            ))}
-          </ScrollView>
+          <TimeRangeSelector options={periodOptions} selectedValue={period} onSelect={selectPeriod} />
         </View>
 
         <SolidCard style={styles.sectionCard}>
@@ -216,7 +202,7 @@ function Header() {
   return (
     <View style={styles.header}>
       <Pressable accessibilityLabel="رجوع" accessibilityRole="button" hitSlop={8} onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
         <AppText align="right" variant="screenTitle">
@@ -363,6 +349,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
     minHeight: 68,
@@ -446,27 +433,6 @@ const styles = StyleSheet.create({
   checkboxActive: {
     backgroundColor: colors.brand.green,
     borderColor: colors.brand.mediumGreen,
-  },
-  periodStrip: {
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.xs,
-  },
-  periodChip: {
-    alignItems: 'center',
-    backgroundColor: colors.surface.card,
-    borderColor: colors.surface.border,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    minHeight: 40,
-    minWidth: 104,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-  },
-  periodChipActive: {
-    backgroundColor: colors.semantic.successTint,
-    borderColor: 'rgba(79,138,91,0.38)',
   },
   sectionCard: {
     gap: spacing.md,

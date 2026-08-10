@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmationDialog } from '@/components/system';
@@ -81,10 +81,10 @@ export function ActiveSessionsScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <DeviceManagementHeader onBackPress={goBackToSecurity} />
@@ -94,7 +94,7 @@ export function ActiveSessionsScreen() {
         {feedback ? <FeedbackCard message={feedback} /> : null}
 
         <View style={styles.section}>
-          <AppText variant="sectionTitle">الأجهزة النشطة</AppText>
+          <AppText style={styles.sectionTitle} variant="sectionTitle">الأجهزة النشطة</AppText>
           {activeSessions.map((session) => (
             <DeviceSessionCard
               key={session.id}
@@ -109,7 +109,7 @@ export function ActiveSessionsScreen() {
 
         {signedOutSessions.length > 0 ? (
           <View style={styles.section}>
-            <AppText variant="sectionTitle">الجلسات المنتهية</AppText>
+            <AppText style={styles.sectionTitle} variant="sectionTitle">الجلسات المنتهية</AppText>
             {signedOutSessions.map((session) => (
               <DeviceSessionCard
                 key={session.id}
@@ -186,7 +186,7 @@ function DeviceSummaryCard({
         <Ionicons color={colors.brand.calmGreen} name="phone-portrait-outline" size={22} />
       </View>
       <View style={styles.summaryCopy}>
-        <AppText variant="cardTitle">{activeCount} أجهزة نشطة</AppText>
+        <AppText style={styles.summaryTitle} variant="cardTitle">{activeCount} أجهزة نشطة</AppText>
         <SummaryLine label="هذا الجهاز" value={currentDevice?.deviceName ?? 'غير محدد'} ltr />
         <SummaryLine label="آخر نشاط" value={currentDevice?.lastActiveAt ?? 'غير متاح'} />
       </View>
@@ -197,7 +197,7 @@ function DeviceSummaryCard({
 function SummaryLine({ label, value, ltr = false }: { label: string; value: string; ltr?: boolean }) {
   return (
     <View style={styles.summaryLine}>
-      <AppText tone="secondary" variant="caption">
+      <AppText style={styles.summaryLabel} tone="secondary" variant="caption">
         {label}
       </AppText>
       <AppText align={ltr ? 'left' : 'right'} style={[styles.summaryValue, ltr && styles.ltrText]} variant="caption">
@@ -240,10 +240,10 @@ function DeviceSessionCard({
           {session.isCurrentDevice ? <StatusBadge label="هذا الجهاز" tone="success" /> : null}
           <StatusBadge label={signedOut ? 'تم تسجيل الخروج' : 'نشط'} tone={signedOut ? 'neutral' : 'success'} />
         </View>
-        <AppText tone="secondary" variant="caption">
+        <AppText style={styles.deviceMeta} tone="secondary" variant="caption">
           {session.platform} · {session.browserOrApp}
         </AppText>
-        <AppText tone="tertiary" variant="caption">
+        <AppText style={styles.deviceMeta} tone="tertiary" variant="caption">
           {session.location} · {session.lastActiveAt}
         </AppText>
       </View>
@@ -262,7 +262,7 @@ function DeviceDetailsCard({
 
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">تفاصيل الجهاز</AppText>
+      <AppText style={styles.sectionTitle} variant="sectionTitle">تفاصيل الجهاز</AppText>
       <SolidCard style={styles.detailsCard}>
         <InfoRow label="اسم الجهاز" ltr value={session.deviceName} />
         <Divider />
@@ -425,6 +425,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     minWidth: 0,
   },
+  summaryTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
+  },
   summaryLine: {
     width: '100%',
     alignItems: 'center',
@@ -435,10 +441,24 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     flex: 1,
+    minWidth: 0,
+    textAlign: 'left',
+  },
+  summaryLabel: {
+    flexShrink: 0,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   section: {
     alignItems: 'flex-end',
     gap: spacing.md,
+    width: '100%',
+  },
+  sectionTitle: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   deviceCard: {
     alignItems: 'center',
@@ -483,9 +503,16 @@ const styles = StyleSheet.create({
   flexTitle: {
     flex: 1,
     minWidth: 108,
+    textAlign: 'right',
   },
   ltrText: {
     writingDirection: 'ltr',
+  },
+  deviceMeta: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   statusBadge: {
     borderRadius: radii.pill,

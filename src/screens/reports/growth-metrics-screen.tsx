@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { TimeRangeSelector } from '@/components/financial';
 import { AppText, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { useBusinessInformation } from '@/screens/account/business-information-data';
@@ -31,7 +32,7 @@ import {
 import type { GrowthMetricDefinition, MetricStatus, SaaSPeriod } from './saas-metrics-types';
 
 const metricSections: readonly GrowthMetricDefinition['section'][] = ['revenue', 'customers', 'efficiency'];
-const useAndroidRtlLayout = Platform.OS === 'android';
+const useAndroidRtlLayout = true;
 const androidSystemNavigationClearance = 48;
 
 export function GrowthMetricsScreen() {
@@ -48,7 +49,7 @@ export function GrowthMetricsScreen() {
   );
   const summary = useMemo(() => getOperationalGrowthSummary(sourceData, period), [period, sourceData]);
   const metrics = useMemo(() => getSaaSMetrics(period, sourceData), [period, sourceData]);
-  const bottomPadding = useAndroidRtlLayout
+  const bottomPadding = Platform.OS === 'android'
     ? insets.bottom + androidSystemNavigationClearance + spacing.xxl
     : Math.max(insets.bottom, spacing.sm) + spacing.xxxl;
   const collectionStatus = getCollectionStatusLabel(summary.invoices);
@@ -72,26 +73,7 @@ export function GrowthMetricsScreen() {
           title="مؤشرات النمو"
         />
 
-        <View style={styles.periodRow}>
-          {saasPeriods.map((item) => {
-            const selected = item.id === period;
-
-            return (
-              <Pressable
-                accessibilityLabel={item.label}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                key={item.id}
-                onPress={() => setPeriod(item.id)}
-                style={({ pressed }) => [styles.periodChip, selected && styles.periodChipActive, pressed && styles.pressed]}
-              >
-                <AppText align="center" style={selected && styles.periodChipTextActive} variant="caption">
-                  {item.label}
-                </AppText>
-              </Pressable>
-            );
-          })}
-        </View>
+        <TimeRangeSelector options={saasPeriods} selectedValue={period} onSelect={setPeriod} />
 
         <SolidCard style={styles.heroCard}>
           <View style={[styles.heroHeader, useAndroidRtlLayout && styles.heroHeaderAndroid]}>
@@ -113,7 +95,14 @@ export function GrowthMetricsScreen() {
               <AppText align="right" style={styles.rtlText} tone="secondary" variant="caption">
                 دخل الفترة
               </AppText>
-              <AppText align="right" style={styles.mrrValue} variant="screenTitle">
+              <AppText
+                adjustsFontSizeToFit
+                align="right"
+                minimumFontScale={0.65}
+                numberOfLines={1}
+                style={styles.mrrValue}
+                variant="screenTitle"
+              >
                 {directionSafeText(formatMoney(summary.current.income, summary.currencySymbol))}
               </AppText>
             </View>
@@ -240,12 +229,21 @@ function CollectionAmount({
 }
 
 function SummaryStat({ label, value, ltrLabel = false }: { label: string; value: string; ltrLabel?: boolean }) {
+  const numericValue = /\d/.test(value);
+
   return (
     <View style={styles.summaryStat}>
       <AppText align="right" style={[styles.summaryStatLabel, ltrLabel && styles.ltrLabel]} tone="secondary" variant="caption">
         {label}
       </AppText>
-      <AppText align="right" style={styles.summaryStatValue} variant="cardTitle">
+      <AppText
+        adjustsFontSizeToFit
+        align="right"
+        minimumFontScale={0.7}
+        numberOfLines={1}
+        style={[styles.summaryStatValue, numericValue ? styles.ltrSummaryStatValue : styles.rtlSummaryStatValue]}
+        variant="cardTitle"
+      >
         {directionSafeText(value)}
       </AppText>
     </View>
@@ -297,7 +295,10 @@ function MetricCard({ metric, period }: { metric: GrowthMetricDefinition; period
       </View>
       <View style={[styles.metricBottom, useAndroidRtlLayout && styles.metricBottomAndroid]}>
         <AppText
+          adjustsFontSizeToFit
           align="right"
+          minimumFontScale={0.65}
+          numberOfLines={1}
           style={[styles.metricValue, metric.rawValue === null ? styles.rtlMetricValue : styles.ltrMetricValue]}
           variant="cardTitle"
         >
@@ -333,7 +334,7 @@ function MetricCardCopy({
       <View style={[styles.metricTitleRow, useAndroidRtlLayout && styles.metricTitleRowAndroid]}>
         <AppText
           align="right"
-          numberOfLines={1}
+          numberOfLines={2}
           style={styles.metricTitle}
           variant="cardTitle"
         >
@@ -397,31 +398,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screenX,
     paddingTop: spacing.sm,
   },
-  periodRow: {
-    direction: 'rtl',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  periodChip: {
-    alignItems: 'center',
-    backgroundColor: colors.surface.card,
-    borderColor: colors.surface.border,
-    borderRadius: radii.pill,
-    borderWidth: 1,
-    flexBasis: '47%',
-    flexGrow: 1,
-    minHeight: 38,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.sm,
-  },
-  periodChipActive: {
-    backgroundColor: colors.brand.mediumGreen,
-    borderColor: colors.brand.mediumGreen,
-  },
-  periodChipTextActive: {
-    color: colors.text.primary,
-  },
   heroCard: {
     gap: spacing.lg,
   },
@@ -469,7 +445,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   mrrValue: {
+    flexShrink: 1,
     fontSize: 31,
+    lineHeight: 40,
+    minWidth: 0,
     textAlign: 'right',
     width: '100%',
     writingDirection: 'ltr',
@@ -515,8 +494,15 @@ const styles = StyleSheet.create({
   },
   summaryStatValue: {
     fontSize: 16,
+    lineHeight: 22,
+    minWidth: 0,
     textAlign: 'right',
     width: '100%',
+  },
+  ltrSummaryStatValue: {
+    writingDirection: 'ltr',
+  },
+  rtlSummaryStatValue: {
     writingDirection: 'rtl',
   },
   ltrLabel: {
@@ -684,6 +670,7 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   metricTitle: {
+    flex: 1,
     flexShrink: 1,
     minWidth: 0,
     textAlign: 'right',
@@ -710,6 +697,8 @@ const styles = StyleSheet.create({
   metricValue: {
     flex: 1,
     fontSize: 20,
+    lineHeight: 28,
+    minWidth: 0,
     textAlign: 'right',
   },
   ltrMetricValue: {

@@ -261,9 +261,10 @@ export function QuickAccessCodeScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
+        contentInsetAdjustmentBehavior="never"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -703,6 +704,7 @@ const styles = StyleSheet.create({
   },
   formTitle: {
     flex: 1,
+    minWidth: 0,
     textAlign: 'right',
     writingDirection: 'rtl',
   },
@@ -712,6 +714,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.border,
     borderRadius: radii.pill,
     borderWidth: 1,
+    flexShrink: 0,
     flexDirection: 'row-reverse',
     gap: spacing.xs,
     minHeight: 34,
@@ -721,11 +724,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: Platform.select({ ios: spacing.md, default: spacing.sm }),
     position: 'relative',
+    width: '100%',
   },
   pinDisplayRow: {
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.sm,
+    width: '100%',
   },
   pinBox: {
     alignItems: 'center',
@@ -736,6 +741,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     justifyContent: 'center',
+    minWidth: 0,
   },
   pinBoxFilled: {
     borderColor: 'rgba(167,200,161,0.34)',
@@ -770,6 +776,7 @@ const styles = StyleSheet.create({
     width: 1,
   },
   rules: {
+    direction: 'ltr',
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,

@@ -3,15 +3,17 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { BackHandler, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SubscriptionSectionHeading } from '@/components/account';
 import { ConfirmationDialog, SuccessState } from '@/components/system';
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
 import { routes } from '@/constants/routes';
 import { colors } from '@/theme/colors';
 import { radii } from '@/theme/radii';
 import { spacing } from '@/theme/spacing';
+import { directionSafeText } from '@/utils/rtl';
 
 type UpgradeBillingCycle = 'monthly' | 'annual';
 type UpgradePlanId = 'business';
@@ -210,7 +212,7 @@ export function ConfirmUpgradeScreen() {
             styles.successContent,
             {
               paddingBottom: Math.max(insets.bottom + spacing.xl, spacing.screenBottom),
-              paddingTop: Math.max(insets.top, spacing.safeTop),
+              paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
             },
           ]}
         >
@@ -248,10 +250,10 @@ export function ConfirmUpgradeScreen() {
           styles.content,
           {
             paddingBottom: Math.max(insets.bottom + spacing.xxxl, spacing.screenBottom),
-            paddingTop: Math.max(insets.top, spacing.safeTop),
+            paddingTop: Platform.OS === 'ios' ? spacing.sm : Math.max(insets.top, spacing.safeTop),
           },
         ]}
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         showsVerticalScrollIndicator={false}
       >
         <ConfirmUpgradeHeader onBackPress={requestLeave} />
@@ -338,7 +340,7 @@ function ConfirmUpgradeHeader({ onBackPress }: { onBackPress: () => void }) {
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
         <AppText align="right" numberOfLines={1} variant="screenTitle">
@@ -408,7 +410,7 @@ function BillingCycleSection({
 }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">دورة الفوترة</AppText>
+      <SubscriptionSectionHeading>دورة الفوترة</SubscriptionSectionHeading>
       <SolidCard style={styles.selectableCard}>
         <BillingCycleRow
           badge={`وفّر ${businessPlan.annualSavings} ${businessPlan.currency}`}
@@ -464,8 +466,8 @@ function BillingCycleRow({
             </View>
           ) : null}
         </View>
-        <AppText align="left" style={styles.ltrText} variant="supporting">
-          {price}
+        <AppText align="right" style={styles.mixedPrice} variant="supporting">
+          {directionSafeText(price)}
         </AppText>
         {supporting ? (
           <AppText tone="tertiary" variant="caption">
@@ -499,7 +501,7 @@ function CostBreakdownCard({ billingCycle }: { billingCycle: UpgradeBillingCycle
 
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">ملخص التكلفة</AppText>
+      <SubscriptionSectionHeading>ملخص التكلفة</SubscriptionSectionHeading>
       <SolidCard style={styles.rowsCard}>
         {rows.map((row, index) => (
           <View key={row.label}>
@@ -537,7 +539,7 @@ function ProrationNotice() {
 function PaymentMethodCard({ onPress }: { onPress: () => void }) {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">وسيلة الدفع</AppText>
+      <SubscriptionSectionHeading>وسيلة الدفع</SubscriptionSectionHeading>
       <SolidCard style={styles.paymentCard}>
         <View style={styles.paymentHeader}>
           <View style={styles.paymentIcon}>
@@ -576,7 +578,7 @@ function PaymentMethodCard({ onPress }: { onPress: () => void }) {
 function FeaturePreviewCard() {
   return (
     <View style={styles.section}>
-      <AppText variant="sectionTitle">ما الذي ستحصل عليه؟</AppText>
+      <SubscriptionSectionHeading>ما الذي ستحصل عليه؟</SubscriptionSectionHeading>
       <SolidCard style={styles.featuresCard}>
         {businessFeatures.map((feature, index) => (
           <View key={feature}>
@@ -684,6 +686,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 54,
@@ -790,6 +793,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
     gap: spacing.sm,
+  },
+  mixedPrice: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   savingsBadge: {
     backgroundColor: 'rgba(167,200,161,0.12)',

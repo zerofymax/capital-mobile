@@ -227,6 +227,7 @@ export function RecurringExpenseDetailsScreen() {
       <ConfirmationDialog
         confirmLabel="حذف المصروف"
         description="سيتم حذف المصروف وسجل دفعاته من النسخة التجريبية الحالية، ولا يمكن التراجع."
+        forceRtlContent
         onCancel={() => setConfirmDelete(false)}
         onConfirm={handleDelete}
         title="حذف المصروف؟"
@@ -248,12 +249,12 @@ function ModalHeader({ title }: { title: string }) {
       >
         <Ionicons
           color={colors.text.primary}
-          name={Platform.OS === 'android' ? 'chevron-back-outline' : 'chevron-forward-outline'}
+          name="chevron-back-outline"
           size={21}
         />
       </Pressable>
       <View style={styles.headerTitleContainer}>
-        <AppText align={Platform.OS === 'android' ? 'right' : 'center'} style={styles.headerTitle} variant="screenTitle">
+        <AppText align="right" style={styles.headerTitle} variant="screenTitle">
           {title}
         </AppText>
       </View>
@@ -301,15 +302,15 @@ function PaymentRow({ payment }: { payment: RecurringPaymentRecord }) {
       <View style={styles.paymentIcon}>
         <Ionicons color={colors.brand.calmGreen} name="checkmark-outline" size={16} />
       </View>
-      <View style={styles.paymentCopy}>
-        <AppText variant="caption">{formatPaymentMethodLabel(payment.method)}</AppText>
-        <AppText tone="secondary" variant="caption">
-          {formatDisplayDate(payment.date)}
-        </AppText>
-      </View>
       <AppText align="left" style={styles.paymentAmount} variant="caption">
         {directionSafeText(formatSar(payment.amount))}
       </AppText>
+      <View style={styles.paymentCopy}>
+        <AppText style={styles.paymentText} variant="caption">{formatPaymentMethodLabel(payment.method)}</AppText>
+        <AppText style={styles.paymentText} tone="secondary" variant="caption">
+          {formatDisplayDate(payment.date)}
+        </AppText>
+      </View>
     </View>
   );
 }
@@ -518,8 +519,9 @@ const styles = StyleSheet.create({
   },
   headerTitleContainer: {
     alignItems: 'flex-end',
-    direction: 'rtl',
+    alignSelf: 'stretch',
     flex: 1,
+    justifyContent: 'flex-start',
     minWidth: 0,
   },
   headerTitle: {
@@ -540,6 +542,7 @@ const styles = StyleSheet.create({
     direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
+    width: '100%',
   },
   heroIcon: {
     alignItems: 'center',
@@ -554,8 +557,9 @@ const styles = StyleSheet.create({
   },
   heroCopy: {
     alignItems: 'flex-end',
-    direction: 'rtl',
+    alignSelf: 'stretch',
     flex: 1,
+    justifyContent: 'center',
     gap: spacing.xs,
     minWidth: 0,
   },
@@ -684,7 +688,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopColor: colors.surface.separator,
     borderTopWidth: 1,
-    flexDirection: 'row-reverse',
+    direction: 'ltr',
+    flexDirection: 'row',
     gap: spacing.sm,
     paddingTop: spacing.sm,
   },
@@ -697,8 +702,16 @@ const styles = StyleSheet.create({
     width: 30,
   },
   paymentCopy: {
+    alignItems: 'flex-end',
     flex: 1,
     gap: spacing.xxs,
+    minWidth: 0,
+  },
+  paymentText: {
+    alignSelf: 'stretch',
+    textAlign: 'right',
+    width: '100%',
+    writingDirection: 'rtl',
   },
   paymentAmount: {
     color: colors.brand.calmGreen,

@@ -36,7 +36,9 @@ export function SettingsSection({ section, onRowPress }: SettingsSectionProps) {
 
 const styles = StyleSheet.create({
   root: {
+    alignSelf: 'stretch',
     gap: 11,
+    width: '100%',
   },
   sectionTitleWrap: {
     alignItems: 'flex-end',
@@ -53,8 +55,10 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   card: {
+    alignSelf: 'stretch',
     borderRadius: 20,
     borderWidth: 1,
     overflow: 'hidden',
+    width: '100%',
   },
 });

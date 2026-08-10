@@ -1,7 +1,7 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppText, Divider, SolidCard } from '@/components/ui';
@@ -23,13 +23,9 @@ import {
   type FinancialAccount,
 } from './financial-accounts-data';
 
-const androidPhysicalLtrRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row' as const }
-  : {};
-const androidPhysicalRtlRow = Platform.OS === 'android'
-  ? { direction: 'ltr' as const, flexDirection: 'row-reverse' as const }
-  : {};
-const androidHeaderSlot = Platform.OS === 'android' ? { width: 0 } : {};
+const androidPhysicalLtrRow: ViewStyle = { direction: 'ltr', flexDirection: 'row' };
+const androidPhysicalRtlRow: ViewStyle = { direction: 'ltr', flexDirection: 'row-reverse' };
+const androidHeaderSlot: ViewStyle = { width: 0 };
 
 export function FinancialAccountDetailsScreen() {
   const insets = useSafeAreaInsets();
@@ -162,11 +158,7 @@ function Header({ title, onBackPress }: { title: string; onBackPress: () => void
         onPress={onBackPress}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        {Platform.OS === 'android' ? (
-          <Feather color={colors.text.muted} name="chevron-left" size={22} />
-        ) : (
-          <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
-        )}
+        <Feather color={colors.text.muted} name="chevron-left" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
         <AppText numberOfLines={1} style={styles.headerTitle} variant="screenTitle">
@@ -317,11 +309,11 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   heroBalance: {
-    alignItems: Platform.OS === 'android' ? 'flex-end' : undefined,
+    alignItems: 'flex-end',
     gap: spacing.xs,
   },
   amountText: {
-    textAlign: Platform.OS === 'android' ? 'right' : 'left',
+    textAlign: 'right',
     writingDirection: 'ltr',
   },
   badgeRow: {

@@ -43,7 +43,8 @@ export function ReportTypeRow({ report, isLast = false, onPress }: ReportTypeRow
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    flexDirection: 'row',
+    direction: 'ltr',
+    flexDirection: 'row-reverse',
     gap: spacing.md,
     minHeight: 78,
     paddingHorizontal: spacing.md,

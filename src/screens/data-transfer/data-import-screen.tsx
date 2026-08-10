@@ -408,7 +408,7 @@ function Header() {
   return (
     <View style={styles.header}>
       <Pressable accessibilityLabel="رجوع" accessibilityRole="button" hitSlop={8} onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons color={colors.text.muted} name="chevron-forward-outline" size={22} />
+        <Ionicons color={colors.text.muted} name="chevron-back-outline" size={22} />
       </Pressable>
       <View style={styles.headerCopy}>
         <AppText align="right" variant="screenTitle">
@@ -708,6 +708,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
+    direction: 'ltr',
     flexDirection: 'row',
     gap: spacing.md,
     minHeight: 68,

@@ -61,7 +61,9 @@ export function FinancialSetupProgressHeader({
 
 const styles = StyleSheet.create({
   root: {
+    alignSelf: 'stretch',
     gap: spacing.md,
+    width: '100%',
   },
   topRow: {
     alignItems: 'center',
@@ -69,6 +71,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.md,
     justifyContent: 'flex-start',
+    width: '100%',
   },
   backButton: {
     alignItems: 'center',
